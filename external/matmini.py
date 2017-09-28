@@ -231,9 +231,9 @@ def minify_file(filename, valid_chars, stages, length):
         m = minify(f.readlines(), valid_chars, stages, length)
         # name of the file is its first function
         funcname = m[m.find('function')+9:m.find(',')].strip()
-        if not funcname:
+        #if not funcname:
             # couldn't figure out the name for the file
-            funcname = filename.rstrip('.m') + '.min'
+        funcname = filename.rstrip('.m')
         out = os.path.join('minified', funcname+'.m')
         if not os.path.exists('minified'):
             os.makedirs('minified')

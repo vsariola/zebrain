@@ -1,3 +1,4 @@
+*.p
 /**/.ignore
 *.asv
 ~*
@@ -5,4 +6,5 @@
 temp
 **/output/*
 **/LOCAL_APPDATA_FONTCONFIG_CACHE/*
+**/minified/*
 
