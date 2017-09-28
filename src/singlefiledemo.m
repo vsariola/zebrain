@@ -1,4 +1,8 @@
 function s    
+    N={'units','normalized','position',[0 0 1 1]};
+    figure(N{:});
+    axes(N{:});
+
     sD = {{[2,192,128,0,2,192,128,3,0,0,32,222,60,0,0,2,188,3,1,3,55,241,60,67,53,5,75,5] , [1,2,3,4,3,4] , {{123,0},{118,0},{[123 111],0},{[118 106],0}}},{[3,100,128,0,3,201,128,7,0,0,17,43,109,0,0,3,113,4,1,1,23,184,2,29,147,6,67,3] , [0,0,1,2,1,2] , { ...
             {[123,0,0,0,0,0,0,0,123,0,0,0,0,0,0,0,123,0,0,0,0,0,0,0,123,0,0,0,0,0,0,0,126,0,0,0,0,0,0,0,126,0,0,0,0,0,0,0,126,0,0,0,0,0,0,0,126,0,0,0,0,0,0,0,130,0,0,0,0,0,0,0,130,0,0,0,0,0,0,0,130,0,0,0,0,0,0,0,130],[]},...
             {[122,0,0,0,0,0,0,0,122,0,0,0,0,0,0,0,122,0,0,0,0,0,0,0,122,0,0,0,0,0,0,0,125,0,0,0,0,0,0,0,125,0,0,0,0,0,0,0,125,0,0,0,0,0,0,0,125,0,0,0,0,0,0,0,130,0,0,0,0,0,0,0,130,0,0,0,0,0,0,0,130,0,0,0,0,0,0,0,130],[]}...
@@ -15,7 +19,16 @@ function s
     
     w = reshape(s/32768,2,length(s)/2)';
     a = audioplayer(w,44100);
-    playblocking(a);
+    play(a);
+    
+    l=-9:.1:9;[x,y]=ndgrid(l);
+    while isplaying(a)
+        a.CurrentSample        
+        h=x+x'*j;
+        for F=0:4;for K=0:3;F=F+1./(h-exp(j*(K+a.CurrentSample/100000)));end;h=h-3./F;end;
+        image(abs(F));
+        drawnow;
+    end
     
     function mMixBuf = player
 
@@ -98,17 +111,17 @@ function s
                         % Copy note from the note cache
                         noteBuf = noteCache{n+1};
                         i = rowStartSample * 2+1;
-                        for j = 1:length(noteBuf)
-                            chnBuf(i) = chnBuf(i)+noteBuf(j);
+                        for jt = 1:length(noteBuf)
+                            chnBuf(i) = chnBuf(i)+noteBuf(jt);
                             i = i + 2;
                         end
                     end
                 end
 
                 % Perform effects for this pattern row
-                for j = 0:(rowLen-1)
+                for jt = 0:(rowLen-1)
                     % Dry mono-sample
-                    k = (rowStartSample + j) * 2;
+                    k = (rowStartSample + jt) * 2;
                     rsample = chnBuf(k+1);
 
                     % We only do effects if we have some sound input
