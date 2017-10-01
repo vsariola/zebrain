@@ -28,6 +28,7 @@ function mMixBuf = player(song)
         low = 0;
         band = 0;        
         filterActive = 0;
+        lastSample = 0;
 
         % Clear note cache.
         noteCache = {};
@@ -79,69 +80,72 @@ function mMixBuf = player(song)
 
                         % Copy note from the note cache
                         noteBuf = noteCache{n+1};   
+                        endSample = (rowStartSample+uint32(length(noteBuf)))*2-1;
                         range = rowStartSample*2+1:2:(rowStartSample+uint32(length(noteBuf)))*2-1;
                         chnBuf(range) = chnBuf(range)+noteBuf;
+                        lastSample = max(lastSample,endSample);
                         %for j = 1:length(noteBuf)
                         %    chnBuf(rowStartSample*2+j*2-1) = chnBuf(...)+noteBuf(j);
                         %end
                     end
                 end
-
-                
+                                                
                 
                 % Perform effects for this pattern row
                 for k = rowStartSample * 2:2:(rowStartSample + rowLen-1) * 2
 
                     % We only do effects if we have some sound input
-                    if filterActive || chnBuf(k+1) > 0
-                        % Dry mono-sample                        
-                        rsample = chnBuf(k+1);                    
-                        % State variable filter
-                        f = fxFreq;
-                        if fxLFO
-                            f = f * (oscLFO(lfoFreq * double(k)) * lfoAmt + 0.5);
+                    if ~filterActive && ~chnBuf(k+1)
+                        if k > lastSample
+                            break;
                         end
-                        f = 1.5 * sin(f);
-                        low = low + f * band;
-                        high = q * (rsample - band) - low;
-                        band = band + f * high;
-                        if fxFilter == 3
-                            rsample = band;
-                        elseif fxFilter == 1 
-                            rsample = high;
-                        else
-                            rsample = low;
-                        end
-
-                        % Distortion
-                        if dist>0
-                            rsample = rsample * dist;
-                            if rsample < 1
-                                if rsample > -1
-                                    rsample = osc_sin(rsample*.25);
-                                else
-                                    rsample = -1;
-                                end
-                            else
-                                rsample = 1;
-                            end                                    
-                            rsample = rsample / dist;
-                        end
-
-                        % Drive
-                        rsample = rsample * drive;
-
-                        % Is the filter active (i.e. still audiable)?
-                        filterActive = rsample * rsample > 1e-5;
-
-                        % Panning
-                        t = sin(panFreq * double(k)) * panAmt + 0.5;
-                        lsample = rsample * (1 - t);
-                        rsample = rsample * t;
-                        
-                        chnBuf(k+1) = lsample;
-                        chnBuf(k+2) = rsample;                        
+                        continue;
                     end
+                        
+                    % Dry mono-sample                        
+                    tmpsample = chnBuf(k+1);                    
+                    % State variable filter
+                    f = fxFreq;
+                    if fxLFO
+                        f = f * (oscLFO(lfoFreq * double(k)) * lfoAmt + 0.5);
+                    end
+                    f = 1.5 * sin(f);
+                    low = low + f * band;
+                    high = q * (tmpsample - band) - low;
+                    band = band + f * high;
+                    if fxFilter == 3
+                        tmpsample = band;
+                    elseif fxFilter == 1 
+                        tmpsample = high;
+                    else
+                        tmpsample = low;
+                    end
+
+                    % Distortion
+                    if dist>0
+                        tmpsample = tmpsample * dist;
+                        if tmpsample < 1
+                            if tmpsample > -1
+                                tmpsample = osc_sin(tmpsample*.25);
+                            else
+                                tmpsample = -1;
+                            end
+                        else
+                            tmpsample = 1;
+                        end                                    
+                        tmpsample = tmpsample / dist;
+                    end
+
+                    % Drive
+                    tmpsample = tmpsample * drive;
+
+                    % Is the filter active (i.e. still audiable)?
+                    filterActive = tmpsample * tmpsample > 1e-5;
+
+                    % Panning
+                    t = sin(panFreq * double(k)) * panAmt + 0.5;
+                    chnBuf(k+1) = tmpsample * (1 - t);
+                    chnBuf(k+2) = tmpsample * t;                      
                 end
                 
                 start = rowStartSample * 2;
