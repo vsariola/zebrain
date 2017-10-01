@@ -16,9 +16,8 @@ function mMixBuf = player(song)
     % Create work buffer (initially cleared)
     mMixBuf = zeros(1,mNumWords);
 
-    for mCurrentCol = (length(song.songData)-1):-1:0
+    for mCurrentCol = 0:length(song.songData)-1
         mCurrentCol
-        
         % Put performance critical items in local variables
         chnBuf = zeros(1,mNumWords);
         instr = song.songData{mCurrentCol+1};
@@ -34,7 +33,7 @@ function mMixBuf = player(song)
         noteCache = {};
 
         % Patterns
-        for p = 0:mLastRow-1
+        for p = 0:mLastRow
             cp = indexArray(instr{2},p+1);            
            
             
@@ -79,7 +78,7 @@ function mMixBuf = player(song)
                         end
 
                         % Copy note from the note cache
-                        noteBuf = noteCache{n+1};
+                        noteBuf = noteCache{n+1};   
                         range = rowStartSample*2+1:2:(rowStartSample+uint32(length(noteBuf)))*2-1;
                         chnBuf(range) = chnBuf(range)+noteBuf;
                         %for j = 1:length(noteBuf)
@@ -88,14 +87,15 @@ function mMixBuf = player(song)
                     end
                 end
 
+                
+                
                 % Perform effects for this pattern row
-                for j = 0:(rowLen-1)
-                    % Dry mono-sample
-                    k = (rowStartSample + j) * 2;
-                    rsample = chnBuf(k+1);
-                    
+                for k = rowStartSample * 2:2:(rowStartSample + rowLen-1) * 2
+
                     % We only do effects if we have some sound input
-                    if rsample || filterActive
+                    if filterActive || chnBuf(k+1) > 0
+                        % Dry mono-sample                        
+                        rsample = chnBuf(k+1);                    
                         % State variable filter
                         f = fxFreq;
                         if fxLFO
@@ -138,29 +138,24 @@ function mMixBuf = player(song)
                         t = sin(panFreq * double(k)) * panAmt + 0.5;
                         lsample = rsample * (1 - t);
                         rsample = rsample * t;
-                    else
-                        lsample = 0;
+                        
+                        chnBuf(k+1) = lsample;
+                        chnBuf(k+2) = rsample;                        
                     end
-
-                    % Delay is always done, since it does not need sound input
-                    if k >= dly
-                        % Left channel = left + right[-p] * t
-                        lsample = lsample+chnBuf(k-dly+2) * dlyAmt;
-
-                        % Right channel = right + left[-p] * t
-                        rsample = rsample+chnBuf(k-dly+1) * dlyAmt;
-                    end
-
-                    %  Store in stereo channel buffer (needed for the delay effect)
-                    chnBuf(k+1) = floor(lsample);
-                    chnBuf(k+2) = floor(rsample);
-
-                    % ...and add to stereo mix buffer
-                    mMixBuf(k+1) = mMixBuf(k+1)+floor(lsample);
-                    mMixBuf(k+2) = mMixBuf(k+2)+floor(rsample);
+                end
+                
+                start = rowStartSample * 2;
+                if (start < dly)
+                    start = dly + mod(dly,2);
+                end
+                for k = start:2:(rowStartSample + rowLen-1) * 2
+                    chnBuf(k+1)=floor(chnBuf(k+1)+chnBuf(k-dly+2) * dlyAmt);
+                    chnBuf(k+2)=floor(chnBuf(k+2)+chnBuf(k-dly+1) * dlyAmt);
                 end
             end
-        end        
+        end    
+        
+        mMixBuf = mMixBuf + chnBuf;
     end
     
     function r=indexCell(a,n)

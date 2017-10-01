@@ -4,6 +4,7 @@
 ~*
 *.mex*
 temp
+**/old/*
 **/output/*
 **/LOCAL_APPDATA_FONTCONFIG_CACHE/*
 **/minified/*
