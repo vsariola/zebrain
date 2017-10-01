@@ -17,4 +17,6 @@ song.rowLen=6615;
 song.patternLen=32;
 song.endPattern=8;
 
+tic;
 s = player(song);
+toc;

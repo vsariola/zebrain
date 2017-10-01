@@ -16,7 +16,9 @@ function mMixBuf = player(song)
     % Create work buffer (initially cleared)
     mMixBuf = zeros(1,mNumWords);
 
-    for mCurrentCol = 0:3
+    for mCurrentCol = (length(song.songData)-1):-1:0
+        mCurrentCol
+        
         % Put performance critical items in local variables
         chnBuf = zeros(1,mNumWords);
         instr = song.songData{mCurrentCol+1};
@@ -66,7 +68,7 @@ function mMixBuf = player(song)
                 dly = instr{1}(28) * rowLen;
 
                 % Calculate start sample number for this row in the pattern
-                rowStartSample = (p * patternLen + row) * rowLen;
+                rowStartSample = (p * uint32(patternLen) + uint32(row)) * uint32(rowLen);
 
                 % Generate notes for this pattern row
                 for col=0:3
@@ -78,11 +80,11 @@ function mMixBuf = player(song)
 
                         % Copy note from the note cache
                         noteBuf = noteCache{n+1};
-                        i = rowStartSample * 2+1;
-                        for j = 1:length(noteBuf)
-                            chnBuf(i) = chnBuf(i)+noteBuf(j);
-                            i = i + 2;
-                        end
+                        range = rowStartSample*2+1:2:(rowStartSample+uint32(length(noteBuf)))*2-1;
+                        chnBuf(range) = chnBuf(range)+noteBuf;
+                        %for j = 1:length(noteBuf)
+                        %    chnBuf(rowStartSample*2+j*2-1) = chnBuf(...)+noteBuf(j);
+                        %end
                     end
                 end
 
@@ -91,13 +93,13 @@ function mMixBuf = player(song)
                     % Dry mono-sample
                     k = (rowStartSample + j) * 2;
                     rsample = chnBuf(k+1);
-
+                    
                     % We only do effects if we have some sound input
                     if rsample || filterActive
                         % State variable filter
                         f = fxFreq;
                         if fxLFO
-                            f = f * (oscLFO(lfoFreq * k) * lfoAmt + 0.5);
+                            f = f * (oscLFO(lfoFreq * double(k)) * lfoAmt + 0.5);
                         end
                         f = 1.5 * sin(f);
                         low = low + f * band;
@@ -133,7 +135,7 @@ function mMixBuf = player(song)
                         filterActive = rsample * rsample > 1e-5;
 
                         % Panning
-                        t = sin(panFreq * k) * panAmt + 0.5;
+                        t = sin(panFreq * double(k)) * panAmt + 0.5;
                         lsample = rsample * (1 - t);
                         rsample = rsample * t;
                     else
@@ -154,8 +156,8 @@ function mMixBuf = player(song)
                     chnBuf(k+2) = floor(rsample);
 
                     % ...and add to stereo mix buffer
-                    mMixBuf(k+1) = floor(mMixBuf(k+1)+lsample);
-                    mMixBuf(k+2) = floor(mMixBuf(k+2)+rsample);
+                    mMixBuf(k+1) = mMixBuf(k+1)+floor(lsample);
+                    mMixBuf(k+2) = mMixBuf(k+2)+floor(rsample);
                 end
             end
         end        
@@ -233,7 +235,7 @@ function mMixBuf = player(song)
             sample = sample + osc2(c2) * o2vol;
 
             % Noise oscillator
-            if noiseVol
+            if noiseVol>0
                 sample = sample + (2 * rand - 1) * noiseVol;
             end
 
