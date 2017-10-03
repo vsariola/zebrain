@@ -1,3 +1,28 @@
+% This is a MATLAB port of the SoundBox player-small.js
+% from https://github.com/mbitsnbites/soundbox/
+% Ported by: Veikko Sariola, 2017
+%
+% Original copyright: (c) 2011-2013 Marcus Geelnard
+%
+% This software is provided 'as-is', without any express or implied
+% warranty. In no event will the authors be held liable for any damages
+% arising from the use of this software.
+%
+% Permission is granted to anyone to use this software for any purpose,
+% including commercial applications, and to alter it and redistribute it
+% freely, subject to the following restrictions:
+%
+% 1. The origin of this software must not be misrepresented; you must not
+%    claim that you wrote the original software. If you use this software
+%    in a product, an acknowledgment in the product documentation would be
+%    appreciated but is not required.
+%
+% 2. Altered source versions must be plainly marked as such, and must not be
+%    misrepresented as being the original software.
+%
+% 3. This notice may not be removed or altered from any source
+%    distribution.
+
 function mMixBuf = player(song)
 
     osc_sin = @(x) sin(x* 6.283184);
@@ -16,8 +41,7 @@ function mMixBuf = player(song)
     % Create work buffer (initially cleared)
     mMixBuf = zeros(1,mNumWords);
 
-    for mCurrentCol = 0:length(song.songData)-1
-        mCurrentCol
+    for mCurrentCol = 0:length(song.songData)-1        
         % Put performance critical items in local variables
         chnBuf = zeros(1,mNumWords);
         instr = song.songData{mCurrentCol+1};
@@ -164,14 +188,14 @@ function mMixBuf = player(song)
     
     function r=indexCell(a,n)
         r = [];
-        if ~isempty(a) && n > 0 && length(a) >= n
+        if ~isempty(a) && ~isempty(n) && n > 0 && length(a) >= n
             r=a{n};
         end
     end
 
     function r=indexArray(a,n)
         r = [];
-        if ~isempty(a) && n > 0 && length(a) >= n
+        if ~isempty(a) && ~isempty(n) && n > 0 && length(a) >= n
             r=a(n);
         end
     end

@@ -1,5 +1,28 @@
+% This is a MATLAB port of the code to load SoundBox binaries
+% from https://github.com/mbitsnbites/soundbox/
+% Ported by: Veikko Sariola, 2017
+%
+% Original copyright: (c) 2011-2014 Marcus Geelnard
+%
+% The original file is part of SoundBox.
+%
+% SoundBox is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% SoundBox is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with SoundBox.  If not, see <http://www.gnu.org/licenses/>.
+%
+%/
+
 function song = loadSoundBoxBin(data)
-% Instrument property indices
+    % Instrument property indices
     OSC1_WAVEFORM = 0;
     OSC1_VOL = 1;
     OSC1_SEMI = 2;
@@ -36,10 +59,8 @@ function song = loadSoundBoxBin(data)
     FX_DELAY_TIME = 27;
     
     MAX_INSTR_INDEX = FX_DELAY_TIME;
-   
-    MAX_SONG_ROWS = 500;
-    MAX_PATTERNS = 36;
-    MAX_CHANNELS = 16;
+       
+    MAX_PATTERNS = 36;   
 
 
     song = struct;
@@ -51,30 +72,36 @@ function song = loadSoundBoxBin(data)
     version = bin.getUBYTE();
 
     % Check if this is a SoundBox song
-    if (signature ~= 2020557395 || (version < 1 || version > 12))
-        return;
+    if signature ~= 2020557395 || version < 1
+        error('The supplied data does not have correct SoundBox signature or version');
     end
-
-    if version >= 8
-        % Get compression method
-        %  0: none
-        %  1: RLE
-        %  2: DEFLATE
-        compressionMethod = bin.getUBYTE();
-
-        % Unpack song data
-        packedData = bin.getTail();
-        switch compressionMethod
-            case 1
-                error('Unsupported compression method rle_decode (you have to port it yourself if you need it)');
-                %unpackedData = rle_decode(packedData);
-            case 2
-                unpackedData = inflate(packedData);
-            otherwise
-                unpackedData = packedData;
-        end
-        bin = CBinParser(unpackedData);
+    
+    if version < 11
+        error('Importing versions older than 11 is not supported. Use SoundBox to re-export as a newer version');
     end
+    
+    if version > 12
+        error('Currently supports binary versions v11 - v12.');
+    end
+    
+    % Get compression method
+    %  0: none
+    %  1: RLE
+    %  2: DEFLATE
+    compressionMethod = bin.getUBYTE();
+
+    % Unpack song data
+    packedData = bin.getTail();
+    switch compressionMethod
+        case 1
+            error('Unsupported compression method rle_decode (you have to port it yourself if you need it)');
+            %unpackedData = rle_decode(packedData);
+        case 2
+            unpackedData = inflate(packedData);
+        otherwise
+            unpackedData = packedData;
+    end
+    bin = CBinParser(unpackedData);    
 
     % Row length
     song.rowLen = bin.getULONG();
@@ -86,14 +113,10 @@ function song = loadSoundBoxBin(data)
         song.endPattern = bin.getUBYTE() + 2;
     end
 
-    % Number of rows per pattern
-    if (version >= 10)
-        song.patternLen = bin.getUBYTE();
-    else
-        song.patternLen = 32;
-    end
+    % Number of rows per pattern    
+    song.patternLen = bin.getUBYTE();    
 
-    % Number of channels
+    % Number of channels    
     if (version >= 12)
         song.numChannels = bin.getUBYTE();
     else
@@ -106,195 +129,89 @@ function song = loadSoundBoxBin(data)
         instr = cell(1,3);
         instr{1} = zeros(1,MAX_INSTR_INDEX);
 
-        % Oscillator 1
-        if version < 6
-            instr{1}(OSC1_SEMI+1) = bin.getUBYTE();
-            instr{1}(OSC1_XENV+1) = bin.getUBYTE();
-            instr{1}(OSC1_VOL+1) = bin.getUBYTE();
-            instr{1}(OSC1_WAVEFORM+1) = bin.getUBYTE();
-        else
-            instr{1}(OSC1_WAVEFORM+1) = bin.getUBYTE();
-            instr{1}(OSC1_VOL+1) = bin.getUBYTE();
-            instr{1}(OSC1_SEMI+1) = bin.getUBYTE();
-            instr{1}(OSC1_XENV+1) = bin.getUBYTE();
-        end
+        % Oscillator 1        
+        instr{1}(OSC1_WAVEFORM+1) = bin.getUBYTE();
+        instr{1}(OSC1_VOL+1) = bin.getUBYTE();
+        instr{1}(OSC1_SEMI+1) = bin.getUBYTE();
+        instr{1}(OSC1_XENV+1) = bin.getUBYTE();        
 
-        % Oscillator 2
-        if version < 6
-            instr{1}(OSC2_SEMI+1) = bin.getUBYTE();
-            instr{1}(OSC2_DETUNE+1) = bin.getUBYTE();
-            instr{1}(OSC2_XENV+1) = bin.getUBYTE();
-            instr{1}(OSC2_VOL+1) = bin.getUBYTE();
-            instr{1}(OSC2_WAVEFORM+1) = bin.getUBYTE();
-        else
-            instr{1}(OSC2_WAVEFORM+1) = bin.getUBYTE();
-            instr{1}(OSC2_VOL+1) = bin.getUBYTE();
-            instr{1}(OSC2_SEMI+1) = bin.getUBYTE();
-            instr{1}(OSC2_DETUNE+1) = bin.getUBYTE();
-            instr{1}(OSC2_XENV+1) = bin.getUBYTE();
-        end
+        % Oscillator 2        
+        instr{1}(OSC2_WAVEFORM+1) = bin.getUBYTE();
+        instr{1}(OSC2_VOL+1) = bin.getUBYTE();
+        instr{1}(OSC2_SEMI+1) = bin.getUBYTE();
+        instr{1}(OSC2_DETUNE+1) = bin.getUBYTE();
+        instr{1}(OSC2_XENV+1) = bin.getUBYTE();        
 
         % Noise oscillator
         instr{1}(NOISE_VOL+1) = bin.getUBYTE();
 
-        % Envelope
-        if version < 5
-            instr{1}(ENV_ATTACK+1) = Math.round(Math.sqrt(bin.getULONG()) / 2);
-            instr{1}(ENV_SUSTAIN+1) = Math.round(Math.sqrt(bin.getULONG()) / 2);
-            instr{1}(ENV_RELEASE+1) = Math.round(Math.sqrt(bin.getULONG()) / 2);
-        else
-            instr{1}(ENV_ATTACK+1) = bin.getUBYTE();
-            instr{1}(ENV_SUSTAIN+1) = bin.getUBYTE();
-            instr{1}(ENV_RELEASE+1) = bin.getUBYTE();
-        end
+        % Envelope        
+        instr{1}(ENV_ATTACK+1) = bin.getUBYTE();
+        instr{1}(ENV_SUSTAIN+1) = bin.getUBYTE();
+        instr{1}(ENV_RELEASE+1) = bin.getUBYTE();        
 
-        % Arpeggio
-        if version < 11
-            instr{1}(ARP_CHORD+1) = 0;
-            instr{1}(ARP_SPEED+1) = 0;
-        else
-            instr{1}(ARP_CHORD+1) = bin.getUBYTE();
-            instr{1}(ARP_SPEED+1) = bin.getUBYTE();
-        end
+        % Arpeggio        
+        instr{1}(ARP_CHORD+1) = bin.getUBYTE();
+        instr{1}(ARP_SPEED+1) = bin.getUBYTE();
+     
+        % LFO
+        instr{1}(LFO_WAVEFORM+1) = bin.getUBYTE();
+        instr{1}(LFO_AMT+1) = bin.getUBYTE();
+        instr{1}(LFO_FREQ+1) = bin.getUBYTE();
+        instr{1}(LFO_FX_FREQ+1) = bin.getUBYTE();
 
-        if version < 6
-            % Effects
-            instr{1}(FX_FILTER+1) = bin.getUBYTE();
-            if (version < 5)
-                instr{1}(FX_FREQ+1) = Math.round(bin.getUSHORT() / 43.23529);
-            else
-                instr{1}(FX_FREQ+1) = bin.getUBYTE();
-            end
-            instr{1}(FX_RESONANCE+1) = bin.getUBYTE();
-
-            instr{1}(FX_DELAY_TIME+1) = bin.getUBYTE();
-            instr{1}(FX_DELAY_AMT+1) = bin.getUBYTE();
-            instr{1}(FX_PAN_FREQ+1) = bin.getUBYTE();
-            instr{1}(FX_PAN_AMT+1) = bin.getUBYTE();
-            instr{1}(FX_DIST+1) = bin.getUBYTE();
-            instr{1}(FX_DRIVE+1) = bin.getUBYTE();
-
-            % LFO
-            instr{1}(LFO_FX_FREQ+1) = bin.getUBYTE();
-            instr{1}(LFO_FREQ+1) = bin.getUBYTE();
-            instr{1}(LFO_AMT+1) = bin.getUBYTE();
-            instr{1}(LFO_WAVEFORM+1) = bin.getUBYTE();
-        else
-            % LFO
-            instr{1}(LFO_WAVEFORM+1) = bin.getUBYTE();
-            instr{1}(LFO_AMT+1) = bin.getUBYTE();
-            instr{1}(LFO_FREQ+1) = bin.getUBYTE();
-            instr{1}(LFO_FX_FREQ+1) = bin.getUBYTE();
-
-            % Effects
-            instr{1}(FX_FILTER+1) = bin.getUBYTE();
-            instr{1}(FX_FREQ+1) = bin.getUBYTE();
-            instr{1}(FX_RESONANCE+1) = bin.getUBYTE();
-            instr{1}(FX_DIST+1) = bin.getUBYTE();
-            instr{1}(FX_DRIVE+1) = bin.getUBYTE();
-            instr{1}(FX_PAN_AMT+1) = bin.getUBYTE();
-            instr{1}(FX_PAN_FREQ+1) = bin.getUBYTE();
-            instr{1}(FX_DELAY_AMT+1) = bin.getUBYTE();
-            instr{1}(FX_DELAY_TIME+1) = bin.getUBYTE();
-        end
+        % Effects
+        instr{1}(FX_FILTER+1) = bin.getUBYTE();
+        instr{1}(FX_FREQ+1) = bin.getUBYTE();
+        instr{1}(FX_RESONANCE+1) = bin.getUBYTE();
+        instr{1}(FX_DIST+1) = bin.getUBYTE();
+        instr{1}(FX_DRIVE+1) = bin.getUBYTE();
+        instr{1}(FX_PAN_AMT+1) = bin.getUBYTE();
+        instr{1}(FX_PAN_FREQ+1) = bin.getUBYTE();
+        instr{1}(FX_DELAY_AMT+1) = bin.getUBYTE();
+        instr{1}(FX_DELAY_TIME+1) = bin.getUBYTE();
+        
 
         % Patterns
-        if version < 9
-            song_rows = 48;
-        elseif version < 12
+        if version < 12
             song_rows = 128;
         else
             song_rows = song.endPattern + 1;
         end
+        
         instr{2} = [];
         for j=1:song_rows
             instr{2}(j) = bin.getUBYTE();
         end
 
-        % Columns
-        if version < 9
-            num_patterns = 10;
-        else
-            num_patterns = MAX_PATTERNS;
-        end
+        % Columns      
+        num_patterns = MAX_PATTERNS;        
 
         instr{3} = {};
         for j=0:(num_patterns-1)
             col = cell(1,2);
-            col{1} = [];
-            if version == 1
-                for k=0:(song.patternLen-1)
-                    col{1}(k+1) = bin.getUBYTE();
-                    col{1}(k+song.patternLen+1) = 0;
-                    col{1}(k+2*song.patternLen+1) = 0;
-                    col{1}(k+3*song.patternLen+1) = 0;
+            col{1} = [];           
+            for k=0:(song.patternLen * 4-1)
+                col{1}(k+1) = bin.getUBYTE();
+            end            
+            col{2} = [];            
+            for k=1:song.patternLen
+                fxCmd = bin.getUBYTE();
+                % We inserted two new commands in version 11
+                if (version < 11 && fxCmd >= 14)
+                    fxCmd = fixCmd+2;
                 end
-            else
-                for k=0:(song.patternLen * 4-1)
-                    col{1}(k+1) = bin.getUBYTE();
-                end
-            end
-            col{2} = [];
-            if version < 4
-                for k=1:song.patternLen * 2
-                    col{2}(k) = 0;
-                end
-            else
-                for k=1:song.patternLen
-                    fxCmd = bin.getUBYTE();
-                    % We inserted two new commands in version 11
-                    if (version < 11 && fxCmd >= 14)
-                        fxCmd = fixCmd+2;
-                    end
-                    col{2}(k) = fxCmd;
-                end
+                col{2}(k) = fxCmd;
             end
             for k=1:song.patternLen
                 col{2}(song.patternLen + k) = bin.getUBYTE();
             end
             instr{3}{j+1} = col;
-        end
-        % I don't think we need to fill in the rest of the patterns with
-        % zeros just for the player?
-        %
-        %for j = num_patterns; j < MAX_PATTERNS; j++) {
-        %  col = {};
-        %  col.n = [];
-        %  for (k = 0; k < song.patternLen * 4; k++)
-        %    col.n[k] = 0;
-        %  col.f = [];
-        %  for (k = 0; k < song.patternLen * 2; k++)
-        %    col.f[k] = 0;
-        %  instr.c[j] = col;
-        %}
-
-        % Fixup conversions
-        if version < 3
-            if instr{1}(OSC1_WAVEFORM+1) == 2
-                instr{1}(OSC1_VOL+1) = Math.round(instr{1}(OSC1_VOL+1)/2);
-            end
-            if instr{1}(OSC2_WAVEFORM+1) == 2
-                instr{1}(OSC2_VOL+1) = Math.round(instr{1}(OSC2_VOL+1)/2);
-            end
-            if instr{1}(LFO_WAVEFORM+1) == 2
-                instr{1}(LFO_AMT+1) = Math.round(instr{1}(LFO_AMT+1)/2);
-            end
-            if instr{1}(FX_DRIVE+1) < 224
-                instr{1}(FX_DRIVE+1) = instr{1}(FX_DRIVE+1) + 32;
-            else
-                instr{1}(FX_DRIVE+1) = 255;
-            end
-        end
-        if (version < 7)
-            instr{1}(FX_RESONANCE+1) = 255 - instr{1}(FX_RESONANCE+1);
-        end
+        end        
+                
 
         song.songData{i} = instr;
     end
-    %for i=i < MAX_CHANNELS; i++) {
-    %  song.songData[i] = makeEmptyChannel(song{2}atternLen);
-    %}
-
 end
 
 function ret = CBinParser(d)
