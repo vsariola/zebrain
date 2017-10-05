@@ -21,7 +21,7 @@
 %
 %/
 
-function song = loadSoundBoxBin(data)
+function song = loadSoundBoxBin(arg)
     % Instrument property indices
     OSC1_WAVEFORM = 0;
     OSC1_VOL = 1;
@@ -62,8 +62,16 @@ function song = loadSoundBoxBin(data)
        
     MAX_PATTERNS = 36;   
 
+    if ischar(arg)
+        f = fopen(arg);
+        data = fread(f,'uint8=>uint8');
+        fclose(f);
+    else
+        data = uint8(arg);    
+    end
 
     song = struct;
+    
     bin = CBinParser(data);
 
     signature = bin.getULONG();

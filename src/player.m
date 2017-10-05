@@ -25,15 +25,15 @@
 
 function mMixBuf = player(song)
 
-    osc_sin = @(x) sin(x* 6.283184);
-    osc_saw = @(x) 2 * mod(x,1) - 1;
-    osc_square = @(x) (mod(x,1) < .5)*2-1;
-    osc_tri = @(x) 1-abs(mod(x,1)*4-2);
-    getnotefreq = @(n) .003959503758 * 2^((n - 128) / 12);
-    mOscillators = {osc_sin,osc_square,osc_saw,osc_tri};    
+    x = (0:44099)/44100;
+    % Precalculate oscillators into a table; this is much faster than
+    % using lambdas in matlab
+    % Oscillators: 1 = sine, 2 = square, 3 = sawtooth, 4 = triangle
+    oscPrecalc = [sin(x*2*pi);(x < .5)*2-1;2 * x - 1;1-abs(x*4-2)];
+    getnotefreq = @(n) .003959503758 * 2^((n - 128) / 12);    
 
     % Init iteration state variables
-    mLastRow = song.endPattern - 2;
+    mLastRow = song.endPattern;
 
     % Prepare song info
     mNumWords = song.rowLen * song.patternLen * (mLastRow + 1) * 2;
@@ -60,8 +60,7 @@ function mMixBuf = player(song)
         % Patterns
         for p = 0:mLastRow
             cp = indexArray(instr{2},p+1);            
-           
-            
+                       
             % Pattern rows
             for row = 0:(patternLen-1)
                 % Execute effect command.                                
@@ -77,7 +76,7 @@ function mMixBuf = player(song)
                 
 
                 % Put performance critical instrument properties in local variables
-                oscLFO = mOscillators{instr{1}(16)+1};
+                oscLFO = instr{1}(16)+1;
                 lfoAmt = instr{1}(17) / 512;
                 lfoFreq = 2^(instr{1}(18) - 9) / rowLen;
                 fxLFO = instr{1}(19);
@@ -89,7 +88,7 @@ function mMixBuf = player(song)
                 panAmt = instr{1}(25) / 512;
                 panFreq = 6.283184 * 2^(instr{1}(26) - 9) / rowLen;
                 dlyAmt = instr{1}(27) / 255;
-                dly = instr{1}(28) * rowLen;
+                dly = bitor(instr{1}(28) * rowLen,1)-1; % Must be an even number
 
                 % Calculate start sample number for this row in the pattern
                 rowStartSample = (p * uint32(patternLen) + uint32(row)) * uint32(rowLen);
@@ -108,9 +107,6 @@ function mMixBuf = player(song)
                         range = rowStartSample*2+1:2:(rowStartSample+uint32(length(noteBuf)))*2-1;
                         chnBuf(range) = chnBuf(range)+noteBuf;
                         lastSample = max(lastSample,endSample);
-                        %for j = 1:length(noteBuf)
-                        %    chnBuf(rowStartSample*2+j*2-1) = chnBuf(...)+noteBuf(j);
-                        %end
                     end
                 end
                                                 
@@ -131,7 +127,7 @@ function mMixBuf = player(song)
                     % State variable filter
                     f = fxFreq;
                     if fxLFO
-                        f = f * (oscLFO(lfoFreq * double(k)) * lfoAmt + 0.5);
+                        f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * double(k),1)*44100+1)) * lfoAmt + 0.5);
                     end
                     f = 1.5 * sin(f);
                     low = low + f * band;
@@ -150,7 +146,7 @@ function mMixBuf = player(song)
                         tmpsample = tmpsample * dist;
                         if tmpsample < 1
                             if tmpsample > -1
-                                tmpsample = osc_sin(tmpsample*.25);
+                                tmpsample = oscPrecalc(1,floor(mod(tmpsample*.25,1)*44100+1));
                             else
                                 tmpsample = -1;
                             end
@@ -174,11 +170,14 @@ function mMixBuf = player(song)
                 
                 start = rowStartSample * 2;
                 if (start < dly)
-                    start = dly + mod(dly,2);
+                    start = dly;
                 end
+                
+                % Perform delay. This could have been done in the previous
+                % loop, but it was slower than doing a second loop
                 for k = start:2:(rowStartSample + rowLen-1) * 2
-                    chnBuf(k+1)=floor(chnBuf(k+1)+chnBuf(k-dly+2) * dlyAmt);
-                    chnBuf(k+2)=floor(chnBuf(k+2)+chnBuf(k-dly+1) * dlyAmt);
+                    chnBuf(k+1)=chnBuf(k+1)+chnBuf(k-dly+2) * dlyAmt;
+                    chnBuf(k+2)=chnBuf(k+2)+chnBuf(k-dly+1) * dlyAmt;
                 end
             end
         end    
@@ -201,10 +200,10 @@ function mMixBuf = player(song)
     end
         
     function noteBuf = createNote(instr,n,rowLen)
-        osc1 = mOscillators{instr{1}(1)+1};
+        osc1 = instr{1}(1)+1;
         o1vol = instr{1}(2);
         o1xenv = instr{1}(4);
-        osc2 = mOscillators{instr{1}(5)+1};
+        osc2 = instr{1}(5)+1;
         o2vol = instr{1}(6);
         o2xenv = instr{1}(9);
         noiseVol = instr{1}(10);
@@ -246,7 +245,7 @@ function mMixBuf = player(song)
                 t = t * e * e;
             end
             c1 = c1 + t;
-            sample = osc1(c1) * o1vol;
+            sample = oscPrecalc(osc1,floor(mod(c1,1)*44100+1)) * o1vol;
 
             % Oscillator 2
             t = o2t;
@@ -255,7 +254,7 @@ function mMixBuf = player(song)
             end
 
             c2 = c2 + t;
-            sample = sample + osc2(c2) * o2vol;
+            sample = sample + oscPrecalc(osc2,floor(mod(c2,1)*44100+1)) * o2vol;
 
             % Noise oscillator
             if noiseVol>0
@@ -263,7 +262,7 @@ function mMixBuf = player(song)
             end
 
             % Add to (mono) channel buffer
-            noteBuf(jj+1) = floor(80 * sample * e);       
+            noteBuf(jj+1) = 80 * sample * e;       
             
             j2 = j2+1;
         end          
