@@ -12,7 +12,7 @@ function demo
     a = audioplayer(w,44100);
     play(a);
     
-    l=-9:.1:9;[x,~]=ndgrid(l);
+    l=-9:.1:9;[x,tmp]=ndgrid(l);
     while isplaying(a)
         a.CurrentSample        
         v = y(:,floor((a.CurrentSample-1)/4+1));
