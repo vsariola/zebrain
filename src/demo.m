@@ -19,4 +19,6 @@ function demo
         image(abs(F));
         drawnow;
     end
+    
+    close all;
 end
