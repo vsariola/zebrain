@@ -19,7 +19,7 @@ function build
     demom = [demom char(10) gensyncm];    
     
 
-    demom = minify(demom,{'endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote'});
+    demom = minify(demom,{'endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col'});
 
     outputfilem = [outputdir outputname '.m'];
     writefile(outputfilem,demom);
