@@ -23,7 +23,8 @@ function ret = minify(code,extrasymbols)
         code = regexprep(code,'(\W)\s(\w)','$1$2');        
     end
     code = regexprep(code,';+',';');
-    code = regexprep(code,'end;','end\n');    
+    code = regexprep(code,'end;function','end\nfunction');    
+    code = code(1:(end-1));
     ret = code;
 end
 
