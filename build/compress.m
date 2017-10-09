@@ -68,15 +68,15 @@ header = [header sprintf(';i=k==%d',p.Results.code)];
 
 if shift > 0
     if any(specials+shift>255)
-        header = [header sprintf(';s=mod(k-circshift(i,1)*%d,256)',shift)];
+        header = [header sprintf(';s=mod(k-[i(2:end);0]*%d,256)',shift)];
     else
-        header = [header sprintf(';s=k-circshift(i,1)*%d',shift)];
+        header = [header sprintf(';s=k-[i(2:end);0]*%d',shift)];
     end
 else
     if any(specials+shift<0)
-        header = [header sprintf(';s=mod(k+circshift(i,1)*%d,256)',-shift)];
+        header = [header sprintf(';s=mod(k+[i(2:end);0]*%d,256)',-shift)];
     else
-        header = [header sprintf(';s=k+circshift(i,1)*%d',-shift)];
+        header = [header sprintf(';s=k+[i(2:end);0]*%d',-shift)];
     end
 end                          
 
@@ -104,7 +104,7 @@ end
 k = [];
 for i = d'
     if ismember(i,specials)
-        k = [k p.Results.code mod(i+shift,256)];
+        k = [k mod(i+shift,256) p.Results.code];
     else
         k = [k i];
     end   
