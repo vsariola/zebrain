@@ -81,8 +81,7 @@ else
 end                          
 
 header = [header ';d=[tempname 47];mkdir(d);t=[d 65]']; % d=.../, t=.../A
-header = [header sprintf(';e=fopen(t,''w'')')];
-header = [header ';fwrite(e,s(~i));fclose all'];
+header = [header ';fwrite(fopen(t,''w''),s(~i));fclose all'];
 header = [header sprintf(';unzip(t,d)')];
 header = [header sprintf(';run([d %d]);rmdir(d,''s'')',uint8(p.Results.main))];
 header = [header '%%'];
