@@ -6,7 +6,12 @@ function demo
     
     N={'units','normalized','position',[0 0 1 1]};
     figure(N{:});
-    axes(N{:});        
+    a1=axes(N{:});        
+    a2=axes(N{:});        
+    [x,y] = ndgrid(-2:.1:2);
+    I=image(zeros(size(x)));
+    set(a2,'visible','off');      
+    alphavalues = (x.^2+y.^2)/99;    
         
     a = audioplayer(s/32768,44100);
     play(a);
@@ -24,9 +29,11 @@ function demo
         
     tri = delaunay(u,v);
        
-    while isplaying(a)      
+    while isplaying(a) 
+        axes(a1);
         currentSample = a.CurrentSample;
-        i = currentSample/song.rowLen;        
+        i = currentSample/song.rowLen;  
+        synkki = 1-(mod(-i,4)/4)^2;
         i = i/10;
         x = (cos(u)*A+K*sin(W*v)+D).*cos(v);
         y = (cos(u)*A+K*sin(W*v)+D).*sin(v);
@@ -39,6 +46,8 @@ function demo
         camup([1 0 1]);
         campos([(D+K*sin(W*i))*cos(i),(D+K*sin(W*i))*sin(i),0]);
         colormap bone 
+        axes(a2);
+        alpha(I,alphavalues+1-i+rand(size(alphavalues))*synkki);
         drawnow;
     end
     
