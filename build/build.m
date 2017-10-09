@@ -19,13 +19,12 @@ function build
     demom = [demom char(10) gensyncm];    
     
 
-    demom = minify(demom,{'endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col'});
+    demom = minify(demom,{'endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time'});
 
     outputfilem = [outputdir outputname '.m'];
     writefile(outputfilem,demom);
     outputfilec = [outputdir outputname '_compressed.m'];
     compress(outputfilem,outputfilec);    
-    delete(outputfilem);
     rehash
 end
 

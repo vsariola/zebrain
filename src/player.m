@@ -51,8 +51,7 @@ function mMixBuf = player(song)
         % Clear effect state
         low = 0;
         band = 0;        
-        filterActive = 0;
-        lastSample = 0;
+        filterActive = 0;        
 
         % Clear note cache.
         noteCache = {};
@@ -86,12 +85,12 @@ function mMixBuf = player(song)
                 dist = instr{1}(23) * 1e-5;
                 drive = instr{1}(24) / 32;
                 panAmt = instr{1}(25) / 512;
-                panFreq = 6.283184 * 2^(instr{1}(26) - 9) / rowLen;
+                panFreq = 2*pi * 2^(instr{1}(26) - 9) / rowLen;
                 dlyAmt = instr{1}(27) / 255;
                 dly = bitor(instr{1}(28) * rowLen,1)-1; % Must be an even number
 
                 % Calculate start sample number for this row in the pattern
-                rowStartSample = (p * uint32(patternLen) + uint32(row)) * uint32(rowLen);
+                rowStartSample = (p * patternLen + row) * rowLen;
 
                 % Generate notes for this pattern row
                 for col=0:3
@@ -102,9 +101,8 @@ function mMixBuf = player(song)
                         end
 
                         % Copy note from the note cache
-                        noteBuf = noteCache{n+1};   
-                        endSample = (rowStartSample+uint32(length(noteBuf)))*2-1;
-                        range = rowStartSample*2+1:2:(rowStartSample+uint32(length(noteBuf)))*2-1;
+                        noteBuf = noteCache{n+1};                           
+                        range = rowStartSample*2+1:2:(rowStartSample+length(noteBuf))*2-1;
                         chnBuf(range) = chnBuf(range)+noteBuf;                        
                     end
                 end
@@ -121,7 +119,7 @@ function mMixBuf = player(song)
                         % State variable filter
                         f = fxFreq;
                         if fxLFO
-                            f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * double(k),1)*44100+1)) * lfoAmt + 0.5);
+                            f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * k,1)*44100+1)) * lfoAmt + 0.5);
                         end
                         f = 1.5 * sin(f);
                         low = low + f * band;
@@ -157,17 +155,14 @@ function mMixBuf = player(song)
                         filterActive = tmpsample * tmpsample > 1e-5;
 
                         % Panning
-                        t = sin(panFreq * double(k)) * panAmt + 0.5;
+                        t = sin(panFreq * k) * panAmt + 0.5;
                         chnBuf(k+1) = tmpsample * (1 - t);
                         chnBuf(k+2) = tmpsample * t;    
                     
                     end
                 end
                 
-                start = rowStartSample * 2;
-                if (start < dly)
-                    start = dly;
-                end
+                start = max(rowStartSample * 2,dly);                
                 
                 % Perform delay. This could have been done in the previous
                 % loop, but it was slower than doing a second loop
@@ -215,7 +210,7 @@ function mMixBuf = player(song)
         % Generate one note (attack + sustain + release)
         j2 = 0;
         for jj = 0:attack + sustain + release-1
-            if (j2 >= 0)
+            if j2 >= 0
                 arp = bitor(bitshift(arp,-8),bitand(arp,255)*16);
                 j2 = j2 - arpInterval;
 
@@ -233,20 +228,20 @@ function mMixBuf = player(song)
             end
 
             % Oscillator 1
-            t = o1t;
+            time = o1t;
             if o1xenv
-                t = t * e * e;
+                time = time * e * e;
             end
-            c1 = c1 + t;
+            c1 = c1 + time;
             sample = oscPrecalc(osc1,floor(mod(c1,1)*44100+1)) * o1vol;
 
             % Oscillator 2
-            t = o2t;
+            time = o2t;
             if o2xenv
-                t = t * e * e;
+                time = time * e * e;
             end
 
-            c2 = c2 + t;
+            c2 = c2 + time;
             sample = sample + oscPrecalc(osc2,floor(mod(c2,1)*44100+1)) * o2vol;
 
             % Noise oscillator
