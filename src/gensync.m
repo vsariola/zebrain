@@ -12,7 +12,7 @@ function sync = gensync(sync,time)
              sync = spline(p{1}(:,1),p{1}(:,2:end)',time);
         case 3        
              % Blending two curves
-             o = ones(size(p,1),1);
+             o = ones(size(p{2},1),1);
              sync = o * (1-p{1}) .* p{2} + o * p{1} .* p{3};
         otherwise
              % Merging all curves

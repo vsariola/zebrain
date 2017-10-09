@@ -10,18 +10,39 @@ function ret = minify(code,extrasymbols)
     t2 = [t2 extrasymbols];
     for i = 1:length(t2)
         pattern = ['(\W+)' t2{i} '(?=\W)'];
-        c = ['$1' getcode(i)];
+        c = ['$1symbol' getcode(i)];
         code = regexprep(code,pattern,c);
     end
+    code = regexprep(code,'(\W+)symbol(\w+)(?=\W)','$1$2');
+    code = regexprep(code,'([^%]+)[^\n]*','$1\n');
+    code = regexprep(code,'\n',';');
+    code = regexprep(code,'\s+',' ');
+    for i = 1:3
+        code = regexprep(code,'(\W)\s(\W)','$1$2');    
+        code = regexprep(code,'(\w)\s(\W)','$1$2');    
+        code = regexprep(code,'(\W)\s(\w)','$1$2');        
+    end
+    code = regexprep(code,';+',';');
+    code = regexprep(code,'end;','end\n');    
     ret = code;
 end
 
 function ret = getcode(i)
-    minor = i;
-    major = floor((minor-1)/26+1);
-    minor = mod(minor-1,26)+1;
-    ret = char(64+minor);
-    if (major > 1)
-        ret = [char(63+major) ret];
+    valids = [char(97:122) char(65:90)]; % a-z A-Z, the variable
+    % has to start with a letter. We don't need underscores and digits
+    % because they can only be used when there is two or more letters
+    % and if we hit two letters, it's unlikely we hit three
+    
+    n = length(valids);        
+    ret = [];
+    for j = 1:10
+        if (i <= n)            
+            ret = [valids(i) ret];    
+            return;
+        else
+            c = mod(i-1,n);
+            ret = [valids(c+1) ret];        
+            i = (i -1- c)/n;               
+        end
     end
 end

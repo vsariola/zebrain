@@ -18,13 +18,13 @@ function build
     demom = [demom char(10) playerm];
     demom = [demom char(10) gensyncm];    
     
-    demom = minify(demom,{'endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray'});
+
+    demom = minify(demom,{'endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote'});
 
     outputfilem = [outputdir outputname '.m'];
     writefile(outputfilem,demom);
-    pcode(outputfilem);
-    outputfilep = [outputname '.p'];    
-    movefile(outputfilep,outputdir);
+    outputfilec = [outputdir outputname '_compressed.m'];
+    compress(outputfilem,outputfilec);    
     delete(outputfilem);
     rehash
 end
