@@ -5,12 +5,15 @@ function demo
     y = gensync(sync,(1:length(s)/8)/song.rowLen*4);
     
     N={'units','normalized','position',[0 0 1 1]};
+    N2={'visible','off'};
     figure(N{:});
-    a1=axes(N{:});        
-    a2=axes(N{:});        
+    a3=axes(N{:},N2{:});  
+    hText = text(0,0,'','FontSize',60,'FontWeight','bold');
+    
+    a2=axes(N{:},N2{:});            
     [x,y] = ndgrid(-2:.1:2);
-    I=image(zeros(size(x)));
-    set(a2,'visible','off');      
+    I=image(zeros(size(x)));    
+    set(gca,'visible','off');
     alphavalues = (x.^2+y.^2)/99;    
         
     a = audioplayer(s/32768,44100);
@@ -27,27 +30,32 @@ function demo
     K = 5;
     W = 3;
         
+    a1=axes(N{:},N2{:});        
     tri = delaunay(u,v);
-       
+    x = (cos(u)*A+K*sin(W*v)+D).*cos(v);
+    y = (cos(u)*A+K*sin(W*v)+D).*sin(v);
+    z = sin(u)*A;
+    trisurf(tri,x,y,z,'FaceColor','interp','LineWidth',2);                  
+    colormap bone    
+    
     while isplaying(a) 
         axes(a1);
         currentSample = a.CurrentSample;
         i = currentSample/song.rowLen;  
         synkki = 1-(mod(-i,4)/4)^2;
-        i = i/10;
-        x = (cos(u)*A+K*sin(W*v)+D).*cos(v);
-        y = (cos(u)*A+K*sin(W*v)+D).*sin(v);
-        z = sin(u)*A;
-        trisurf(tri,x,y,z,'FaceColor','interp','LineWidth',2);                  
+        i = i/10;        
         daspect([1 1 1]);        
         camproj('perspective')
         camva(75);
         camtarget([5 5 1]);
         camup([1 0 1]);
-        campos([(D+K*sin(W*i))*cos(i),(D+K*sin(W*i))*sin(i),0]);
-        colormap bone 
+        campos([(D+K*sin(W*i))*cos(i),(D+K*sin(W*i))*sin(i),0]);        
         axes(a2);
         alpha(I,alphavalues+1-i+rand(size(alphavalues))*synkki);
+        axes(a3);   
+        hText.Position = [i/100 0.5 0];        
+        hText.String = num2str(i);
+        
         drawnow;
     end
     
