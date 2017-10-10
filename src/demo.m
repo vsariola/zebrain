@@ -19,8 +19,8 @@ function demo
     a = audioplayer(s/32768,44100);
     play(a);
     
-    u = rand(6e2,1)*2*pi;
-    v = rand(6e2,1)*2*pi;
+    u = rand(9e2,1)*2*pi;
+    v = rand(9e2,1)*2*pi;
     uu = linspace(0,2*pi,10)';
     vv = uu*0;
     u = [u;uu;uu;vv;vv+2*pi];
@@ -35,7 +35,7 @@ function demo
     x = (cos(-u)*A+K*sin(W*v)+D).*cos(v);
     y = (cos(-u)*A+K*sin(W*v)+D).*sin(v);
     z = sin(-u)*A;
-    trisurf(tri,x,y,z,'FaceColor','interp','LineWidth',2);                  
+    trisurf(tri,x,y,z,'LineWidth',2);                  
     colormap bone    
     hLight = camlight;
     camup([1 0 1]);
@@ -49,14 +49,14 @@ function demo
         currentSample = a.CurrentSample;
         i = currentSample/song.rowLen;  
         synkki = 1-(mod(-i,4)/4)^2;
-        i = i/10;                        
+        i = i/100;                        
         
         campos([(D+K*sin(W*i))*cos(i),(D+K*sin(W*i))*sin(i),0]);        
-        camlight(hLight,'HEADLIGHT');
+        camlight(hLight,'HEADLIGHT');        
         axes(a2);
         alpha(I,alphavalues+1-i+rand(size(alphavalues))*synkki);
         axes(a3);   
-        hText.Position = [i/100 0.5 0];        
+        hText.Position = [i/10 0.5 0];        
         hText.String = num2str(i);
         
         drawnow;
