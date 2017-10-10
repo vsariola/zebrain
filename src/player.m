@@ -40,7 +40,7 @@ function mMixBuf = player(song)
 
     % Create work buffer (initially cleared)
     mMixBuf = zeros(2,mNumSamples);
-
+    
     for mCurrentCol = 0:length(song.songData)-1        
         % Put performance critical items in local variables
         chnBuf = zeros(2,mNumSamples);

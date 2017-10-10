@@ -7,10 +7,10 @@ filefinding = {'none','local','path'};
 p = inputParser;
 addRequired(p,'inputfileparam',@(x) exist(x,'file'));
 addOptional(p,'outputfileparam','',@ischar);
-addParameter(p,'main','Z',@ischar);   
-addParameter(p,'code',9,@(x) ~any(invalid_bytes == x) && x >= 0 && x <= 255);   
-addParameter(p,'shift',9);   
-addParameter(p,'cleanbuild',true);   
+addParamValue(p,'main','Z',@ischar);   
+addParamValue(p,'code',9,@(x) ~any(invalid_bytes == x) && x >= 0 && x <= 255);   
+addParamValue(p,'shift',9);   
+addParamValue(p,'cleanbuild',true);   
 parse(p,inputfileparam,varargin{:});
 
 shift = p.Results.shift;
@@ -19,7 +19,7 @@ if any(ismember(mod(specials+shift,256),specials))
     error('The shifted special bytes would overlap');
 end
 
-[inputpath,inputname,inputext] = fileparts(fullfile(p.Results.inputfileparam));
+[inputpath,inputname,inputext] = fileparts(p.Results.inputfileparam);
 if isempty(inputext)
     inputext = '.m';
 end
