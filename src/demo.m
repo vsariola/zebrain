@@ -32,24 +32,27 @@ function demo
         
     a1=axes(N{:},N2{:});        
     tri = delaunay(u,v);
-    x = (cos(u)*A+K*sin(W*v)+D).*cos(v);
-    y = (cos(u)*A+K*sin(W*v)+D).*sin(v);
-    z = sin(u)*A;
+    x = (cos(-u)*A+K*sin(W*v)+D).*cos(v);
+    y = (cos(-u)*A+K*sin(W*v)+D).*sin(v);
+    z = sin(-u)*A;
     trisurf(tri,x,y,z,'FaceColor','interp','LineWidth',2);                  
     colormap bone    
+    hLight = camlight;
+    camup([1 0 1]);
+    daspect([1 1 1]);        
+    camproj('perspective')
+    camva(75);
+    camtarget([5 5 1]);
     
     while isplaying(a) 
         axes(a1);
         currentSample = a.CurrentSample;
         i = currentSample/song.rowLen;  
         synkki = 1-(mod(-i,4)/4)^2;
-        i = i/10;        
-        daspect([1 1 1]);        
-        camproj('perspective')
-        camva(75);
-        camtarget([5 5 1]);
-        camup([1 0 1]);
+        i = i/10;                        
+        
         campos([(D+K*sin(W*i))*cos(i),(D+K*sin(W*i))*sin(i),0]);        
+        camlight(hLight,'HEADLIGHT');
         axes(a2);
         alpha(I,alphavalues+1-i+rand(size(alphavalues))*synkki);
         axes(a3);   
