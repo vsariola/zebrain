@@ -40,7 +40,7 @@ else
     camlight(hLight,'HEADLIGHT');        
     axes(a2);
     axes(a3);   
-    set(hText,'Position',[i/10+envs(1,currentSample) 0.5 0]);
+    set(hText,'Position',[i/10+envs(1,currentSample),0.5,0]);
     set(hText,'String',num2str(i));
 end
 drawnow;
