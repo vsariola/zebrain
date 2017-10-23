@@ -1,4 +1,4 @@
-f = fopen('../data/styge');d = fread(f,'uint8=>uint8');fclose(f);
+f = fopen('../data/demo_song');d = fread(f,'uint8=>uint8');fclose(f);
 song = loadSoundBoxBin(d);
 for i = 1:length(song.songData)
     p = song.songData{i}{2};
