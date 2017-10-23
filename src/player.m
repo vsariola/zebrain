@@ -23,7 +23,7 @@
 % 3. This notice may not be removed or altered from any source
 %    distribution.
 
-function mMixBuf = player(song)
+function [mMixBuf,envBufs] = player(song)
 
     x = (0:44099)/44100;
     % Precalculate oscillators into a table; this is much faster than
@@ -38,10 +38,13 @@ function mMixBuf = player(song)
     % Prepare song info
     mNumSamples = song.rowLen * song.patternLen * (mLastRow + 1);
 
+    numChannels = length(song.songData);
+    
     % Create work buffer (initially cleared)
     mMixBuf = zeros(2,mNumSamples);
+    envBufs = zeros(numChannels,mNumSamples);
     
-    for mCurrentCol = 0:length(song.songData)-1    
+    for mCurrentCol = 0:numChannels-1   
         mCurrentCol
         % Put performance critical items in local variables
         chnBuf = zeros(2,mNumSamples);
@@ -103,8 +106,9 @@ function mMixBuf = player(song)
 
                         % Copy note from the note cache
                         noteBuf = noteCache{n+1};                           
-                        range = rowStartSample*2+1:2:(rowStartSample+length(noteBuf))*2-1;
-                        chnBuf(range) = chnBuf(range)+noteBuf;                        
+                        range = rowStartSample+1:rowStartSample+length(noteBuf);
+                        chnBuf(1,range) = chnBuf(1,range)+noteBuf(1,:);                        
+                        envBufs(mCurrentCol+1,range) = envBufs(mCurrentCol+1,range)+noteBuf(2,:);                                                
                     end
                 end
                                                 
@@ -201,7 +205,8 @@ function mMixBuf = player(song)
         release = instr{1}(13)^2 * 4;
         releaseInv = 1 / release;
 
-        noteBuf = zeros(1,attack + sustain + release);
+        noteBuf = zeros(2,attack + sustain + release);
+        
 
         c1 = 0;
         c2 = 0;
@@ -243,7 +248,8 @@ function mMixBuf = player(song)
             end
 
             % Add to (mono) channel buffer
-            noteBuf(jj+1) = 80 * sample * e;       
+            noteBuf(1,jj+1) = 80 * sample * e;       
+            noteBuf(2,jj+1) = e;                   
         end          
     end
 end
