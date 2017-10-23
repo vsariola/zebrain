@@ -41,7 +41,8 @@ function mMixBuf = player(song)
     % Create work buffer (initially cleared)
     mMixBuf = zeros(2,mNumSamples);
     
-    for mCurrentCol = 0:length(song.songData)-1        
+    for mCurrentCol = 0:length(song.songData)-1    
+        mCurrentCol
         % Put performance critical items in local variables
         chnBuf = zeros(2,mNumSamples);
         instr = song.songData{mCurrentCol+1};
@@ -199,8 +200,6 @@ function mMixBuf = player(song)
         sustain = instr{1}(12)^2 * 4;
         release = instr{1}(13)^2 * 4;
         releaseInv = 1 / release;
-        arp = instr{1}(14);
-        arpInterval = rowLen * 2^(2 - instr{1}(15));
 
         noteBuf = zeros(1,attack + sustain + release);
 
@@ -208,16 +207,10 @@ function mMixBuf = player(song)
         c2 = 0;
 
         % Generate one note (attack + sustain + release)
-        j2 = 0;
+        o1t = getnotefreq(n + instr{1}(3) - 128);
+        o2t = getnotefreq(n + instr{1}(7) - 128) * (1 + .0008 * instr{1}(8));
+        
         for jj = 0:attack + sustain + release-1
-            if j2 >= 0
-                arp = bitor(bitshift(arp,-8),bitand(arp,255)*16);
-                j2 = j2 - arpInterval;
-
-                % Calculate note frequencies for the oscillators
-                o1t = getnotefreq(n + bitand(arp,15) + instr{1}(3) - 128);
-                o2t = getnotefreq(n + bitand(arp,15) + instr{1}(7) - 128) * (1 + .0008 * instr{1}(8));
-            end
 
             % Envelope
             e = 1;
@@ -251,8 +244,6 @@ function mMixBuf = player(song)
 
             % Add to (mono) channel buffer
             noteBuf(jj+1) = 80 * sample * e;       
-            
-            j2 = j2+1;
         end          
     end
 end
