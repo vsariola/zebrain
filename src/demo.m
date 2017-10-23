@@ -14,5 +14,5 @@ function demo
         mainloop
     end   
     
-    deinitialize;
+    finalize;
 end
