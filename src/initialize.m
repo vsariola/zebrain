@@ -9,19 +9,11 @@ zoomer = @(zoom,x)mod(round(((0:255)-x)/zoom+x),256)+1;
 
 [xgrid,dummy]=ndgrid(linspace(-3,3,256));
 
-
 N={'units','normalized','position',[0 0 1 1]};
 N2={'visible','off'};
-figure(N{:});
-a3=axes(N{:},N2{:});  
-hText = text(0,0,'','FontSize',60,'FontWeight','bold');
+figure(N{:},'WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none');
 
-a2=axes(N{:},N2{:});            
-[x,y] = ndgrid(-1:.01:1);
-I=image(zeros(size(x)));    
-set(gca,'visible','off');
-alphavalues = (x.^2+y.^2).^1.5/2.8284;    
-alpha(I,alphavalues);    
+a1=axes(N{:},N2{:});        
 
 u = rand(9e2,1)*2*pi;
 v = rand(9e2,1)*2*pi;
@@ -34,9 +26,8 @@ A = 3.5;
 K = 5;
 W = 3;
 
-
-a1=axes(N{:},N2{:});        
 tri = delaunay(u,v);
+
 x = (cos(-u)*A+K*sin(W*v)+D).*cos(v);
 y = (cos(-u)*A+K*sin(W*v)+D).*sin(v);
 z = sin(-u)*A;
@@ -51,4 +42,18 @@ daspect([1 1 1]);
 camproj('perspective')
 camva(75);
 camtarget([5 5 1]);
+
+a2=axes(N{:},N2{:});            
+[x,y] = ndgrid(-1:.01:1);
+I=image(a2,zeros(size(x)));    
+a2.Visible = 'off';
+alphavalues = (x.^2+y.^2).^1.5/2.8284;    
+alpha(I,alphavalues);    
+
+
+
+a3=axes(N{:},N2{:});  
+hText = text(0,0,'','FontSize',60,'FontWeight','bold');
+
+
 a4=axes(N{:},N2{:}); 
