@@ -1,8 +1,14 @@
 function ret = minify(code,extrasymbols)
-    tokens = regexp(code,'[;\n]\s*(\w+)[^=\n]*=','tokens');
-    t2 = cell(1,length(tokens));
+    tokens = regexp(code,'([;\n]|for)\s*(\w+|(\[\s*\w+(\s*,\s*\w+)*\s*\]))\s*=','tokens');
+    t2 = {}
     for i = 1:length(tokens)
-        t2{i} = tokens{i}{1};
+        m = tokens{i}{2};
+        if m(1) == '['
+            m2 = regexp(m, '\w+', 'match');
+            t2 = [t2 m2];
+        else
+            t2 = [t2 m];
+        end
     end
     t2 = unique(t2);
     reserved = {'if','else','elseif','end','for','function','(',')'};
