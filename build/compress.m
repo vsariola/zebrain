@@ -1,5 +1,7 @@
 function compress(inputfileparam,varargin)
 
+SEVEN_ZIP = 'c:\Program Files\7-Zip\7z.exe';
+
 invalid_bytes = 10:13;
 
 filefinding = {'none','local','path'};
@@ -54,7 +56,12 @@ cd(outputpath);
 if exist('main.zip','file')
     delete('main.zip');
 end
-zip('main.zip',sprintf('%s',mainfilename));
+if exist(SEVEN_ZIP,'file')
+    command = ['"' SEVEN_ZIP '" a -mx=9 -mtc=off main.zip "' sprintf('%s',mainfilename) '"'];
+    system(command);
+else
+    zip('main.zip',sprintf('%s',mainfilename));
+end
 cd(a);
 if p.Results.cleanbuild
     delete(mainfilepath);

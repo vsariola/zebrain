@@ -27,7 +27,7 @@ function build
     outputfilem = [outputdir outputname '.m'];
     writefile(outputfilem,demom);
     outputfilec = [outputdir outputname '_compressed.m'];
-    compress(outputfilem,outputfilec);    
+    compress(outputfilem,outputfilec,'cleanBuild',false);    
     rehash
 end
 
