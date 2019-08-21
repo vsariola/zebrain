@@ -60,9 +60,7 @@ if p.Results.cleanbuild
     delete(mainfilepath);
 end
 
-header = 'f=fopen([mfilename(''fullpath'') ''.m''])';
-
-header = [header ';fseek(f,%d,0);k=fread(f)'];
+header = 'k=fread(fopen([mfilename(''fullpath'') ''.m'']));k=k(%d:end)';
 
 header = [header sprintf(';i=k==%d',p.Results.code)];
 
@@ -90,7 +88,7 @@ s = length(header)-3;
 finalheader = '';
 while s ~= length(finalheader)      
     s = s+1;
-	finalheader = sprintf(header,s);    
+	finalheader = sprintf(header,s+1);    
 end
 
 fin = fopen(mainzip);
