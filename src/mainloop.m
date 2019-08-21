@@ -1,5 +1,4 @@
 a = audioplayer(s/32768,44100);    
-y = gensync(sync,(1:length(s)/8)/song.rowLen*4);
 
 % Init brain
 mri = load('mristack');
