@@ -1,9 +1,6 @@
 a = audioplayer(s/32768,44100);    
 y = gensync(sync,(1:length(s)/8)/song.rowLen*4);
 
-closeall = @() close('all');
-closeall();
-
 % Init brain
 mri = load('mristack');
 mri = mri.mristack;
@@ -12,12 +9,10 @@ zoomer = @(zoom,x)mod(round(((0:255)-x)/zoom+x),256)+1;
 
 [xgrid,dummy]=ndgrid(linspace(-3,3,256));
 
-N={'units','normalized','position',[0 0 1 1]};
-N2={'visible','off'};
-figure(N{:},'WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none');
+figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none');
 
-a1=axes(N{:},N2{:});        
-
+create_axes=@()axes('units','normalized','position',[0 0 1 1],'visible','off');        
+a1 = create_axes();  
 u = rand(9e2,1)*2*pi;
 v = rand(9e2,1)*2*pi;
 uu = linspace(0,2*pi,10)';
@@ -46,7 +41,7 @@ camproj('perspective')
 camva(75);
 camtarget([5 5 1]);
 
-a2=axes(N{:},N2{:});            
+a2 = create_axes();            
 [x,y] = ndgrid(-1:.01:1);
 I=image(a2,zeros(size(x)));    
 a2.Visible = 'off';
@@ -55,11 +50,11 @@ alpha(I,alphavalues);
 
 
 
-a3=axes(N{:},N2{:});  
+a3=create_axes();  
 hText = text(0,0,'','FontSize',60,'FontWeight','bold');
 
 
-a4=axes(N{:},N2{:}); 
+a4=create_axes();  
 
 play(a)
 
@@ -109,4 +104,4 @@ while isplaying(a)
     drawnow;
 end
 
-closeall();
+close all
