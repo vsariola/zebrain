@@ -91,16 +91,17 @@ while beat < 320
 end
 
 delete(a4)
-
+credits = {'code:pestis','music:distance','bC!xTPOLM'};
 while isplaying(a)
     i = a.currentSample/song.rowLen;  
     synkki = 1-(mod(-i,4)/4)^2;
+    part = min(ceil((i - 319) / 32),3);
     i = i/100;                        
 
     campos(a1,[(D+K*sin(W*i))*cos(i),(D+K*sin(W*i))*sin(i),0]);        
     camlight(hLight,'HEADLIGHT');            
     set(hText,'Position',[i/10+envs(1,a.currentSample),0.5,0]);
-    set(hText,'String',num2str(i));
+    set(hText,'String',credits{part});
     drawnow;
 end
 
