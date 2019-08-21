@@ -15,8 +15,6 @@ function build
     gensyncm = readfile('../src/gensync.m');    
     demom = strrep(demom,'loadsong',songm);
     demom = strrep(demom,'loadsync',syncm);    
-    demom = strrep(demom,'initialize;',readfile('../src/initialize.m'));
-    demom = strrep(demom,'finalize',readfile('../src/finalize.m'));
     demom = strrep(demom,'mainloop',readfile('../src/mainloop.m'));    
     demom = [demom char(10) playerm];
     demom = [demom char(10) gensyncm];    
