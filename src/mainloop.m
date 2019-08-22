@@ -11,7 +11,7 @@ xrange = linspace(-3,3,256);
 
 figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none');
 
-create_axes=@()axes('units','normalized','position',[0 0 1 1],'FontWeight','bold','color',[0,0,0]);        
+create_axes=@()axes('units','normalized','position',[0 0 1 1],'FontWeight','bold','color',[0,0,0],'visible','off');        
 
 
 axes1 = create_axes(); 
@@ -40,8 +40,7 @@ x = (cos(-u)*A+K*sin(W*v)+D).*cos(v);
 y = (cos(-u)*A+K*sin(W*v)+D).*sin(v);
 z = sin(-u)*A;
 
-mysurf = patch('faces',tri,'vertices',[x(:),y(:),z(:)],'facevertexcdata',z(:),'facecolor',get(axes2,'DefaultSurfaceFaceColor'),'edgecolor',get(axes2,'DefaultSurfaceEdgeColor'),'parent',axes2,'LineWidth',2,'SpecularExponent',25,'SpecularStrength',0.9);                 
-
+mysurf = patch('faces',tri,'vertices',[x(:),y(:),z(:)],'facevertexcdata',z(:),'facecolor',get(axes2,'DefaultSurfaceFaceColor'),'edgecolor',get(axes2,'DefaultSurfaceEdgeColor'),'parent',axes2,'SpecularExponent',25,'SpecularStrength',0.9,'LineStyle','none','Marker','.','MarkerSize',10);                 
 
 axes2.Color = 'none';
 
@@ -52,7 +51,7 @@ camproj(axes2,'perspective')
 camva(axes2,75);
 camtarget(axes2,[5 5 1]);
 credits = {'bC!xTPOLM','zebrain',[],[],'code:pestis','music:distance','4096b of MATLAB',[],[]};
-
+hText = text(3,7,-1,'','FontSize',50);
 axes3 = create_axes();            
 [x,y] = ndgrid(-1:.01:1);
 I=image(axes3,zeros(size(x)));    
@@ -76,7 +75,7 @@ while pattern < song.endPattern
     cy = sin(i)*127+127;
     
     t = pi*pattern/34.5;
-    fade = max(sin(t),0)^.3;
+    fade = min(max(sin(t),0)^.3,mod(beat,128));
     h=xgrid+xgrid'*1i;
     for f=0:2
         z=0;
@@ -110,9 +109,13 @@ while pattern < song.endPattern
     campos(axes2,[(D+K*sin(W*j))*cos(j),(D+K*sin(W*j))*sin(j),0]);        
     camlight(hLight,'HEADLIGHT');                
     floored = floor(part+1);
-    ylabel(axes2,credits{floored},'FontSize',(30+sin(scene_counter)*10)*sin(pi*part)^2^.1);
+    hText.String = credits{floored}
+    hText.FontSize = (30+sin(scene_counter)*15);
+    hText.Rotation = cos(part)*30;
     bar = sin(pi*part)^2^.1;
-    mysurf.LineWidth= envs(3,sample())/10+1;
+    if part >= 1
+        mysurf.LineStyle = '-';
+    end
     alpha(mysurf,min((envs(5,sample())+(scene_counter>0)*0.5)*fade,1));
     drawnow;
 end
