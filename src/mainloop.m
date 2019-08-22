@@ -65,8 +65,11 @@ hText = text(0,0,'','FontSize',60,'FontWeight','bold');
 play(a)
 sample = @()a.currentSample;
 
+scene_counter = 0;
+kick_was_active = 0;
+
 beat = 0;
-while beat < 320
+while beat < 640
     beat = sample()/song.rowLen;  
     i = beat/30;
     cx = cos(i)*127+127;
@@ -95,17 +98,23 @@ while beat < 320
     image(axes1,tanh((z/128*min(i/10,1)+envs(1,sample()))/64)*640);    
     axes1.Visible = 'off';
 
+    kick_is_active = envs(5,sample()) > 0;
+    kick_trigger = kick_is_active & ~kick_was_active;
+    kick_was_active = kick_is_active;
+   
+    scene_counter = scene_counter + kick_trigger;
+    
     i = a.currentSample/song.rowLen;  
     synkki = 1-(mod(-i,4)/4)^2;
     part = max(min(ceil((i - 319) / 32),3),1);
-    i = i/100;                        
+    i = i/100 + scene_counter;                        
 
     campos(axes2,[(D+K*sin(W*i))*cos(i),(D+K*sin(W*i))*sin(i),0]);        
     camlight(hLight,'HEADLIGHT');            
     set(hText,'Position',[i/10+envs(5,sample()),0.5,0]);
     set(hText,'String',credits{part});
-    mysurf.LineWidth= envs(3,sample())/1000+1;
-    alpha(mysurf,envs(5,sample()));
+    mysurf.LineWidth= envs(3,sample())/10+1;
+    alpha(mysurf,min(envs(5,sample())+(scene_counter>0)*0.5,1));
     drawnow;
 end
 
