@@ -44,10 +44,9 @@ camup(axes2,[1 0 1]);
 daspect(axes2,[1 1 1]);        
 camproj(axes2,'perspective')
 camva(axes2,75);
-camtarget(axes2,[5 5 1]);
+camtarget(axes2,[5 5 2]);
 
-credits = {'code:pestis','music:distance','bC!xTPOLM'};
-
+credits = {'bC!xTPOLM','zebrain',[],[],'code:pestis','music:distance','size:4096b','platform:MATLAB',[]};
 
 axes3 = create_axes();            
 [x,y] = ndgrid(-1:.01:1);
@@ -59,7 +58,8 @@ alpha(I,alphavalues);
 
 
 axes4 = create_axes();  
-hText = text(0,0,'','FontSize',60,'FontWeight','bold');
+
+hText = text(0,0,'','VerticalAlign','middle','HorizontalAlign','center','FontWeight','bold');
 
 
 play(a)
@@ -68,9 +68,11 @@ sample = @()a.currentSample;
 scene_counter = 0;
 kick_was_active = 0;
 
-beat = 0;
-while beat < 640
+pattern = 0;
+while pattern < 33
     beat = sample()/song.rowLen;  
+    pattern = beat / 32;
+    part = pattern / 4;
     i = beat/30;
     cx = cos(i)*127+127;
     cy = sin(i)*127+127;
@@ -90,12 +92,12 @@ while beat < 640
     ind = mod(floor(i),20)+1;
     z = z+double(mri(:,:,ind))*(1-alphaBrain)+double(mri(:,:,ind+1))*alphaBrain;    
     zoom = envs(5:6,sample()).*[0.2;0.05]+1;
-    for j = 1:6        
+    for j = 1:4      
         z = z+z(zoomer(zoom(1),cx),zoomer(zoom(2),cy),1);       
         zoom = sqrt(zoom);
     end
        
-    image(axes1,tanh((z/128*min(i/10,1)+envs(1,sample()))/64)*640);    
+    image(axes1,tanh((z/80*min(i/10,1)+envs(1,sample()))/64)*640);    
     axes1.Visible = 'off';
 
     kick_is_active = envs(5,sample()) > 0;
@@ -105,14 +107,17 @@ while beat < 640
     scene_counter = scene_counter + kick_trigger;
     
     i = a.currentSample/song.rowLen;  
-    synkki = 1-(mod(-i,4)/4)^2;
-    part = max(min(ceil((i - 319) / 32),3),1);
-    i = i/100 + scene_counter;                        
+    synkki = 1-(mod(-i,4)/4)^2;   
+    j = i/100 + scene_counter;                        
 
-    campos(axes2,[(D+K*sin(W*i))*cos(i),(D+K*sin(W*i))*sin(i),0]);        
-    camlight(hLight,'HEADLIGHT');            
-    set(hText,'Position',[i/10+envs(5,sample()),0.5,0]);
-    set(hText,'String',credits{part});
+    campos(axes2,[(D+K*sin(W*j))*cos(j),(D+K*sin(W*j))*sin(j),0]);        
+    camlight(hLight,'HEADLIGHT');                
+    floored = floor(part+1);
+    hText.String = credits{floored};
+    bar = sin(pi*part)^2^.1;
+    hText.Position = [sin(2*floored),sin(3*floored),0]*.2+.5;
+    hText.FontSize = bar*69+0.1;
+    hText.Rotation = (.9-bar)*99;
     mysurf.LineWidth= envs(3,sample())/10+1;
     alpha(mysurf,min(envs(5,sample())+(scene_counter>0)*0.5,1));
     drawnow;
