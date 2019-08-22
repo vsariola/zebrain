@@ -114,17 +114,17 @@ function [mMixBuf,envBufs] = player(song)
                                                 
                 
                 % Perform effects for this pattern row
-                for k = rowStartSample * 2:2:(rowStartSample + rowLen-1) * 2
+                for kk = rowStartSample * 2:2:(rowStartSample + rowLen-1) * 2
 
                     % We only do effects if we have some sound input
-                    if filterActive || chnBuf(k+1)                                              
+                    if filterActive || chnBuf(kk+1)                                              
                         
                         % Dry mono-sample                        
-                        tmpsample = chnBuf(k+1);                    
+                        tmpsample = chnBuf(kk+1);                    
                         % State variable filter
                         f = fxFreq;
                         if fxLFO
-                            f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * k,1)*44100+1)) * lfoAmt + 0.5);
+                            f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*44100+1)) * lfoAmt + 0.5);
                         end
                         f = 1.5 * sin(f);
                         low = low + f * band;
@@ -160,9 +160,9 @@ function [mMixBuf,envBufs] = player(song)
                         filterActive = tmpsample * tmpsample > 1e-5;
 
                         % Panning
-                        t = sin(panFreq * k) * panAmt + 0.5;
-                        chnBuf(k+1) = tmpsample * (1 - t);
-                        chnBuf(k+2) = tmpsample * t;    
+                        t = sin(panFreq * kk) * panAmt + 0.5;
+                        chnBuf(kk+1) = tmpsample * (1 - t);
+                        chnBuf(kk+2) = tmpsample * t;    
                     
                     end
                 end
@@ -171,9 +171,9 @@ function [mMixBuf,envBufs] = player(song)
                 
                 % Perform delay. This could have been done in the previous
                 % loop, but it was slower than doing a second loop
-                for k = start:2:(rowStartSample + rowLen-1) * 2
-                    chnBuf(k+1)=chnBuf(k+1)+chnBuf(k-dly+2) * dlyAmt;
-                    chnBuf(k+2)=chnBuf(k+2)+chnBuf(k-dly+1) * dlyAmt;
+                for kk = start:2:(rowStartSample + rowLen-1) * 2
+                    chnBuf(kk+1)=chnBuf(kk+1)+chnBuf(kk-dly+2) * dlyAmt;
+                    chnBuf(kk+2)=chnBuf(kk+2)+chnBuf(kk-dly+1) * dlyAmt;
                 end
             end
         end    
