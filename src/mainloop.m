@@ -18,17 +18,49 @@ axes1 = create_axes();
 colormap bone    
 colormap(interp1(1:64,colormap,1:.1:64));
 
-axes2 = create_axes();            
+axes2 = create_axes();
+
+u = rand(9e2,1)*2*pi;
+v = rand(9e2,1)*2*pi;
+uu = linspace(0,2*pi,10)';
+vv = uu*0;
+u = [u;uu;uu;vv;vv+2*pi];
+v = [v;vv;vv+2*pi;uu;uu];
+D = 10;
+A = 3.5;
+K = 5;
+W = 3;
+
+tri = delaunay(u,v);
+
+x = (cos(-u)*A+K*sin(W*v)+D).*cos(v);
+y = (cos(-u)*A+K*sin(W*v)+D).*sin(v);
+z = sin(-u)*A;
+
+mysurf = patch('faces',tri,'vertices',[x(:),y(:),z(:)],'facevertexcdata',z(:),'facecolor',get(axes2,'DefaultSurfaceFaceColor'),'edgecolor',get(axes2,'DefaultSurfaceEdgeColor'),'parent',axes2,'LineWidth',2,'SpecularExponent',25,'SpecularStrength',0.9);                 
+
+hLight = light(axes2);
+camup(axes2,[1 0 1]);
+daspect(axes2,[1 1 1]);        
+camproj(axes2,'perspective')
+camva(axes2,75);
+camtarget(axes2,[5 5 1]);
+
+credits = {'code:pestis','music:distance','bC!xTPOLM'};
+
+
+axes3 = create_axes();            
 [x,y] = ndgrid(-1:.01:1);
-I=image(axes2,zeros(size(x)));    
-axes2.Visible = 'off';
-alphavalues = (x.^2+y.^2).^1.5/2.8284;    
+I=image(axes3,zeros(size(x)));    
+axes3.Visible = 'off';
+alphavalues = (x.^2+y.^2).^1.3/2;    
 alpha(I,alphavalues);    
 
 
 
-axes3 = create_axes();  
+axes4 = create_axes();  
 hText = text(0,0,'','FontSize',60,'FontWeight','bold');
+
 
 play(a)
 sample = @()a.currentSample;
@@ -62,48 +94,18 @@ while beat < 320
        
     image(axes1,tanh((z/128*min(i/10,1)+envs(1,sample()))/64)*640);    
     axes1.Visible = 'off';
-    drawnow;
-end
 
-u = rand(9e2,1)*2*pi;
-v = rand(9e2,1)*2*pi;
-uu = linspace(0,2*pi,10)';
-vv = uu*0;
-u = [u;uu;uu;vv;vv+2*pi];
-v = [v;vv;vv+2*pi;uu;uu];
-D = 10;
-A = 3.5;
-K = 5;
-W = 3;
-
-tri = delaunay(u,v);
-
-x = (cos(-u)*A+K*sin(W*v)+D).*cos(v);
-y = (cos(-u)*A+K*sin(W*v)+D).*sin(v);
-z = sin(-u)*A;
-
-newplot(axes1)
-mysurf = patch('faces',tri,'vertices',[x(:),y(:),z(:)],'facevertexcdata',z(:),'facecolor',get(axes1,'DefaultSurfaceFaceColor'),'edgecolor',get(axes1,'DefaultSurfaceEdgeColor'),'parent',axes1,'LineWidth',2,'SpecularExponent',25,'SpecularStrength',0.9);                 
-
-hLight = light(axes1);
-camup(axes1,[1 0 1]);
-daspect(axes1,[1 1 1]);        
-camproj(axes1,'perspective')
-camva(axes1,75);
-camtarget(axes1,[5 5 1]);
-
-
-credits = {'code:pestis','music:distance','bC!xTPOLM'};
-while isplaying(a)
     i = a.currentSample/song.rowLen;  
     synkki = 1-(mod(-i,4)/4)^2;
     part = max(min(ceil((i - 319) / 32),3),1);
     i = i/100;                        
 
-    campos(axes1,[(D+K*sin(W*i))*cos(i),(D+K*sin(W*i))*sin(i),0]);        
+    campos(axes2,[(D+K*sin(W*i))*cos(i),(D+K*sin(W*i))*sin(i),0]);        
     camlight(hLight,'HEADLIGHT');            
     set(hText,'Position',[i/10+envs(5,sample()),0.5,0]);
     set(hText,'String',credits{part});
+    mysurf.LineWidth= envs(3,sample())/1000+1;
+    alpha(mysurf,envs(5,sample()));
     drawnow;
 end
 
