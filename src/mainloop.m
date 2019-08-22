@@ -6,11 +6,12 @@ mri = mri.mristack;
 zoomer = @(zoom,x)mod(round(((0:255)-x)/zoom+x),256)+1;
 % Init valopallot
 
-[xgrid,dummy]=ndgrid(linspace(-3,3,256));
+xrange = linspace(-3,3,256);
+[xgrid,dummy]=ndgrid(xrange);
 
 figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none');
 
-create_axes=@()axes('units','normalized','position',[0 0 1 1],'visible','off');        
+create_axes=@()axes('units','normalized','position',[0 0 1 1],'FontWeight','bold','color',[0,0,0]);        
 
 
 axes1 = create_axes(); 
@@ -19,7 +20,9 @@ colormap bone
 colormap(interp1(1:64,colormap,1:.1:64));
 
 axes2 = create_axes();
-
+axes2.XAxis.Color = [0 0 0];
+axes2.YAxis.Color = [0 0 0];
+axes2.ZAxis.Color = [0 0 0];
 u = rand(9e2,1)*2*pi;
 v = rand(9e2,1)*2*pi;
 uu = linspace(0,2*pi,10)';
@@ -39,14 +42,16 @@ z = sin(-u)*A;
 
 mysurf = patch('faces',tri,'vertices',[x(:),y(:),z(:)],'facevertexcdata',z(:),'facecolor',get(axes2,'DefaultSurfaceFaceColor'),'edgecolor',get(axes2,'DefaultSurfaceEdgeColor'),'parent',axes2,'LineWidth',2,'SpecularExponent',25,'SpecularStrength',0.9);                 
 
+
+axes2.Color = 'none';
+
 hLight = light(axes2);
 camup(axes2,[1 0 1]);
 daspect(axes2,[1 1 1]);        
 camproj(axes2,'perspective')
 camva(axes2,75);
-camtarget(axes2,[5 5 2]);
-
-credits = {'bC!xTPOLM','zebrain',[],[],'code:pestis','music:distance','size:4096b','platform:MATLAB',[]};
+camtarget(axes2,[5 5 1]);
+credits = {'bC!xTPOLM','zebrain',[],[],'code:pestis','music:distance','4096b of MATLAB',[],[]};
 
 axes3 = create_axes();            
 [x,y] = ndgrid(-1:.01:1);
@@ -55,13 +60,6 @@ axes3.Visible = 'off';
 alphavalues = (x.^2+y.^2).^1.3/2;    
 alpha(I,alphavalues);    
 
-
-
-axes4 = create_axes();  
-
-hText = text(0,0,'','VerticalAlign','middle','HorizontalAlign','center','FontWeight','bold');
-
-
 play(a)
 sample = @()a.currentSample;
 
@@ -69,7 +67,7 @@ scene_counter = 0;
 kick_was_active = 0;
 
 pattern = 0;
-while pattern < 33
+while pattern < song.endPattern
     beat = sample()/song.rowLen;  
     pattern = beat / 32;
     part = pattern / 4;
@@ -77,7 +75,8 @@ while pattern < 33
     cx = cos(i)*127+127;
     cy = sin(i)*127+127;
     
-    t = i/10;
+    t = pi*pattern/34.5;
+    fade = max(sin(t),0)^.3;
     h=xgrid+xgrid'*1i;
     for f=0:2
         z=0;
@@ -97,7 +96,7 @@ while pattern < 33
         zoom = sqrt(zoom);
     end
        
-    image(axes1,tanh((z/80*min(i/10,1)+envs(1,sample()))/64)*640);    
+    image(axes1,tanh((z/80*fade+envs(1,sample()))/64)*640+envs(7,sample())*400);    
     axes1.Visible = 'off';
 
     kick_is_active = envs(5,sample()) > 0;
@@ -105,21 +104,16 @@ while pattern < 33
     kick_was_active = kick_is_active;
    
     scene_counter = scene_counter + kick_trigger;
-    
-    i = a.currentSample/song.rowLen;  
-    synkki = 1-(mod(-i,4)/4)^2;   
-    j = i/100 + scene_counter;                        
+        
+    j = beat/100 + scene_counter + 1;                        
 
     campos(axes2,[(D+K*sin(W*j))*cos(j),(D+K*sin(W*j))*sin(j),0]);        
     camlight(hLight,'HEADLIGHT');                
     floored = floor(part+1);
-    hText.String = credits{floored};
+    ylabel(axes2,credits{floored},'FontSize',(30+sin(scene_counter)*10)*sin(pi*part)^2^.1);
     bar = sin(pi*part)^2^.1;
-    hText.Position = [sin(2*floored),sin(3*floored),0]*.2+.5;
-    hText.FontSize = bar*69+0.1;
-    hText.Rotation = (.9-bar)*99;
     mysurf.LineWidth= envs(3,sample())/10+1;
-    alpha(mysurf,min(envs(5,sample())+(scene_counter>0)*0.5,1));
+    alpha(mysurf,min((envs(5,sample())+(scene_counter>0)*0.5)*fade,1));
     drawnow;
 end
 
