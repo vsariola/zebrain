@@ -76,12 +76,12 @@ axes3.Visible = 'off';
 alphavalues = (x.^2+y.^2).^1.3/2;    
 alpha(I,alphavalues);    
 
+
+
+triggers = envs & ~[zeros(7,1),envs(:,1:(end-1))];
+sum_triggers = cumsum(triggers,2);
+
 play(a)
-sample = @()a.currentSample;
-
-scene_counter = 0;
-kick_was_active = 0;
-
 part = 0;
 pattern = 0;
 while pattern < song.endPattern
@@ -89,16 +89,17 @@ while pattern < song.endPattern
     pattern = beat / 32;
     prevpart = part;
     part = pattern / 4;
+    scene_counter = sum_triggers(5,sample());
     i = beat/30;
     cx = cos(i)*127+127;
     cy = sin(i)*127+127;
     
     time = pi*pattern/34.5;
-    fade = min(max(sin(time),0)^.3,mod(beat,128));
+    fade = max(sin(time),0)^.3;
     h=xgrid+xgrid'*1i;
     for f=0:2
         z=0;
-        for kind=1:4
+        for kind=[1:3,5]
             z=z+1./(h-.3*sin(time*kind)*exp(1i*kind+time+f));
         end
         h=h-3./z;
@@ -116,13 +117,7 @@ while pattern < song.endPattern
        
     image(axes1,tanh((z/80*fade+envs(1,sample()))/64)*640+envs(7,sample())*400);    
     axes1.Visible = 'off';
-
-    kick_is_active = envs(5,sample()) > 0;
-    kick_trigger = kick_is_active & ~kick_was_active;
-    kick_was_active = kick_is_active;
-   
-    scene_counter = scene_counter + kick_trigger;
-        
+    
     angle = beat/100 + scene_counter + 1;                        
 
     campos(axes2,[(DIA+K*sin(W*angle))*cos(angle),(DIA+K*sin(W*angle))*sin(angle),0]);        
