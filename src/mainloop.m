@@ -1,4 +1,4 @@
-a = audioplayer(s/32768,44100);    
+a = audioplayer(s/32768,44100);
 
 DIA = 10;
 A = 3.5;
@@ -52,13 +52,16 @@ x = (cos(-u)*A+K*sin(W*v)+DIA).*cos(v);
 y = (cos(-u)*A+K*sin(W*v)+DIA).*sin(v);
 z = sin(-u)*A;
 
-mysurf = patch('faces',tri,'vertices',[x(:),y(:),z(:)],'facevertexcdata',z(:),'facecolor',get(axes2,'DefaultSurfaceFaceColor'),'edgecolor',get(axes2,'DefaultSurfaceEdgeColor'),'parent',axes2,'SpecularExponent',25,'SpecularStrength',0.9,'LineStyle','none','Marker','.','MarkerSize',10);                 
+makepatch = @(f,v)patch('faces',f,'vertices',v,'facevertexcdata',z(:),'facecolor',get(axes2,'DefaultSurfaceFaceColor'),'edgecolor',get(axes2,'DefaultSurfaceEdgeColor'),'parent',axes2,'SpecularExponent',25,'SpecularStrength',0.9,'LineStyle','none','Marker','.','MarkerSize',10);                 
+mysurf = makepatch(tri,[x(:),y(:),z(:)]);
+
+headcaps = patch(isocaps(xx,xx,zz,mri_smoothed, 5), 'FaceColor', 'k', 'EdgeColor', 'none','Visible','off');
 
 axes2.Color = 'none';
 
 xx = head.vertices(:,1)*Inf;
 hold on;
-hscat = scatter3(xx,xx,xx,30,'k.');
+hscat = scatter3(xx,xx,xx,50,'k.');
 
 
 hLight = light(axes2);
@@ -82,10 +85,12 @@ sample = @()a.currentSample;
 scene_counter = 0;
 kick_was_active = 0;
 
+part = 0;
 pattern = 0;
 while pattern < song.endPattern
     beat = sample()/song.rowLen;  
     pattern = beat / 32;
+    prevpart = part;
     part = pattern / 4;
     i = beat/30;
     cx = cos(i)*127+127;
@@ -128,20 +133,31 @@ while pattern < song.endPattern
     floored = floor(part+1);
     hText.String = credits{floored};
     hText.FontSize = (30+sin(scene_counter)*15);
-    hText.Rotation = cos(part)*30;
-    bar = sin(pi*part)^2^.1;
-    if part >= 1
-        mysurf.LineStyle = '-';
+    
+    view_matrix = view(axes2);
+    screen_z = view_matrix * [0;0;1;0];
+    xy = screen_z(1:2)/screen_z(3);
+    rot = -atan2d(xy(1),xy(2));     
+    hText.Rotation = rot;
+    bar = sin(pi*part)^2^.1;     
+    linestyles = {'none','-'};
+    if prevpart < 5 && part >= 5
+        headcaps.Visible = 'on';
+        alpha(headcaps,0.5);
     end
-    alpha(mysurf,min((envs(5,sample())+0.5)*(part>=2&part<4)*fade,1));
+    if part > 6
+        mysurf.Marker = 'none';
+    end
+    mysurf.LineStyle = linestyles{(part >= 1 && part < 5)+1};    
+    facecolorsync = interp1([0,2,2.01,3.5,4,10],[0,0,1,1,0,0],part);
+    alpha(mysurf,min((envs(5,sample())+0.5)*facecolorsync,1));
 
     time = max(part-3,0);
     blending = min(max(part-4,0),1);
     angle = omega*time;  
     hscat.XData = headv(:,1)*blending+(DIA+K*sin(W*angle)).*cos(angle).*(1-blending);
     hscat.YData = headv(:,2)*blending+(DIA+K*sin(W*angle)).*sin(angle).*(1-blending)+time*cos(omega2*time)*A.*(1-blending);
-    hscat.ZData = headv(:,3)*blending+time*sin(omega2*time)*A.*(1-blending);
-    
+    hscat.ZData = headv(:,3)*blending+time*sin(omega2*time)*A.*(1-blending);    
     drawnow;
 end
 
