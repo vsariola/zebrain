@@ -16,6 +16,7 @@ function demo_capture
     open(video);   
     sample = @()1;    
     drawnow=@()my_drawnow();
+    a = audioplayer(s/32768,44100);
     mainloop      
     close(video);      
 end
