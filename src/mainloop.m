@@ -24,7 +24,7 @@ zoomer = @(zoom,x)mod(round(((0:255)-x)/zoom+x),256)+1;
 xrange = linspace(-3,3,256);
 [xgrid,dummy]=ndgrid(xrange);
 
-figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none');
+fig = figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none');
 
 create_axes=@()axes('units','normalized','position',[0 0 1 1],'FontWeight','bold','color',[0,0,0],'visible','off');        
 
@@ -140,6 +140,11 @@ while pattern < song.endPattern
     xy = screen_z(1:2)/screen_z(3);
     rot = -atan2d(xy(1),xy(2));     
     hText.Rotation = rot;
+    
+    % screenz = (view_matrix * [6;2;-1;1]);
+    % min(max(fig.Position(3)/screenz(3),1),50);
+    hText.FontSize = fig.Position(3)/50;
+    
     bar = sin(pi*part)^2^.1;     
     linestyles = {'none','-'};
     if prevpart < 5 && part >= 5
