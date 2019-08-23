@@ -25,11 +25,11 @@
 
 function [mMixBuf,envBufs] = player(song)
 
-    x = (0:44099)/44100;
+    samx = (0:44099)/44100;
     % Precalculate oscillators into a table; this is much faster than
     % using lambdas in matlab
     % Oscillators: 1 = sine, 2 = square, 3 = sawtooth, 4 = triangle
-    oscPrecalc = [sin(x*2*pi);(x < .5)*2-1;2 * x - 1;1-abs(x*4-2)];
+    oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;2 * samx - 1;1-abs(samx*4-2)];
     getnotefreq = @(n) .003959503758 * 2^((n - 128) / 12);    
 
     % Init iteration state variables

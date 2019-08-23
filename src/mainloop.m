@@ -45,14 +45,14 @@ u = [u;uu;uu;vv;vv+2*pi];
 v = [v;vv;vv+2*pi;uu;uu];
 
 
-tri = delaunay(u,v);
+triangles = delaunay(u,v);
 
-x = (cos(-u)*A+K*sin(W*v)+DIA).*cos(v);
-y = (cos(-u)*A+K*sin(W*v)+DIA).*sin(v);
-z = sin(-u)*A;
+grix = (cos(-u)*A+K*sin(W*v)+DIA).*cos(v);
+gridy = (cos(-u)*A+K*sin(W*v)+DIA).*sin(v);
+zz = sin(-u)*A;
 
-makepatch = @(f,v)patch('faces',f,'vertices',v,'facevertexcdata',z(:),'facecolor',get(axes2,'DefaultSurfaceFaceColor'),'edgecolor',get(axes2,'DefaultSurfaceEdgeColor'),'parent',axes2,'SpecularExponent',25,'SpecularStrength',0.9,'LineStyle','-','Marker','.','MarkerSize',10);                 
-mysurf = makepatch(tri,[x(:),y(:),z(:)]);
+makepatch = @(f,v,c,parent)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',get(axes2,'DefaultSurfaceFaceColor'),'edgecolor',get(axes2,'DefaultSurfaceEdgeColor'),'parent',parent,'SpecularExponent',25,'SpecularStrength',0.9,'LineStyle','-','Marker','.','MarkerSize',10);                 
+mysurf = makepatch(triangles,[grix(:),gridy(:),zz(:)],zz(:),axes2);
 
 axes2.Color = 'none';
 
@@ -71,11 +71,19 @@ camtarget(axes2,[8 0 1]);
 credits = {'','bC!&TPOLM|Zebrain','','','','4096 bytes|MATLAB|Demosplash 2019','','code|pestis/bC!,music|distance/TPOLM',''};
 hText = text(10,4,-1,'','VerticalAlign','middle','HorizontalAlign','center','FontName','Courier New');
 
+% Init viivat
+grp = hgtransform('Parent',axes2);
+tdata = load('trimesh3d');
+hline = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,grp);
+hline.FaceAlpha = 0.3;
+hline.Marker = 'none';
+hline.LineStyle = 'none';
+hline.FaceColor = 'w';
 axes3 = create_axes();            
-[x,y] = ndgrid(-1:.01:1);
-I=image(axes3,zeros(size(x)));    
+[grix,gridy] = ndgrid(-1:.01:1);
+I=image(axes3,zeros(size(grix)));    
 axes3.Visible = 'off';
-alphavalues = (x.^2+y.^2).^1.3/2;    
+alphavalues = (grix.^2+gridy.^2).^1.3/2;    
 alpha(I,alphavalues);    
 
 
@@ -101,25 +109,25 @@ while pattern < song.endPattern
     fade = max(sin(time),0)^.3;
     h=xgrid+xgrid'*1i;
     for f=0:2
-        z=0;
+        zz=0;
         for kind=[1:3,5]
-            z=z+1./(h-.3*sin(time*kind)*exp(1i*kind/kerroin+time+f-envs(5,sample())));
+            zz=zz+1./(h-.3*sin(time*kind)*exp(1i*kind/kerroin+time+f-envs(5,sample())));
         end
-        h=h-3./z;
+        h=h-3./zz;
     end
-    z = 256-sqrt(abs(z))*200;
+    zz = 256-sqrt(abs(zz))*200;
     
     brain_index = -cos(pi*part/4)*9.9+11;
     alphaBrain = mod(brain_index,1);
     ind = floor(brain_index);
-    z = z+double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain;    
+    zz = zz+double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain;    
     zoom = envs(6,sample()).*0.05+1;
     for angle = 1:4      
-        z = z+z(zoomer(zoom,cx),zoomer(zoom,cy),1);       
+        zz = zz+zz(zoomer(zoom,cx),zoomer(zoom,cy),1);       
         zoom = sqrt(zoom);
     end
        
-    image(axes1,tanh((z/80*fade+envs(1,sample()))/64)*640+envs(7,sample())*400);    
+    image(axes1,tanh((zz/80*fade+envs(1,sample()))/64)*640+envs(7,sample())*400);    
     axes1.Visible = 'off';
     
     angle = beat/100 + scene_counter + 1;                        
@@ -155,6 +163,7 @@ while pattern < song.endPattern
     hscat.YData = muljuttu(:,2); 
     hscat.ZData = muljuttu(:,3);
     drawnow();
+    grp.Matrix =  makehgtform('zrotate',pattern)*makehgtform('translate',0,0,(part-7)*100);
 end
 
 close all
