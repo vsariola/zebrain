@@ -2,6 +2,7 @@ DIA = 10;
 A = 3.5;
 K = 5;
 W = 3;
+rng(0);
 
 mri_data_for_iso = load('mri');
 mri_smoothed = smooth3(squeeze(mri_data_for_iso.D));
