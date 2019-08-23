@@ -68,8 +68,8 @@ camproj(axes2,'perspective')
 camva(axes2,75);
 camtarget(axes2,[8 0 1]);
 
-credits = {'','bC!&TPOLM:Zebrain',[],[],[],'4096 bytes:MATLAB:Demosplash 2019',[],'code:pestis/bC!:music:distance/TPOLM',[]};
-hText = text(8,4,-1,'','VerticalAlign','middle','HorizontalAlign','center','FontName','Courier New');
+credits = {[],'bC!&TPOLM|Zebrain',[],[],[],'4096 bytes|MATLAB|Demosplash 2019',[],{'code|pestis/bC!','music|distance/TPOLM'},[]};
+hText = text(10,4,-1,'','VerticalAlign','middle','HorizontalAlign','center','FontName','Courier New');
 axes3 = create_axes();            
 [x,y] = ndgrid(-1:.01:1);
 I=image(axes3,zeros(size(x)));    
