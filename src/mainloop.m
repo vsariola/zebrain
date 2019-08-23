@@ -9,7 +9,7 @@ mri_smoothed = smooth3(squeeze(mri_data_for_iso.D));
 xx = linspace(-1,1,128)*30;
 zz = linspace(-.4,.4,27)*30;
 head = isosurface(xx,xx,zz,mri_smoothed,5);
-
+interpolate = @(x,v,xq)interp1(x,v,xq,[],'extrap');
 headv = head.vertices;
 omega = randn(size(headv,1),1)*2;
 omega2 = randn(size(headv,1),1)*.5;
@@ -31,7 +31,7 @@ create_axes=@()axes('units','normalized','position',[0 0 1 1],'FontWeight','bold
 axes1 = create_axes(); 
 
 colormap bone    
-colormap(interp1(1:64,colormap,1:.1:64));
+colormap(interpolate(1:64,colormap,1:.1:64));
 
 axes2 = create_axes();
 axes2.XAxis.Color = [0 0 0];
@@ -51,7 +51,7 @@ x = (cos(-u)*A+K*sin(W*v)+DIA).*cos(v);
 y = (cos(-u)*A+K*sin(W*v)+DIA).*sin(v);
 z = sin(-u)*A;
 
-makepatch = @(f,v)patch('faces',f,'vertices',v,'facevertexcdata',z(:),'facecolor',get(axes2,'DefaultSurfaceFaceColor'),'edgecolor',get(axes2,'DefaultSurfaceEdgeColor'),'parent',axes2,'SpecularExponent',25,'SpecularStrength',0.9,'LineStyle','none','Marker','.','MarkerSize',10);                 
+makepatch = @(f,v)patch('faces',f,'vertices',v,'facevertexcdata',z(:),'facecolor',get(axes2,'DefaultSurfaceFaceColor'),'edgecolor',get(axes2,'DefaultSurfaceEdgeColor'),'parent',axes2,'SpecularExponent',25,'SpecularStrength',0.9,'LineStyle','-','Marker','.','MarkerSize',10);                 
 mysurf = makepatch(tri,[x(:),y(:),z(:)]);
 
 axes2.Color = 'none';
@@ -68,8 +68,9 @@ camproj(axes2,'perspective')
 camva(axes2,75);
 camtarget(axes2,[8 0 1]);
 
-credits = {[],'bC!&TPOLM|Zebrain',[],[],[],'4096 bytes|MATLAB|Demosplash 2019',[],{'code|pestis/bC!','music|distance/TPOLM'},[]};
+credits = {'','bC!&TPOLM|Zebrain','','','','4096 bytes|MATLAB|Demosplash 2019','','code|pestis/bC!,music|distance/TPOLM',''};
 hText = text(10,4,-1,'','VerticalAlign','middle','HorizontalAlign','center','FontName','Courier New');
+
 axes3 = create_axes();            
 [x,y] = ndgrid(-1:.01:1);
 I=image(axes3,zeros(size(x)));    
@@ -124,7 +125,10 @@ while pattern < song.endPattern
     campos(axes2,[(DIA+K*sin(W*angle))*cos(angle),(DIA+K*sin(W*angle))*sin(angle),0]);        
     camlight(hLight,'HEADLIGHT');                
     floored = floor(part+1);
-    hText.String = credits{floored};    
+    str = credits{floored};
+    indices = ((1:length(str))-1)/3;
+    modded =  mod(beat,128);
+    hText.String = split(str(indices > modded-105 & indices < modded),',');    
     
     view_matrix = view(axes2);
     screen_z = view_matrix * [0;0;1;0];
@@ -136,17 +140,13 @@ while pattern < song.endPattern
     % min(max(fig.Position(3)/screenz(3),1),50);
     hText.FontSize = fig.Position(3)/50;
     
-    bar = sin(pi*part)^2^.1;     
-    linestyles = {'none','-'};    
-    if part > 6
-        mysurf.Marker = 'none';
-    end
-    mysurf.LineStyle = linestyles{(part >= 1 && part < 5)+1};    
-    facecolorsync = interp1([0,2,2.01,3.5,4,10],[0,0,1,1,0,0],part);
+    bar = sin(pi*part)^2^.1;      
+    facecolorsync = interpolate([0,2,2.01,3.5,4,10],[0,0,1,1,0,0],part);
     alpha(mysurf,min((envs(5,sample())+0.5)*facecolorsync,1));
-
+    mysurf.EdgeAlpha = interpolate([0 1 1.01 4 5 10],[0 0 1 1 0 0],part);
+    
     time = max(part-3,0);
-    blending = min(max(part-4,0),1);
+    blending = min(max(part-4,0),1)^.2;
     angle = omega*time;  
     hscat.XData = headv(:,1)*blending+(DIA+K*sin(W*angle)).*cos(angle).*(1-blending);
     hscat.YData = headv(:,2)*blending+(DIA+K*sin(W*angle)).*sin(angle).*(1-blending)+time*cos(omega2*time)*A.*(1-blending);
