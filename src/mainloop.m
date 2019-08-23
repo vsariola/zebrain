@@ -67,10 +67,10 @@ camup(axes2,[1 0 1]);
 daspect(axes2,[1 1 1]);        
 camproj(axes2,'perspective')
 camva(axes2,75);
-camtarget(axes2,[5 5 1]);
+camtarget(axes2,[8 0 1]);
 
-credits = {'','The Planet of Brainlez Moomins:Zebrain',[],[],[],'4096bytes:MATLAB:Demosplash2019',[],'code:pestis/bC!:music:distance/TPOLM'};
-hText = text(3,7,-1,'','FontSize',50,'VerticalAlign','middle','HorizontalAlign','center');
+credits = {'','bC!&TPOLM:Zebrain',[],[],[],'4096 bytes:MATLAB:Demosplash 2019',[],'code:pestis/bC!:music:distance/TPOLM',[]};
+hText = text(8,4,-1,'','VerticalAlign','middle','HorizontalAlign','center','FontName','Courier New');
 axes3 = create_axes();            
 [x,y] = ndgrid(-1:.01:1);
 I=image(axes3,zeros(size(x)));    
@@ -130,8 +130,7 @@ while pattern < song.endPattern
     campos(axes2,[(DIA+K*sin(W*angle))*cos(angle),(DIA+K*sin(W*angle))*sin(angle),0]);        
     camlight(hLight,'HEADLIGHT');                
     floored = floor(part+1);
-    hText.String = credits{min(floored,8)};
-    hText.FontSize = (30+sin(scene_counter)*15);
+    hText.String = credits{floored};    
     
     view_matrix = view(axes2);
     screen_z = view_matrix * [0;0;1;0];
