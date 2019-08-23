@@ -55,8 +55,6 @@ z = sin(-u)*A;
 makepatch = @(f,v)patch('faces',f,'vertices',v,'facevertexcdata',z(:),'facecolor',get(axes2,'DefaultSurfaceFaceColor'),'edgecolor',get(axes2,'DefaultSurfaceEdgeColor'),'parent',axes2,'SpecularExponent',25,'SpecularStrength',0.9,'LineStyle','none','Marker','.','MarkerSize',10);                 
 mysurf = makepatch(tri,[x(:),y(:),z(:)]);
 
-headcaps = patch(isocaps(xx,xx,zz,mri_smoothed, 5), 'FaceColor', 'k', 'EdgeColor', 'none','Visible','off');
-
 axes2.Color = 'none';
 
 xx = head.vertices(:,1)*Inf;
@@ -146,11 +144,7 @@ while pattern < song.endPattern
     hText.FontSize = fig.Position(3)/50;
     
     bar = sin(pi*part)^2^.1;     
-    linestyles = {'none','-'};
-    if prevpart < 5 && part >= 5
-        headcaps.Visible = 'on';
-        alpha(headcaps,0.5);
-    end
+    linestyles = {'none','-'};    
     if part > 6
         mysurf.Marker = 'none';
     end
