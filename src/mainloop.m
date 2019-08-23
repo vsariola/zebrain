@@ -1,5 +1,3 @@
-a = audioplayer(s/32768,44100);
-
 DIA = 10;
 A = 3.5;
 K = 5;
@@ -157,7 +155,7 @@ while pattern < song.endPattern
     hscat.XData = headv(:,1)*blending+(DIA+K*sin(W*angle)).*cos(angle).*(1-blending);
     hscat.YData = headv(:,2)*blending+(DIA+K*sin(W*angle)).*sin(angle).*(1-blending)+time*cos(omega2*time)*A.*(1-blending);
     hscat.ZData = headv(:,3)*blending+time*sin(omega2*time)*A.*(1-blending);    
-    drawnow;
+    drawnow();
 end
 
 close all
