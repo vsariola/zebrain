@@ -96,13 +96,15 @@ while pattern < song.endPattern
     cx = cos(i)*127+127;
     cy = sin(i)*127+127;
     
+    kerroin = interpolate([0 6 10],[1 1 2],part)^2;
+    
     time = pi*pattern/34.5;
     fade = max(sin(time),0)^.3;
     h=xgrid+xgrid'*1i;
     for f=0:2
         z=0;
         for kind=[1:3,5]
-            z=z+1./(h-.3*sin(time*kind)*exp(1i*kind+time+f));
+            z=z+1./(h-.3*sin(time*kind)*exp(1i*kind/kerroin+time+f));
         end
         h=h-3./z;
     end
@@ -136,21 +138,22 @@ while pattern < song.endPattern
     rot = -atan2d(xy(1),xy(2));     
     hText.Rotation = rot;
     
-    % screenz = (view_matrix * [6;2;-1;1]);
-    % min(max(fig.Position(3)/screenz(3),1),50);
     hText.FontSize = fig.Position(3)/50;
     
     bar = sin(pi*part)^2^.1;      
     facecolorsync = interpolate([0,2,2.01,3.5,4,10],[0,0,1,1,0,0],part);
     alpha(mysurf,min((envs(5,sample())+0.5)*facecolorsync,1));
-    mysurf.EdgeAlpha = interpolate([0 1 1.01 4 5 10],[0 0 1 1 0 0],part);
-    
+    mysurf.EdgeAlpha = interpolate([0 1 1.5 4 5 10],[0 0 1 1 0 0],part);
+    mulju = interpolate([0 5 6 9],[0 0 .5 .5],part);
     time = max(part-3,0);
     blending = min(max(part-4,0),1)^.2;
     angle = omega*time;  
-    hscat.XData = headv(:,1)*blending+(DIA+K*sin(W*angle)).*cos(angle).*(1-blending);
-    hscat.YData = headv(:,2)*blending+(DIA+K*sin(W*angle)).*sin(angle).*(1-blending)+time*cos(omega2*time)*A.*(1-blending);
-    hscat.ZData = headv(:,3)*blending+time*sin(omega2*time)*A.*(1-blending);    
+    point_b = [(DIA+K*sin(W*angle)).*cos(angle),(DIA+K*sin(W*angle)).*sin(angle),time*sin(omega2*time)*A];
+    blended = headv * blending + point_b * (1-blending);
+    muljuttu = blended + mulju*sin(blended*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3 .4 .5]*time);
+    hscat.XData = muljuttu(:,1);
+    hscat.YData = muljuttu(:,2); 
+    hscat.ZData = muljuttu(:,3);
     drawnow();
 end
 
