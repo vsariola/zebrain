@@ -92,11 +92,10 @@ while pattern < song.endPattern
     prevpart = part;
     part = pattern / 4;
     scene_counter = sum_triggers(5,sample());
-    i = beat/30;
-    cx = cos(i)*127+127;
-    cy = sin(i)*127+127;
+    cx = cos(part)*127+127;
+    cy = sin(part)*127+127;
     
-    kerroin = interpolate([0 6 10],[1 1 2],part)^2;
+    kerroin = interpolate([0,6,10],[1,1,2],part)^2;
     
     time = pi*pattern/34.5;
     fade = max(sin(time),0)^.3;
@@ -104,18 +103,19 @@ while pattern < song.endPattern
     for f=0:2
         z=0;
         for kind=[1:3,5]
-            z=z+1./(h-.3*sin(time*kind)*exp(1i*kind/kerroin+time+f));
+            z=z+1./(h-.3*sin(time*kind)*exp(1i*kind/kerroin+time+f-envs(5,sample())));
         end
         h=h-3./z;
     end
     z = 256-sqrt(abs(z))*200;
     
-    alphaBrain = mod(i,1);
-    ind = mod(floor(i),20)+1;
+    brain_index = -cos(pi*part/4)*9.9+11;
+    alphaBrain = mod(brain_index,1);
+    ind = floor(brain_index);
     z = z+double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain;    
-    zoom = envs(5:6,sample()).*[0.2;0.05]+1;
+    zoom = envs(6,sample()).*0.05+1;
     for angle = 1:4      
-        z = z+z(zoomer(zoom(1),cx),zoomer(zoom(2),cy),1);       
+        z = z+z(zoomer(zoom,cx),zoomer(zoom,cy),1);       
         zoom = sqrt(zoom);
     end
        
@@ -143,14 +143,14 @@ while pattern < song.endPattern
     bar = sin(pi*part)^2^.1;      
     facecolorsync = interpolate([0,2,2.01,3.5,4,10],[0,0,1,1,0,0],part);
     alpha(mysurf,min((envs(5,sample())+0.5)*facecolorsync,1));
-    mysurf.EdgeAlpha = interpolate([0 1 1.5 4 5 10],[0 0 1 1 0 0],part);
-    mulju = interpolate([0 5 6 9],[0 0 .5 .5],part);
+    mysurf.EdgeAlpha = interpolate([0,1,1.5,4,5,10],[0,0,1,1,0,0],part);
+    mulju = interpolate([0,5,6,9],[0,0,.5,.5],part);
     time = max(part-3,0);
     blending = min(max(part-4,0),1)^.2;
     angle = omega*time;  
     point_b = [(DIA+K*sin(W*angle)).*cos(angle),(DIA+K*sin(W*angle)).*sin(angle),time*sin(omega2*time)*A];
     blended = headv * blending + point_b * (1-blending);
-    muljuttu = blended + mulju*sin(blended*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3 .4 .5]*time);
+    muljuttu = blended + mulju*sin(blended*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3,.4,.5]*time);
     hscat.XData = muljuttu(:,1);
     hscat.YData = muljuttu(:,2); 
     hscat.ZData = muljuttu(:,3);
