@@ -25,7 +25,7 @@ xrange = linspace(-3,3,256);
 
 fig = figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none');
 
-create_axes=@()axes('units','normalized','position',[0 0 1 1],'FontWeight','bold','color',[0,0,0],'visible','off');        
+create_axes=@()axes('units','normalized','position',[0 0 1 1],'color',[0,0,0],'visible','off');        
 
 
 axes1 = create_axes(); 
@@ -90,7 +90,7 @@ camproj(axes4,'perspective')
 camva(axes4,75);
 camtarget(axes4,[8 0 1]);
 credits = {'','bC!&TPOLM|Zebrain','','','','4096 bytes|MATLAB|Demosplash 2019','','code|pestis/bC!,music|distance/TPOLM',''};
-hText = text(10,4,-1,'','VerticalAlign','middle','HorizontalAlign','center','FontName','Courier New','color','w','Clipping','off');
+hText = text(10,4,-1,'','VerticalAlign','middle','HorizontalAlign','center','FontWeight','bold','FontName','Courier New','color','w','Clipping','off');
 
 triggers = envs & ~[zeros(7,1),envs(:,1:(end-1))];
 sum_triggers = cumsum(triggers,2);
