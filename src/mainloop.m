@@ -92,7 +92,7 @@ alpha(I,alphavalues);
 triggers = envs & ~[zeros(7,1),envs(:,1:(end-1))];
 sum_triggers = cumsum(triggers,2);
 
-play(a)
+start_music();
 part = 0;
 pattern = 0;
 while pattern < song.endPattern
