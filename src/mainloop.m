@@ -168,7 +168,7 @@ while pattern < song.endPattern
     hscat.YData = muljuttu(:,2); 
     hscat.ZData = muljuttu(:,3);
     drawnow();
-    meshpatch.FaceAlpha = interpolate([0,4,5,7,8,9],[0,0,.13,.13,0,0],part);
+    meshpatch.FaceAlpha = interpolate([0,4,5,7,8,9],[0,0,.2,.2,0,0],part);
     grp.Matrix =  makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);
 end
 
