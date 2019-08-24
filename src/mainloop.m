@@ -142,9 +142,10 @@ while pattern < song.endPattern
     camlight(hLight,'HEADLIGHT');                
     floored = floor(part+1);
     str = credits{floored};
-    indices = ((1:length(str))-1)/3;
+    indices = ((1:length(str))-1)/4;
     modded =  mod(beat,128);
-    hText.String = split(str(indices > modded-105 & indices < modded),',');    
+    str((indices < modded-105 | indices > modded-12) & str ~=',') = ' ';
+    hText.String = split(str,',');    
     
     view_matrix = view(axes2);
     screen_z = view_matrix * [0;0;1;0];
