@@ -68,9 +68,6 @@ camproj(axes2,'perspective')
 camva(axes2,75);
 camtarget(axes2,[8 0 1]);
 
-credits = {'','bC!&TPOLM|Zebrain','','','','4096 bytes|MATLAB|Demosplash 2019','','code|pestis/bC!,music|distance/TPOLM',''};
-hText = text(10,4,-1,'','VerticalAlign','middle','HorizontalAlign','center','FontName','Courier New');
-
 % Init viivat
 grp = hgtransform('Parent',axes2);
 tdata = load('trimesh3d');
@@ -86,7 +83,14 @@ axes3.Visible = 'off';
 alphavalues = (grix.^2+gridy.^2).^1.3/2;    
 alpha(I,alphavalues);    
 
-
+axes4 = create_axes();
+camup(axes4,[1 0 1]);
+daspect(axes4,[1 1 1]);        
+camproj(axes4,'perspective')
+camva(axes4,75);
+camtarget(axes4,[8 0 1]);
+credits = {'','bC!&TPOLM|Zebrain','','','','4096 bytes|MATLAB|Demosplash 2019','','code|pestis/bC!,music|distance/TPOLM',''};
+hText = text(10,4,-1,'','VerticalAlign','middle','HorizontalAlign','center','FontName','Courier New','color','w','Clipping','off');
 
 triggers = envs & ~[zeros(7,1),envs(:,1:(end-1))];
 sum_triggers = cumsum(triggers,2);
@@ -132,7 +136,9 @@ while pattern < song.endPattern
     
     angle = beat/100 + scene_counter + 1;                        
 
-    campos(axes2,[(DIA+K*sin(W*angle))*cos(angle),(DIA+K*sin(W*angle))*sin(angle),0]);        
+    camera_position = [(DIA+K*sin(W*angle))*cos(angle),(DIA+K*sin(W*angle))*sin(angle),0];
+    campos(axes2,camera_position);        
+    campos(axes4,camera_position);
     camlight(hLight,'HEADLIGHT');                
     floored = floor(part+1);
     str = credits{floored};
@@ -145,7 +151,6 @@ while pattern < song.endPattern
     xy = screen_z(1:2)/screen_z(3);
     rot = -atan2d(xy(1),xy(2));     
     hText.Rotation = rot;
-    
     hText.FontSize = fig.Position(3)/50;
     
     bar = sin(pi*part)^2^.1;      
