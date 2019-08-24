@@ -15,7 +15,9 @@ function build
     demom = strrep(demom,'mainloop',readfile('../src/mainloop.m'));    
     demom = [demom char(10) playerm];    
     
-
+    outputfilem = [outputdir outputname '_unminified.m'];
+    writefile(outputfilem,demom);
+    
     demom = minify(demom,{'endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time'});
 
     outputfilem = [outputdir outputname '.m'];
