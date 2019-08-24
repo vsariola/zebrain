@@ -121,7 +121,7 @@ while pattern < song.endPattern
     end
     zz = 256-sqrt(abs(zz))*200;
     
-    brain_index = -cos(pi*part/4)*9.9+11;
+    brain_index = part*20/9+1;
     alphaBrain = mod(brain_index,1);
     ind = floor(brain_index);
     zz = zz+double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain;    
