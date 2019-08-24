@@ -74,12 +74,11 @@ hText = text(10,4,-1,'','VerticalAlign','middle','HorizontalAlign','center','Fon
 % Init viivat
 grp = hgtransform('Parent',axes2);
 tdata = load('trimesh3d');
-hline = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,grp);
-hline.FaceAlpha = 0.1;
-hline.Marker = 'none';
-hline.LineStyle = 'none';
-hline.FaceColor = 'w';
-hline.SpecularStrength = 0;
+meshpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,grp);
+meshpatch.Marker = 'none';
+meshpatch.LineStyle = 'none';
+meshpatch.FaceColor = 'w';
+meshpatch.SpecularStrength = 0;
 axes3 = create_axes();            
 [grix,gridy] = ndgrid(-1:.01:1);
 I=image(axes3,zeros(size(grix)));    
@@ -164,7 +163,8 @@ while pattern < song.endPattern
     hscat.YData = muljuttu(:,2); 
     hscat.ZData = muljuttu(:,3);
     drawnow();
-    grp.Matrix =  makehgtform('zrotate',pattern)*makehgtform('translate',0,0,(part-7)*100);
+    meshpatch.FaceAlpha = interpolate([0,4,5,7,8,9],[0,0,.13,.13,0,0],part);
+    grp.Matrix =  makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);
 end
 
 close all
