@@ -89,7 +89,9 @@ daspect(axes4,[1 1 1]);
 camproj(axes4,'perspective')
 camva(axes4,75);
 camtarget(axes4,[8 0 1]);
-credits = {'','bC!&TPOLM|Zebrain','','','','4096 bytes|MATLAB|Demosplash 2019','','code|pestis/bC!,music|distance/TPOLM',''};
+
+
+credits = {'','bC!z&zTPOLM:#__z__zz__zz__zz__z''zz_zzzz#z/z\__z\_\z\_\z\_\z\z\`.\z#/__z\__z\_\z\`.z\z\z\z\z`\','','','','4096 bytes|MATLAB|Demosplash 2019','','codezz|zpestis/bC!zzzz#musicz|zdistance/TPOLM',''};
 hText = text(10,4,-1,'','VerticalAlign','middle','HorizontalAlign','center','FontWeight','bold','FontName','Courier New','color','w','Clipping','off');
 
 triggers = envs & ~[zeros(7,1),envs(:,1:(end-1))];
@@ -142,10 +144,11 @@ while pattern < song.endPattern
     camlight(hLight,'HEADLIGHT');                
     floored = floor(part+1);
     str = credits{floored};
-    indices = ((1:length(str))-1)/4;
+    indices = ((1:length(str))-1)/16;
     modded =  mod(beat,128);
-    str((indices < modded-105 | indices > modded-12) & str ~=',') = ' ';
-    hText.String = split(str,',');    
+    space = char(32);
+    str((indices < modded-105 | indices > modded-12) & str ~='#') = space;
+    hText.String = split(strrep(str,'z',space),'#');    
     
     view_matrix = view(axes2);
     screen_z = view_matrix * [0;0;1;0];
