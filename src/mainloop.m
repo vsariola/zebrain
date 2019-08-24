@@ -7,7 +7,7 @@ rng(0);
 mri_data_for_iso = load('mri');
 mri_smoothed = smooth3(squeeze(mri_data_for_iso.D));
 xx = linspace(-1,1,128)*30;
-zz = linspace(-.4,.4,27)*30;
+zz = linspace(-1,1,27)*60;
 head = isosurface(xx,xx,zz,mri_smoothed,5);
 interpolate = @(x,v,xq)interp1(x,v,xq,[],'extrap');
 headv = head.vertices;
@@ -66,7 +66,7 @@ camup(axes2,[1 0 1]);
 daspect(axes2,[1 1 1]);        
 camproj(axes2,'perspective')
 camva(axes2,75);
-camtarget(axes2,[8 0 1]);
+camtarget(axes2,[8,.5,.5]);
 
 % Init viivat
 grp = hgtransform('Parent',axes2);
@@ -157,7 +157,7 @@ while pattern < song.endPattern
     facecolorsync = interpolate([0,2,2.01,3.5,4,10],[0,0,1,1,0,0],part);
     alpha(mysurf,min((envs(5,sample())+0.5)*facecolorsync,1));
     mysurf.EdgeAlpha = interpolate([0,1,1.5,4,5,10],[0,0,1,1,0,0],part);
-    mulju = interpolate([0,5,6,9],[0,0,.5,.5],part);
+    mulju = interpolate([0,6,9],[0,0,3],part);
     time = max(part-3,0);
     blending = min(max(part-4,0),1)^.2;
     angle = omega*time;  
