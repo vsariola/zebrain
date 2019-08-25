@@ -15,7 +15,7 @@ function demo_capture
     video.Quality = 95;
     open(video);   
     sample = @()1;    
-    drawnow=@()my_drawnow();
+    draw=@my_drawnow;
     a = audioplayer(s/32768,44100);
     start_music = @()play(a);
     mainloop      
@@ -26,6 +26,7 @@ function my_drawnow()
     global frame video sample s
     frame = frame + 1;
     sample = @()min(max(frame*44100/60,1),size(s,2));
+    drawnow();
     f = getframe(gcf);
     writeVideo(video,f);    
     disp(sample());    

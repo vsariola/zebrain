@@ -1,5 +1,5 @@
 function camera_setup
-    camup([1 0 1]);
+    camup([.7 0 1]);
     daspect([1 1 1]);        
     camproj('perspective')
     camva(75);

@@ -26,7 +26,7 @@ xrange = linspc(-3,3,256);
 
 fig = figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none');
 
-create_axes=@()axes('position',[0 0 1 1],'visible','off');        
+create_axes=@()axes('units','normalized','position',[0 0 1 1],'visible','off');        
 
 
 axes1 = create_axes(); 
@@ -49,12 +49,12 @@ grix = (cos(-cu)*A+K*sin(W*cv)+DIA).*cos(cv);
 gridy = (cos(-cu)*A+K*sin(W*cv)+DIA).*sin(cv);
 zz = sin(-cu)*A;
 
-makepatch = @(f,v,c,p,s,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor','flat','edgecolor','k','parent',p,'SpecularExponent',25,'SpecularStrength',s,'LineStyle','-','Marker',m,'MarkerSize',10);                 
-mysurf = makepatch(triangles,[grix(:),gridy(:),zz(:)],zz(:)+10,axes2,0.9,'.');
+makepatch = @(f,v,c,p,s,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor','flat','edgecolor','k','parent',p,'SpecularExponent',5,'SpecularStrength',s,'LineStyle','-','Marker',m,'MarkerSize',10);                 
+mysurf = makepatch(triangles,[grix(:),gridy(:),zz(:)],zz(:)+6,axes2,0.7,'.');
 
 xx = head.vertices(:,1)*Inf;
 hold on;
-hscat = scatter3(xx,xx,xx,50,'k.');
+hscat = scatter3(xx,xx,xx,80,'k.');
 
 
 hLight = light(axes2);
@@ -70,15 +70,15 @@ axes3 = create_axes();
 [grix,gridy] = ndgrid(-1:.01:1);
 I=image(axes3,zeros(size(grix)));    
 axes3.Visible = 'off';
-alphavalues = (grix.^2+gridy.^2).^1.3/2;    
+alphavalues = (grix.^2+gridy.^2)/2;    
 alpha(I,alphavalues);    
 
 axes4 = create_axes();
 camera_setup;
 
 
-texts = {'bC!z&zTPOLM:','~__z__zz__zz__zz__z''zz_zzzz~z/z\__z\_\z\_\z\_\z\z\`.\z~/__z\__z\_\z\`.z\z\z\z\z`\','4096 bytes|MATLAB|Demosplash 2019','z_z_z~(zvz)~z\z/z~zzvzz','Bits''n''Bites~p01~Brothomstates~Kooma~Orange~CNCD~NoooN','code:pestis/bC!','music:distance/TPOLM'};
-texttimes = [128,196;140,208;640,736;800,896;808,896;1024,1072;1032,1072];
+texts = {'bC!z&zTPOLM:','~__z__zz__zz__zz__z''zz_zzzz~z/z\__z\_\z\_\z\_\z\z\`.\z~/__z\__z\_\z\`.z\z\z\z\z`\','4096 bytesz|zMATLABz|zDemosplash 2019','z_z_z~(zvz)~z\z/z~zzvzz','Bits''n''Bites~p01~Brothomstates~Kooma~Orange~CNCD~NoooN','code:pestis/bC!','music:distance/TPOLM'};
+texttimes = [128,192;152,216;640,735;800,896;808,896;1024,1072;1032,1072];
 texttimes = reshape([texttimes;texttimes+4],7,[]);
 hTexts = arrayfun(@(x,y,z)text(x,y,z,'','VerticalAlign','middle','HorizontalAlign','center','FontWeight','bold','FontName','Courier New','color','w','Interpreter','none'),[10,10,10,20,20,-2,-2],[4,4,4,60,60,-12,-12],[4,1,-1,30,-10,3,0]);
 hTexts(4).Color = 'r';
@@ -88,16 +88,16 @@ triggers = envs & ~[zeros(7,1),envs(:,1:(end-1))];
 sum_triggers = cumsum(triggers,2);
 
 start_music();
-part = 0;
 pattern = 0;
-while pattern < song.endPattern
-    beat = sample()/song.rowLen;  
+while pattern < 35
+    cursample = sample();
+    sync = @(c)envs(c,cursample);
+    beat = cursample/song.rowLen;  
     pattern = beat / 32;
-    prevpart = part;
     part = pattern / 4;
-    scene_counter = sum_triggers(5,sample());
-    cx = cos(part)*99+99;
-    cy = sin(part)*99+99;
+    scene_counter = sum_triggers(5,cursample);
+    cx = cos(part)*50+127;
+    cy = sin(part*1.1)*50+127;
     
     kerroin = interpolate([0,6,10],[1,1,2],part)^2;
     
@@ -107,7 +107,7 @@ while pattern < song.endPattern
     for f=0:2
         zz=0;
         for kind=[1:3,5]
-            zz=zz+1./(h-.3*sin(time*kind)*exp(1i*kind/kerroin+time+f-envs(5,sample())));
+            zz=zz+1./(h-.3*sin(time*kind)*exp(1i*kind/kerroin+time+f-sync(5)));
         end
         h=h-3./zz;
     end
@@ -117,13 +117,13 @@ while pattern < song.endPattern
     alphaBrain = mod(brain_index,1);
     ind = floor(brain_index);
     zz = zz+double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain;    
-    zoom = envs(6,sample()).*0.05+1;
+    zoom = sync(6).*0.05+1;
     for angle = 1:4      
         zz = zz+zz(zoomer(zoom,cx),zoomer(zoom,cy),1);       
         zoom = sqrt(zoom);
     end
        
-    image(axes1,tanh((zz/80*fade+envs(1,sample()))/64)*640+envs(7,sample())*400);    
+    image(axes1,tanh((zz/80*fade+sync(1))/64)*640+sync(7)*400);    
     axes1.Visible = 'off';
     
     angle = beat/100 + scene_counter + 1;                        
@@ -133,7 +133,8 @@ while pattern < song.endPattern
     campos(axes4,camera_position);
     camlight(hLight,'HEADLIGHT'); 
     
-    screen_z = view(axes2) * [0;0;1;0];
+    viewmat = view(axes2);
+    screen_z = viewmat * [0;0;1;0];
     xy = screen_z(1:2)/screen_z(3);
 
     for index = 1:length(texts)
@@ -143,27 +144,27 @@ while pattern < song.endPattern
         offset = rands(1:length(str))*.5;
         str_indices = not_empty & string_sync>(.5-offset);
         str(str_indices) = randi([33,47],1,sum(str_indices));
-        str_indices = not_empty & string_sync>(1-offset);
-        str(str_indices | str == 'z') = 32;
+        str(not_empty & string_sync>(1-offset) | str == 'z') = 32;
         hTexts(index).String = split(str,'~');   
         hTexts(index).Rotation = -atan2d(xy(1),xy(2));
         hTexts(index).FontSize = fig.Position(3)/50;
     end
     
     bar = sin(pi*part)^2^.1;      
-    mysurf.FaceAlpha = interpolate([0,2,2.01,3.5,4,10],[0,0,.9,.9,0,0],part);
+    mysurf.FaceAlpha = interpolate([0,258,258.1,448,512,1280],[0,0,.9,.9,0,0],beat);
     mysurf.EdgeAlpha = interpolate([0,1,1.5,4,5,10],[0,0,1,1,0,0],part);
+    mysurf.AmbientStrength = min(sync(5)+0.5,1);
     time = max(part-3,0);
     blending = min(max(part-4,0),1)^.2;
     angle = omega*time;  
-    point_b = [(DIA+K*sin(W*angle)).*cos(angle),(DIA+K*sin(W*angle)).*sin(angle),time*sin(omega2*time)*A];
+    point_b = [(DIA+K*sin(W*angle)).*cos(angle),(DIA+K*sin(W*angle)).*sin(angle),(time+sync(7)*.3)*sin(omega2*time)*A];
     blended = headv * blending + point_b * (1-blending);
     muljuttu = blended + interpolate([0,6,9],[0,0,3],part)*sin(blended*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3,.4,.5]*time);
     hscat.XData = muljuttu(:,1);
     hscat.YData = muljuttu(:,2); 
     hscat.ZData = muljuttu(:,3);
-    drawnow;
-    meshpatch.FaceAlpha = interpolate([0,4,5,7,8,9],[0,0,.3,.3,0,0],part);
+    draw();
+    meshpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.3,.3,0,0],part);
     grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);
 end
 

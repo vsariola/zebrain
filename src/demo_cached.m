@@ -10,6 +10,7 @@ function demo_cached(start_time)
     else
         load('songcache.mat');
     end      
+    draw = @drawnow;
     a = audioplayer(s/32768,44100);
     start_music = @()play(a,start_time);
     sample = @()a.currentSample;
