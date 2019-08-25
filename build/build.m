@@ -19,7 +19,7 @@ function build
     outputfilem = [outputdir outputname '_unminified.m'];
     writefile(outputfilem,demom);
     
-    demom = minify(demom,{'endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time'});
+    demom = minify(demom,{'endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup'});
 
     outputfilem = [outputdir outputname '.m'];
     writefile(outputfilem,demom);

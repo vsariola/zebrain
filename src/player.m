@@ -45,7 +45,6 @@ function [mMixBuf,envBufs] = player(song)
     envBufs = zeros(numChannels,mNumSamples);
     
     for mCurrentCol = 0:numChannels-1   
-        mCurrentCol
         % Put performance critical items in local variables
         chnBuf = zeros(2,mNumSamples);
         instr = song.songData{mCurrentCol+1};
@@ -101,7 +100,7 @@ function [mMixBuf,envBufs] = player(song)
                     note = indexArray(indexArray(indexArray(instr{3},cp),1),row + col * patternLen+1);
                     if note
                         if isempty(indexArray(noteCache,note+1))
-                            noteCache{note+1} = createNote(instr, note, rowLen);
+                            noteCache{note+1} = createNote(instr, note);
                         end
 
                         % Copy note from the note cache
@@ -192,7 +191,7 @@ function [mMixBuf,envBufs] = player(song)
         end
     end
         
-    function noteBuf = createNote(instr,n,rowLen)
+    function noteBuf = createNote(instr,n)
         osc1 = instr{1}(1)+1;
         o1vol = instr{1}(2);
         o1xenv = instr{1}(4);
