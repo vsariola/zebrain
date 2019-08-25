@@ -98,14 +98,14 @@ function [mMixBuf,envBufs] = player(song)
 
                 % Generate notes for this pattern row
                 for col=0:3
-                    n = indexArray(indexArray(indexArray(instr{3},cp),1),row + col * patternLen+1);
-                    if n
-                        if isempty(indexArray(noteCache,n+1))
-                            noteCache{n+1} = createNote(instr, n, rowLen);
+                    note = indexArray(indexArray(indexArray(instr{3},cp),1),row + col * patternLen+1);
+                    if note
+                        if isempty(indexArray(noteCache,note+1))
+                            noteCache{note+1} = createNote(instr, note, rowLen);
                         end
 
                         % Copy note from the note cache
-                        noteBuf = noteCache{n+1};                           
+                        noteBuf = noteCache{note+1};                           
                         range = rowStartSample+1:rowStartSample+length(noteBuf);
                         chnBuf(1,range) = chnBuf(1,range)+noteBuf(1,:);   
                         envBufs(mCurrentCol+1,range) = envBufs(mCurrentCol+1,range)+noteBuf(2,:)*(col==0);                                                
@@ -181,13 +181,13 @@ function [mMixBuf,envBufs] = player(song)
         mMixBuf = mMixBuf + chnBuf;
     end
     
-    function r=indexArray(a,n)
-        r = [];
+    function ret=indexArray(a,n)
+        ret = [];
         if ~isempty(a) && ~isempty(n) && n > 0 && length(a) >= n
             if iscell(a)
-                r=a{n};
+                ret=a{n};
             else
-                r=a(n);
+                ret=a(n);
             end
         end
     end

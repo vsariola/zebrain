@@ -11,9 +11,10 @@ function build
     songm = readfile('../src/loadsong.m');  
     demom = readfile('../src/demo.m');
     playerm = readfile('../src/player.m');     
+    camerasetupm = readfile('../src/camera_setup.m');     
     demom = strrep(demom,'loadsong',songm);        
-    demom = strrep(demom,'mainloop',readfile('../src/mainloop.m'));    
-    demom = [demom char(10) playerm];    
+    demom = strrep(demom,'mainloop',readfile('../src/mainloop.m'));      
+    demom = [demom newline playerm newline camerasetupm];    
     
     outputfilem = [outputdir outputname '_unminified.m'];
     writefile(outputfilem,demom);
