@@ -29,7 +29,7 @@ function [mMixBuf,envBufs] = player(song)
     % Precalculate oscillators into a table; this is much faster than
     % using lambdas in matlab
     % Oscillators: 1 = sine, 2 = square, 3 = sawtooth, 4 = triangle
-    oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;2 * samx - 1;1-abs(samx*4-2)];
+    oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;1-abs(samx*4-2)];
     getnotefreq = @(n) .003959503758 * 2^((n - 128) / 12);    
 
     % Prepare song info
@@ -80,7 +80,7 @@ function [mMixBuf,envBufs] = player(song)
 
                 % Generate notes for this pattern row
                 for col=0:3
-                    note = indexArray(indexArray(indexArray(instr{3},cp),1),row + col * patternLen+1);
+                    note = indexArray(indexArray(instr{3},cp),row + col * patternLen+1);
                     if note
                         if isempty(indexArray(noteCache,note+1))
                             noteCache{note+1} = createNote(instr, note);

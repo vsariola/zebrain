@@ -1,6 +1,12 @@
 f = fopen('../data/demo_song');d = fread(f,'uint8=>uint8');fclose(f);
 song = loadSoundBoxBin(d);
 for i = 1:length(song.songData)
+    if song.songData{i}{1}(1) == 3 % Third oscillator was removed, fourth oscillator is now third
+        song.songData{i}{1}(1) = 2;
+    end
+    if song.songData{i}{1}(5) == 3 % Third oscillator was removed, fourth oscillator is now third
+        song.songData{i}{1}(5) = 2;
+    end
     p = song.songData{i}{2};
     c = song.songData{i}{3}; 
     up = unique(p);

@@ -63,11 +63,7 @@ function exportColumns(f,col)
         if i>1
             fprintf(f,',');
         end
-        fprintf(f,'{');
         exportArray(f,stripTrailingZeros(col{i}{1}));
-        fprintf(f,',');
-        exportArray(f,stripTrailingZeros(col{i}{2}));
-        fprintf(f,'}');
     end    
     fprintf(f,'}');      
 end
