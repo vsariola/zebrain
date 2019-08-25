@@ -26,7 +26,7 @@ xrange = linspc(-3,3,256);
 
 fig = figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none');
 
-create_axes=@()axes('units','normalized','position',[0 0 1 1],'visible','off');        
+create_axes=@()axes('position',[0,0,1,1],'visible','off');        
 
 
 axes1 = create_axes(); 
