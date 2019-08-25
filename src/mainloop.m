@@ -92,7 +92,7 @@ pattern = 0;
 while pattern < 35
     cursample = sample();
     sync = @(c)envs(c,cursample);
-    beat = cursample/song.rowLen;  
+    beat = cursample/6615;  
     pattern = beat / 32;
     part = pattern / 4;
     scene_counter = sum_triggers(5,cursample);

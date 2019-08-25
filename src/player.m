@@ -32,24 +32,19 @@ function [mMixBuf,envBufs] = player(song)
     oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;2 * samx - 1;1-abs(samx*4-2)];
     getnotefreq = @(n) .003959503758 * 2^((n - 128) / 12);    
 
-    % Init iteration state variables
-    mLastRow = song.endPattern;
-
     % Prepare song info
-    mNumSamples = song.rowLen * song.patternLen * (mLastRow + 1);
-
-    numChannels = length(song.songData);
+    mNumSamples = 8334900;
     
     % Create work buffer (initially cleared)
     mMixBuf = zeros(2,mNumSamples);
-    envBufs = zeros(numChannels,mNumSamples);
+    envBufs = zeros(7,mNumSamples);
     
-    for mCurrentCol = 0:numChannels-1   
+    for mCurrentCol = 0:6   
         % Put performance critical items in local variables
         chnBuf = zeros(2,mNumSamples);
-        instr = song.songData{mCurrentCol+1};
-        rowLen = song.rowLen;
-        patternLen = song.patternLen;
+        instr = song{mCurrentCol+1};
+        rowLen = 6615;
+        patternLen = 32;
 
         % Clear effect state
         low = 0;
@@ -60,23 +55,11 @@ function [mMixBuf,envBufs] = player(song)
         noteCache = {};
 
         % Patterns
-        for p = 0:mLastRow
+        for p = 0:35
             cp = indexArray(instr{2},p+1);            
                        
             % Pattern rows
             for row = 0:(patternLen-1)
-                % Execute effect command.                                
-                cmdNo = indexArray(indexArray(indexArray(instr{3},cp),2),row+1);
-                if cmdNo
-                    instr{1}(cmdNo) = indexArray(instr{3}{cp}{2},row + patternLen+1);
-
-                    % Clear the note cache since the instrument has changed
-                    if cmdNo < 16
-                        noteCache = {};
-                    end
-                end
-                
-
                 % Put performance critical instrument properties in local variables
                 oscLFO = instr{1}(16)+1;
                 lfoAmt = instr{1}(17) / 512;

@@ -25,11 +25,7 @@ function exportMat(song,filename,exportEmptyChannels)
 
     f = fopen(filename,'w');
     % Basic song data
-    fprintf(f,'song=struct;\n');
-    fprintf(f,'song.rowLen=%d;\n',song.rowLen);
-    fprintf(f,'song.patternLen=%d;\n',song.patternLen);
-    fprintf(f,'song.endPattern=%d;\n',song.endPattern);  
-    fprintf(f,'song.songData={');    
+    fprintf(f,'song={');    
     first = true;
     for i = 1:length(song.songData)
         % Export all channels
