@@ -4,10 +4,11 @@ K = 5;
 W = 3;
 rng(0);
 
+linspc = @linspace;
 mri_data_for_iso = load('mri');
 mri_smoothed = smooth3(squeeze(mri_data_for_iso.D));
-xx = linspace(-1,1,128)*30;
-zz = linspace(-1,1,27)*60;
+xx = linspc(-1,1,128)*30;
+zz = linspc(-1,1,27)*60;
 head = isosurface(xx,xx,zz,mri_smoothed,5);
 interpolate = @(x,v,xq)interp1(x,v,xq,[],'extrap');
 headv = head.vertices;
@@ -20,12 +21,12 @@ mrist = mrist.mristack;
 zoomer = @(zoom,x)mod(round(((0:255)-x)/zoom+x),256)+1;
 % Init valopallot
 
-xrange = linspace(-3,3,256);
+xrange = linspc(-3,3,256);
 [xgrid,dummy]=ndgrid(xrange);
 
 fig = figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none');
 
-create_axes=@()axes('units','normalized','position',[0 0 1 1],'color',[0,0,0],'visible','off');        
+create_axes=@()axes('position',[0 0 1 1],'visible','off');        
 
 
 axes1 = create_axes(); 
@@ -34,12 +35,9 @@ colormap bone
 colormap(interpolate(1:64,colormap,1:.1:64));
 
 axes2 = create_axes();
-axes2.XAxis.Color = [0 0 0];
-axes2.YAxis.Color = [0 0 0];
-axes2.ZAxis.Color = [0 0 0];
 cu = rand(9e2,1)*2*pi;
 cv = rand(9e2,1)*2*pi;
-uu = linspace(0,2*pi,10)';
+uu = linspc(0,2*pi,10)';
 vv = uu*0;
 cu = [cu;uu;uu;vv;vv+2*pi];
 cv = [cv;vv;vv+2*pi;uu;uu];
@@ -51,10 +49,8 @@ grix = (cos(-cu)*A+K*sin(W*cv)+DIA).*cos(cv);
 gridy = (cos(-cu)*A+K*sin(W*cv)+DIA).*sin(cv);
 zz = sin(-cu)*A;
 
-makepatch = @(f,v,c,parent)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',get(axes2,'DefaultSurfaceFaceColor'),'edgecolor',get(axes2,'DefaultSurfaceEdgeColor'),'parent',parent,'SpecularExponent',25,'SpecularStrength',0.9,'LineStyle','-','Marker','.','MarkerSize',10);                 
-mysurf = makepatch(triangles,[grix(:),gridy(:),zz(:)],zz(:)+10,axes2);
-
-axes2.Color = 'none';
+makepatch = @(f,v,c,p,s,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor','flat','edgecolor','k','parent',p,'SpecularExponent',25,'SpecularStrength',s,'LineStyle','-','Marker',m,'MarkerSize',10);                 
+mysurf = makepatch(triangles,[grix(:),gridy(:),zz(:)],zz(:)+10,axes2,0.9,'.');
 
 xx = head.vertices(:,1)*Inf;
 hold on;
@@ -67,11 +63,9 @@ camera_setup;
 % Init viivat
 grp = hgtransform('Parent',axes2);
 tdata = load('trimesh3d');
-meshpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,grp);
-meshpatch.Marker = 'none';
+meshpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,grp,0,'none');
 meshpatch.LineStyle = 'none';
 meshpatch.FaceColor = 'w';
-meshpatch.SpecularStrength = 0;
 axes3 = create_axes();            
 [grix,gridy] = ndgrid(-1:.01:1);
 I=image(axes3,zeros(size(grix)));    
@@ -83,7 +77,7 @@ axes4 = create_axes();
 camera_setup;
 
 
-texts = {'bC!@&@TPOLM:','~__@__@@__@@__@@__@''@@_@@@@~@/@\__@\_\@\_\@\_\@\@\`.\@~/__@\__@\_\@\`.@\@\@\@\@`\','4096 bytes|MATLAB|Demosplash 2019','@_@_@~(@v@)~@\@/@~@@v@@','Bits''n''Bites~p01~Brohomstates~Kooma~Orange~CNCD~NoooN','code:pestis/bC!','music:distance/TPOLM'};
+texts = {'bC!z&zTPOLM:','~__z__zz__zz__zz__z''zz_zzzz~z/z\__z\_\z\_\z\_\z\z\`.\z~/__z\__z\_\z\`.z\z\z\z\z`\','4096 bytes|MATLAB|Demosplash 2019','z_z_z~(zvz)~z\z/z~zzvzz','Bits''n''Bites~p01~Brothomstates~Kooma~Orange~CNCD~NoooN','code:pestis/bC!','music:distance/TPOLM'};
 texttimes = [128,196;140,208;640,736;800,896;808,896;1024,1072;1032,1072];
 texttimes = reshape([texttimes;texttimes+4],7,[]);
 hTexts = arrayfun(@(x,y,z)text(x,y,z,'','VerticalAlign','middle','HorizontalAlign','center','FontWeight','bold','FontName','Courier New','color','w','Interpreter','none'),[10,10,10,20,20,-2,-2],[4,4,4,60,60,-12,-12],[4,1,-1,30,-10,3,0]);
@@ -139,41 +133,36 @@ while pattern < song.endPattern
     campos(axes4,camera_position);
     camlight(hLight,'HEADLIGHT'); 
     
-    
-    view_matrix = view(axes2);
-    screen_z = view_matrix * [0;0;1;0];
+    screen_z = view(axes2) * [0;0;1;0];
     xy = screen_z(1:2)/screen_z(3);
-    rot = -atan2d(xy(1),xy(2));     
 
     for index = 1:length(texts)
         str = texts{index};
-        not_empty = str ~= '~' & str ~= '@';
+        not_empty = str ~= '~' & str ~= 'z';
         string_sync = interpolate(texttimes(index,:),[1,0,0,1],beat);
         offset = rands(1:length(str))*.5;
         str_indices = not_empty & string_sync>(.5-offset);
         str(str_indices) = randi([33,47],1,sum(str_indices));
         str_indices = not_empty & string_sync>(1-offset);
-        str(str_indices | str == '@') = 32;
+        str(str_indices | str == 'z') = 32;
         hTexts(index).String = split(str,'~');   
-        hTexts(index).Rotation = rot;
+        hTexts(index).Rotation = -atan2d(xy(1),xy(2));
         hTexts(index).FontSize = fig.Position(3)/50;
     end
     
     bar = sin(pi*part)^2^.1;      
-    facecolorsync = interpolate([0,2,2.01,3.5,4,10],[0,0,.9,.9,0,0],part);
-    alpha(mysurf,facecolorsync);
+    mysurf.FaceAlpha = interpolate([0,2,2.01,3.5,4,10],[0,0,.9,.9,0,0],part);
     mysurf.EdgeAlpha = interpolate([0,1,1.5,4,5,10],[0,0,1,1,0,0],part);
-    mulju = interpolate([0,6,9],[0,0,3],part);
     time = max(part-3,0);
     blending = min(max(part-4,0),1)^.2;
     angle = omega*time;  
     point_b = [(DIA+K*sin(W*angle)).*cos(angle),(DIA+K*sin(W*angle)).*sin(angle),time*sin(omega2*time)*A];
     blended = headv * blending + point_b * (1-blending);
-    muljuttu = blended + mulju*sin(blended*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3,.4,.5]*time);
+    muljuttu = blended + interpolate([0,6,9],[0,0,3],part)*sin(blended*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3,.4,.5]*time);
     hscat.XData = muljuttu(:,1);
     hscat.YData = muljuttu(:,2); 
     hscat.ZData = muljuttu(:,3);
-    drawnow();
+    drawnow;
     meshpatch.FaceAlpha = interpolate([0,4,5,7,8,9],[0,0,.3,.3,0,0],part);
     grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);
 end
