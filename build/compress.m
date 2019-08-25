@@ -10,17 +10,9 @@ p = inputParser;
 addRequired(p,'inputfileparam',@(x) exist(x,'file'));
 addOptional(p,'outputfileparam','',@ischar);
 addParamValue(p,'main','Z',@ischar);   
-addParamValue(p,'code',9,@(x) ~any(invalid_bytes == x) && x >= 0 && x <= 255);   
-addParamValue(p,'shift',9);   
 addParamValue(p,'cleanbuild',true);   
 parse(p,inputfileparam,varargin{:});
-
-shift = p.Results.shift;
-specials = [invalid_bytes p.Results.code];
-if any(ismember(mod(specials+shift,256),specials))
-    error('The shifted special bytes would overlap');
-end
-
+    
 [inputpath,inputname,inputext] = fileparts(p.Results.inputfileparam);
 if isempty(inputext)
     inputext = '.m';
@@ -67,9 +59,34 @@ if p.Results.cleanbuild
     delete(mainfilepath);
 end
 
+fin = fopen(mainzip);
+d = fread(fin);
+fclose(fin);
+
+all_codes = (0:255);
+valid_codes = all_codes(~ismember(all_codes,invalid_bytes));
+counts = sum(d==valid_codes);
+counts(valid_codes>=10) = counts(valid_codes>=10)+1;
+counts(valid_codes>=100) = counts(valid_codes>=100)+1;
+[~,code_ind] = min(counts);
+code = valid_codes(code_ind);
+
+specials = [invalid_bytes code];
+for shift = -9:10
+    shifted = specials+shift;
+    if any(ismember(mod(shifted,256),specials)) || any(shifted<0) || any(shifted>255)
+        continue;
+    end
+    break;
+end
+
+if shift == 10
+    error('Cannot find single digit shift');
+end
+
 header = 'k=fread(fopen([mfilename(''fullpath'') ''.m'']));k=k(%d:end)';
 
-header = [header sprintf(';i=k==%d',p.Results.code)];
+header = [header sprintf(';i=k==%d',code)];
 
 if shift > 0
     if any(specials+shift>255)
@@ -98,10 +115,6 @@ while s ~= length(finalheader)
 	finalheader = sprintf(header,s+1);    
 end
 
-fin = fopen(mainzip);
-d = fread(fin);
-fclose(fin);
-
 if p.Results.cleanbuild
     delete(mainzip);
 end
@@ -109,7 +122,7 @@ end
 k = [];
 for i = d'
     if ismember(i,specials)
-        k = [k mod(i+shift,256) p.Results.code];
+        k = [k mod(i+shift,256) code];
     else
         k = [k i];
     end   
