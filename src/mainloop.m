@@ -6,10 +6,9 @@ rng(0);
 
 linspc = @linspace;
 mri_data_for_iso = load('mri');
-mri_smoothed = smooth3(squeeze(mri_data_for_iso.D));
 xx = linspc(-1,1,128)*30;
 zz = linspc(-1,1,27)*60;
-head = isosurface(xx,xx,zz,mri_smoothed,5);
+head = isosurface(xx,xx,zz,smooth3(squeeze(mri_data_for_iso.D)),5);
 interpolate = @(x,v,xq)interp1(x,v,xq,[],'extrap');
 headv = head.vertices;
 omega = randn(size(headv,1),1)*2;
@@ -49,8 +48,8 @@ grix = (cos(-cu)*A+K*sin(W*cv)+DIA).*cos(cv);
 gridy = (cos(-cu)*A+K*sin(W*cv)+DIA).*sin(cv);
 zz = sin(-cu)*A;
 
-makepatch = @(f,v,c,p,s,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor','flat','edgecolor','k','parent',p,'SpecularExponent',5,'SpecularStrength',s,'LineStyle','-','Marker',m,'MarkerSize',10);                 
-mysurf = makepatch(triangles,[grix(:),gridy(:),zz(:)],zz(:)+6,axes2,0.7,'.');
+makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'SpecularExponent',5,'SpecularStrength',s,'LineStyle',l,'Marker',m,'MarkerSize',10);                 
+mysurf = makepatch(triangles,[grix(:),gridy(:),zz(:)],zz(:)+6,'flat',axes2,0.7,'-','.');
 
 xx = head.vertices(:,1)*Inf;
 hold on;
@@ -63,9 +62,7 @@ camera_setup;
 % Init viivat
 grp = hgtransform('Parent',axes2);
 tdata = load('trimesh3d');
-meshpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,grp,0,'none');
-meshpatch.LineStyle = 'none';
-meshpatch.FaceColor = 'w';
+meshpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,'w',grp,0,'none','none');
 axes3 = create_axes();            
 [grix,gridy] = ndgrid(-1:.01:1);
 I=image(axes3,zeros(size(grix)));    
@@ -84,8 +81,7 @@ hTexts = arrayfun(@(x,y,z)text(x,y,z,'','VerticalAlign','middle','HorizontalAlig
 hTexts(4).Color = 'r';
 rands = rand(1,1000);
 
-triggers = envs & ~[zeros(7,1),envs(:,1:(end-1))];
-sum_triggers = cumsum(triggers,2);
+sum_triggers = cumsum(envs & ~[zeros(7,1),envs(:,1:(end-1))],2);
 
 start_music();
 pattern = 0;
