@@ -46,6 +46,27 @@ function [mMixBuf,envBufs] = player(song)
         instr = song{mCurrentCol};
         instrparams = instr{1};       
 
+        attack = instrparams(11)^2 * 4;
+        release = instrparams(13)^2 * 4;        
+
+        envelope = [(0:attack-1)/attack,ones(1,instrparams(12)^2 * 4),1-(0:release-1)/release];        
+        numsamples = length(envelope);                              
+        cumsumenv = cumsum(envelope.^2);
+       
+        % Oscillator 1
+        if instrparams(4) % o1xenv
+            c1 = cumsumenv;
+        else
+            c1 = 1:numsamples;
+        end                    
+
+        % Oscillator 2        
+        if instrparams(9) % o2xenv
+            c2 = cumsumenv;
+        else
+            c2 = 1:numsamples;
+        end              
+        
         % Clear note cache.
         noteCache = cell(1,256);
 
@@ -66,37 +87,8 @@ function [mMixBuf,envBufs] = player(song)
                 % Generate notes for this pattern row
                 note = pat(rc);
                 if note
-                    if isempty(noteCache{note+1})
-                        noiseVol = instrparams(10);
-                        attack = instrparams(11)^2 * 4;
-                        release = instrparams(13)^2 * 4;        
-
-                        envelope = [(0:attack-1)/attack,ones(1,instrparams(12)^2 * 4),1-(0:release-1)/release];
-                        numsamples = length(envelope);
-                        cumsumenv = cumsum(envelope.^2);
-
-                        % Oscillator 1
-                        if instrparams(4) % o1xenv
-                            c1 = cumsumenv;
-                        else
-                            c1 = 1:numsamples;
-                        end            
-                        sample = oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3)) * c1,1)*44100+1)) * instrparams(2);
-
-                        % Oscillator 2        
-                        if instrparams(9) % o2xenv
-                            c2 = cumsumenv;
-                        else
-                            c2 = 1:numsamples;
-                        end      
-                        sample = sample + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7)) * (1 + .0008 * instrparams(8)) * c2,1)*44100+1)) *  instrparams(6);
-
-                        % Noise oscillator
-                        if noiseVol>0
-                            sample = sample + (2 * rand(1,numsamples) - 1) * noiseVol;
-                        end                          
-
-                        noteCache{note+1} = [80 * sample .* envelope;envelope];
+                    if isempty(noteCache{note+1})                        
+                        noteCache{note+1} = [80 * (oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3)) * c1,1)*44100+1)) * instrparams(2) + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7)) * (1 + .0008 * instrparams(8)) * c2,1)*44100+1)) *  instrparams(6) + (2 * rand(1,numsamples) - 1) * instrparams(10)) .* envelope;envelope];
                     end
 
                     % Copy note from the note cache
