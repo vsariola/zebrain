@@ -30,7 +30,7 @@ function [mMixBuf,envBufs] = player(song)
     % using lambdas in matlab
     % Oscillators: 1 = sine, 2 = square, 3 = sawtooth, 4 = triangle
     oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;1-abs(samx*4-2)];
-    getnotefreq = @(n) .003959503758 * 2^((n - 128) / 12);    
+    getnotefreq = @(n) .003959503758 * 2^((n - 256) / 12);    
 
     % Prepare song info
     mNumSamples = 8334900;
@@ -43,6 +43,7 @@ function [mMixBuf,envBufs] = player(song)
         % Put performance critical items in local variables
         chnBuf = zeros(2,mNumSamples);
         instr = song{mCurrentCol+1};
+        instrparams = instr{1};
         rowLen = 6615;
         patternLen = 32;
 
@@ -61,19 +62,17 @@ function [mMixBuf,envBufs] = player(song)
             % Pattern rows
             for row = 0:(patternLen-1)
                 % Put performance critical instrument properties in local variables
-                oscLFO = instr{1}(16)+1;
-                lfoAmt = instr{1}(17) / 512;
-                lfoFreq = 2^(instr{1}(18) - 9) / rowLen;
-                fxLFO = instr{1}(19);
-                fxFilter = instr{1}(20);
-                fxFreq = instr{1}(21) * 43.23529 * pi / 44100;
-                q = 1 - instr{1}(22) / 255;
-                dist = instr{1}(23) * 1e-5;
-                drive = instr{1}(24) / 32;
-                panAmt = instr{1}(25) / 512;
-                panFreq = 2*pi * 2^(instr{1}(26) - 9) / rowLen;
-                dlyAmt = instr{1}(27) / 255;
-                dly = bitor(instr{1}(28) * rowLen,1)-1; % Must be an even number
+                oscLFO = instrparams(16)+1;
+                lfoAmt = instrparams(17) / 512;
+                lfoFreq = 2^(instrparams(18) - 9) / rowLen;
+                fxLFO = instrparams(19);
+                fxFilter = instrparams(20);
+                fxFreq = instrparams(21) * 43.23529 * pi / 44100;
+                q = 1 - instrparams(22) / 255;
+                dist = instrparams(23) * 1e-5;
+                drive = instrparams(24) / 32;
+                panAmt = instrparams(25) / 512;
+                panFreq = 2*pi * 2^(instrparams(26) - 9) / rowLen;             
 
                 % Calculate start sample number for this row in the pattern
                 rowStartSample = (p * patternLen + row) * rowLen;
@@ -83,7 +82,37 @@ function [mMixBuf,envBufs] = player(song)
                     note = indexArray(indexArray(instr{3},cp),row + col * patternLen+1);
                     if note
                         if isempty(indexArray(noteCache,note+1))
-                            noteCache{note+1} = createNote(instr, note);
+                            noiseVol = instrparams(10);
+                            attack = instrparams(11)^2 * 4;
+                            sustain = instrparams(12)^2 * 4;
+                            release = instrparams(13)^2 * 4;        
+
+                            envelope = [(0:attack-1)/attack,ones(1,sustain),1-(0:release-1)/release];
+                            numsamples = length(envelope);
+                            cumsumenv = cumsum(envelope.^2);
+
+                            % Oscillator 1
+                            if instrparams(4) % o1xenv
+                                c1 = cumsumenv;
+                            else
+                                c1 = 1:numsamples;
+                            end            
+                            sample = oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3)) * c1,1)*44100+1)) * instrparams(2);
+
+                            % Oscillator 2        
+                            if instrparams(9) % o2xenv
+                                c2 = cumsumenv;
+                            else
+                                c2 = 1:numsamples;
+                            end      
+                            sample = sample + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7)) * (1 + .0008 * instrparams(8)) * c2,1)*44100+1)) *  instrparams(6);
+
+                            % Noise oscillator
+                            if noiseVol>0
+                                sample = sample + (2 * rand(1,numsamples) - 1) * noiseVol;
+                            end                          
+                            
+                            noteCache{note+1} = [80 * sample .* envelope;envelope];
                         end
 
                         % Copy note from the note cache
@@ -93,72 +122,72 @@ function [mMixBuf,envBufs] = player(song)
                         envBufs(mCurrentCol+1,range) = envBufs(mCurrentCol+1,range)+noteBuf(2,:)*(col==0);                                                
                     end
                 end
+            end
+        end
                                                 
                 
-                % Perform effects for this pattern row
-                for kk = rowStartSample * 2:2:(rowStartSample + rowLen-1) * 2
+        % Perform effects for this pattern row
+        for kk = 1:2:mNumSamples
 
-                    % We only do effects if we have some sound input
-                    if filterActive || chnBuf(kk+1)                                              
-                        
-                        % Dry mono-sample                        
-                        tmpsample = chnBuf(kk+1);                    
-                        % State variable filter
-                        f = fxFreq;
-                        if fxLFO
-                            f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*44100+1)) * lfoAmt + 0.5);
-                        end
-                        f = 1.5 * sin(f);
-                        low = low + f * band;
-                        high = q * (tmpsample - band) - low;
-                        band = band + f * high;
-                        if fxFilter == 3
-                            tmpsample = band;
-                        elseif fxFilter == 1 
-                            tmpsample = high;
+            % We only do effects if we have some sound input
+            if filterActive || chnBuf(kk)                                              
+
+                % Dry mono-sample                        
+                tmpsample = chnBuf(kk);                    
+                % State variable filter
+                f = fxFreq;
+                if fxLFO
+                    f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*44100+1)) * lfoAmt + 0.5);
+                end
+                f = 1.5 * sin(f);
+                low = low + f * band;
+                high = q * (tmpsample - band) - low;
+                band = band + f * high;
+                if fxFilter == 3
+                    tmpsample = band;
+                elseif fxFilter == 1 
+                    tmpsample = high;
+                else
+                    tmpsample = low;
+                end
+
+                % Distortion
+                if dist>0
+                    tmpsample = tmpsample * dist;
+                    if tmpsample < 1
+                        if tmpsample > -1
+                            tmpsample = oscPrecalc(1,floor(mod(tmpsample*.25,1)*44100+1));
                         else
-                            tmpsample = low;
+                            tmpsample = -1;
                         end
-
-                        % Distortion
-                        if dist>0
-                            tmpsample = tmpsample * dist;
-                            if tmpsample < 1
-                                if tmpsample > -1
-                                    tmpsample = oscPrecalc(1,floor(mod(tmpsample*.25,1)*44100+1));
-                                else
-                                    tmpsample = -1;
-                                end
-                            else
-                                tmpsample = 1;
-                            end                                    
-                            tmpsample = tmpsample / dist;
-                        end
-
-                        % Drive
-                        tmpsample = tmpsample * drive;
-
-                        % Is the filter active (i.e. still audiable)?
-                        filterActive = tmpsample * tmpsample > 1e-5;
-
-                        % Panning
-                        t = sin(panFreq * kk) * panAmt + 0.5;
-                        chnBuf(kk+1) = tmpsample * (1 - t);
-                        chnBuf(kk+2) = tmpsample * t;    
-                    
-                    end
+                    else
+                        tmpsample = 1;
+                    end                                    
+                    tmpsample = tmpsample / dist;
                 end
-                
-                start = max(rowStartSample * 2,dly);                
-                
-                % Perform delay. This could have been done in the previous
-                % loop, but it was slower than doing a second loop
-                for kk = start:2:(rowStartSample + rowLen-1) * 2
-                    chnBuf(kk+1)=chnBuf(kk+1)+chnBuf(kk-dly+2) * dlyAmt;
-                    chnBuf(kk+2)=chnBuf(kk+2)+chnBuf(kk-dly+1) * dlyAmt;
-                end
+
+                % Drive
+                tmpsample = tmpsample * drive;
+
+                % Is the filter active (i.e. still audiable)?
+                filterActive = tmpsample * tmpsample > 1e-5;
+
+                % Panning
+                t = sin(panFreq * kk) * panAmt + 0.5;
+                chnBuf(kk) = tmpsample * (1 - t);
+                chnBuf(kk+1) = tmpsample * t;    
             end
-        end    
+        end               
+                
+        dlyAmt = instrparams(27) / 255;
+        dly = bitor(instrparams(28) * rowLen,1)-1; % Must be an even number
+                
+        % Perform delay. This could have been done in the previous
+        % loop, but it was slower than doing a second loop
+        for kk = dly:2:mNumSamples-2
+            chnBuf(kk+1)=chnBuf(kk+1)+chnBuf(kk-dly+2) * dlyAmt;
+            chnBuf(kk+2)=chnBuf(kk+2)+chnBuf(kk-dly+1) * dlyAmt;
+        end         
         
         mMixBuf = mMixBuf + chnBuf;
     end
@@ -172,48 +201,5 @@ function [mMixBuf,envBufs] = player(song)
                 ret=a(n);
             end
         end
-    end
-        
-    function ret = createNote(instr,n)
-        osc1 = instr{1}(1)+1;
-        o1vol = instr{1}(2);
-        o1xenv = instr{1}(4);
-        osc2 = instr{1}(5)+1;
-        o2vol = instr{1}(6);
-        o2xenv = instr{1}(9);
-        noiseVol = instr{1}(10);
-        attack = instr{1}(11)^2 * 4;
-        sustain = instr{1}(12)^2 * 4;
-        release = instr{1}(13)^2 * 4;        
-
-        % Generate one note (attack + sustain + release)
-        o1t = getnotefreq(n + instr{1}(3) - 128);
-        o2t = getnotefreq(n + instr{1}(7) - 128) * (1 + .0008 * instr{1}(8));
-        
-        envelope = [(0:attack-1)/attack,ones(1,sustain),1-(0:release-1)/release];
-        numsamples = length(envelope);
-        
-        % Oscillator 1
-        if o1xenv
-        	c1 = cumsum(envelope.^2);
-        else
-            c1 = 1:numsamples;
-        end            
-        sample = oscPrecalc(osc1,floor(mod(o1t * c1,1)*44100+1)) * o1vol;
-
-        % Oscillator 2        
-        if o2xenv
-        	c2 = cumsum(envelope.^2);
-        else
-            c2 = 1:numsamples;
-        end      
-        sample = sample + oscPrecalc(osc2,floor(mod(o2t * c2,1)*44100+1)) * o2vol;
-
-        % Noise oscillator
-        if noiseVol>0
-            sample = sample + (2 * rand(1,numsamples) - 1) * noiseVol;
-        end
-        
-        ret = [80 * sample .* envelope;envelope];
-    end
+    end       
 end
