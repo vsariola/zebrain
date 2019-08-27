@@ -66,7 +66,6 @@ function [mMixBuf,envBufs] = player(song)
                 lfoAmt = instrparams(17) / 512;
                 lfoFreq = 2^(instrparams(18) - 9) / rowLen;
                 fxLFO = instrparams(19);
-                fxFilter = instrparams(20);
                 fxFreq = instrparams(21) * 43.23529 * pi / 44100;
                 q = 1 - instrparams(22) / 255;
                 dist = instrparams(23) * 1e-5;
@@ -143,13 +142,7 @@ function [mMixBuf,envBufs] = player(song)
                 low = low + f * band;
                 high = q * (tmpsample - band) - low;
                 band = band + f * high;
-                if fxFilter == 3
-                    tmpsample = band;
-                elseif fxFilter == 1 
-                    tmpsample = high;
-                else
-                    tmpsample = low;
-                end
+                tmpsample = low;               
 
                 % Distortion
                 if dist>0
