@@ -1,10 +1,14 @@
-function demo_cached(start_time)
+function demo_cached(start_time,cache)
     if nargin < 1
         start_time = 0;
     end
+    
+    if nargin < 2
+        cache = 1;
+    end
 
     loadsong;                    
-    if ~exist('songcache.mat','file')
+    if ~exist('songcache.mat','file') || ~cache
         [s,envs] = player(song);
         save('songcache.mat','s','envs');
     else

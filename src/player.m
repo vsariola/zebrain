@@ -45,12 +45,7 @@ function [mMixBuf,envBufs] = player(song)
         instr = song{mCurrentCol+1};
         instrparams = instr{1};
         rowLen = 6615;
-        patternLen = 32;
-
-        % Clear effect state
-        low = 0;
-        band = 0;        
-        filterActive = 0;        
+        patternLen = 32;    
 
         % Clear note cache.
         noteCache = {};
@@ -60,18 +55,7 @@ function [mMixBuf,envBufs] = player(song)
             cp = indexArray(instr{2},p+1);            
                        
             % Pattern rows
-            for row = 0:(patternLen-1)
-                % Put performance critical instrument properties in local variables
-                oscLFO = instrparams(16)+1;
-                lfoAmt = instrparams(17) / 512;
-                lfoFreq = 2^(instrparams(18) - 9) / rowLen;
-                fxLFO = instrparams(19);
-                fxFreq = instrparams(21) * 43.23529 * pi / 44100;
-                q = 1 - instrparams(22) / 255;
-                dist = instrparams(23) * 1e-5;
-                drive = instrparams(24) / 32;
-                panAmt = instrparams(25) / 512;
-                panFreq = 2*pi * 2^(instrparams(26) - 9) / rowLen;             
+            for row = 0:(patternLen-1)       
 
                 % Calculate start sample number for this row in the pattern
                 rowStartSample = (p * patternLen + row) * rowLen;
@@ -123,8 +107,24 @@ function [mMixBuf,envBufs] = player(song)
                 end
             end
         end
-                                                
-                
+
+        % Put performance critical instrument properties in local variables
+        oscLFO = instrparams(16)+1;
+        lfoAmt = instrparams(17) / 512;
+        lfoFreq = 2^(instrparams(18) - 9) / rowLen;
+        fxLFO = instrparams(19);
+        fxFreq = instrparams(21) * 43.23529 * pi / 44100;
+        q = 1 - instrparams(22) / 255;
+        dist = instrparams(23) * 1e-5;
+        drive = instrparams(24) / 32;
+        panAmt = instrparams(25) / 512;
+        panFreq = 2*pi * 2^(instrparams(26) - 9) / rowLen;      
+
+        % Clear effect state
+        low = 0;
+        band = 0;        
+        filterActive = 0;    
+        
         % Perform effects for this pattern row
         for kk = 1:2:mNumSamples
 
@@ -146,17 +146,7 @@ function [mMixBuf,envBufs] = player(song)
 
                 % Distortion
                 if dist>0
-                    tmpsample = tmpsample * dist;
-                    if tmpsample < 1
-                        if tmpsample > -1
-                            tmpsample = oscPrecalc(1,floor(mod(tmpsample*.25,1)*44100+1));
-                        else
-                            tmpsample = -1;
-                        end
-                    else
-                        tmpsample = 1;
-                    end                                    
-                    tmpsample = tmpsample / dist;
+                    tmpsample = sin(.5*pi*min(max(tmpsample*dist,-1),1))/dist;                    
                 end
 
                 % Drive
@@ -173,13 +163,13 @@ function [mMixBuf,envBufs] = player(song)
         end               
                 
         dlyAmt = instrparams(27) / 255;
-        dly = bitor(instrparams(28) * rowLen,1)-1; % Must be an even number
+        dly = bitor(instrparams(28) * rowLen,1); % Must be an odd number
                 
         % Perform delay. This could have been done in the previous
         % loop, but it was slower than doing a second loop
-        for kk = dly:2:mNumSamples-2
-            chnBuf(kk+1)=chnBuf(kk+1)+chnBuf(kk-dly+2) * dlyAmt;
-            chnBuf(kk+2)=chnBuf(kk+2)+chnBuf(kk-dly+1) * dlyAmt;
+        for kk = dly:2:mNumSamples
+            chnBuf(kk)=chnBuf(kk)+chnBuf(kk-dly+2) * dlyAmt;
+            chnBuf(kk+1)=chnBuf(kk+1)+chnBuf(kk-dly+1) * dlyAmt;
         end         
         
         mMixBuf = mMixBuf + chnBuf;
