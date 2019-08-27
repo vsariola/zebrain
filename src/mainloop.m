@@ -24,7 +24,7 @@ zoomer = @(zoom,x)mod(round(((0:255)-x)/zoom+x),256)+1;
 xrange = linspc(-3,3,256);
 [xgrid,dummy]=ndgrid(xrange);
 
-fig = figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none');
+fig = figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none','Pointer','custom','PointerShapeCData',nan(16,16));
 
 create_axes=@()axes('position',[0,0,1,1],'visible','off');        
 
