@@ -9,7 +9,9 @@ function demo_cached(start_time,cache)
 
     loadsong;                    
     if ~exist('songcache.mat','file') || ~cache
+        tic;
         [s,envs] = player(song);
+        toc;
         save('songcache.mat','s','envs');
     else
         load('songcache.mat');
