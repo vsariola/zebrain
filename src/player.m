@@ -128,9 +128,8 @@ function [mMixBuf,envBufs] = player(song)
                     f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*44100+1)) * lfoAmt + 0.5);
                 end
                 f = 1.5 * sin(f);
-                low = low + f * band;
-                high = q * (chnBuf(kk) - band) - low; % Dry mono-sample comes in                
-                band = band + f * high;
+                low = low + f * band;          
+                band = band + f * (q * (chnBuf(kk) - band) - low);
                 tmpsample = low;               
 
                 % Distortion
