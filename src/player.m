@@ -34,8 +34,7 @@ function [mMixBuf,envBufs] = player(song)
 
     % Prepare song info
     mNumSamples = 8334900;
-    rowLen = 6615;
-    patternLen = 32;    
+    rowLen = 6615;   
     
     % Create work buffer (initially cleared)
     mMixBuf = zeros(2,mNumSamples);
@@ -51,8 +50,8 @@ function [mMixBuf,envBufs] = player(song)
         noteCache = cell(1,256);
 
         % Patterns
-        for p = 0:length(instr{2})-1
-            cp = instr{2}(p+1);  
+        for p = 1:length(instr{2})
+            cp = instr{2}(p);  
             
             if ~cp
                 continue;
@@ -60,15 +59,12 @@ function [mMixBuf,envBufs] = player(song)
             
             % Pattern rows
             pat = instr{3}{cp};
-            for rc = 0:length(pat)-1
-                
-                row = mod(rc,32);
-
+            for rc = 1:length(pat)
                 % Calculate start sample number for this row in the pattern
-                rowStartSample = (p * patternLen + row) * rowLen;
+                rowStartSample = ((p-1) * 32 + mod(rc-1,32)) * rowLen;
 
                 % Generate notes for this pattern row
-                note = pat(rc+1);
+                note = pat(rc);
                 if note
                     if isempty(noteCache{note+1})
                         noiseVol = instrparams(10);
