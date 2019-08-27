@@ -125,7 +125,7 @@ function [mMixBuf,envBufs] = player(song)
         filterActive = 0;    
         
         % Perform effects
-        for kk = 1:2:mNumSamples
+        for kk = 1:2:mNumSamples*2
 
             % We only do effects if we have some sound input
             if filterActive || chnBuf(kk)                                                                         
@@ -163,7 +163,7 @@ function [mMixBuf,envBufs] = player(song)
                 
         % Perform delay. This could have been done in the previous
         % loop, but it was slower than doing a second loop
-        for kk = dly:2:mNumSamples
+        for kk = dly:2:mNumSamples*2
             chnBuf(kk)=chnBuf(kk)+chnBuf(kk-dly+2) * dlyAmt;
             chnBuf(kk+1)=chnBuf(kk+1)+chnBuf(kk-dly+1) * dlyAmt;
         end         
