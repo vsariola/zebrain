@@ -125,14 +125,11 @@ function [mMixBuf,envBufs] = player(song)
         band = 0;        
         filterActive = 0;    
         
-        % Perform effects for this pattern row
+        % Perform effects
         for kk = 1:2:mNumSamples
 
             % We only do effects if we have some sound input
-            if filterActive || chnBuf(kk)                                              
-
-                % Dry mono-sample                        
-                tmpsample = chnBuf(kk);                    
+            if filterActive || chnBuf(kk)                                                                         
                 % State variable filter
                 f = fxFreq;
                 if fxLFO
@@ -140,12 +137,12 @@ function [mMixBuf,envBufs] = player(song)
                 end
                 f = 1.5 * sin(f);
                 low = low + f * band;
-                high = q * (tmpsample - band) - low;
+                high = q * (chnBuf(kk) - band) - low; % Dry mono-sample comes in                
                 band = band + f * high;
                 tmpsample = low;               
 
                 % Distortion
-                if dist>0
+                if dist
                     tmpsample = sin(.5*pi*min(max(tmpsample*dist,-1),1))/dist;                    
                 end
 
