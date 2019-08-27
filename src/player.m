@@ -174,7 +174,7 @@ function [mMixBuf,envBufs] = player(song)
         end
     end
         
-    function noteBuf = createNote(instr,n)
+    function ret = createNote(instr,n)
         osc1 = instr{1}(1)+1;
         o1vol = instr{1}(2);
         o1xenv = instr{1}(4);
@@ -184,54 +184,36 @@ function [mMixBuf,envBufs] = player(song)
         noiseVol = instr{1}(10);
         attack = instr{1}(11)^2 * 4;
         sustain = instr{1}(12)^2 * 4;
-        release = instr{1}(13)^2 * 4;
-        releaseInv = 1 / release;
-
-        noteBuf = zeros(2,attack + sustain + release);
-        
-
-        c1 = 0;
-        c2 = 0;
+        release = instr{1}(13)^2 * 4;        
 
         % Generate one note (attack + sustain + release)
         o1t = getnotefreq(n + instr{1}(3) - 128);
         o2t = getnotefreq(n + instr{1}(7) - 128) * (1 + .0008 * instr{1}(8));
         
-        for jj = 0:attack + sustain + release-1
+        envelope = [(0:attack-1)/attack,ones(1,sustain),1-(0:release-1)/release];
+        numsamples = length(envelope);
+        
+        % Oscillator 1
+        if o1xenv
+        	c1 = cumsum(envelope.^2);
+        else
+            c1 = 1:numsamples;
+        end            
+        sample = oscPrecalc(osc1,floor(mod(o1t * c1,1)*44100+1)) * o1vol;
 
-            % Envelope
-            e = 1;
-            if jj < attack
-                e = jj / attack;
-            elseif jj >= attack + sustain
-                e = e - (jj - attack - sustain) * releaseInv;
-            end
+        % Oscillator 2        
+        if o2xenv
+        	c2 = cumsum(envelope.^2);
+        else
+            c2 = 1:numsamples;
+        end      
+        sample = sample + oscPrecalc(osc2,floor(mod(o2t * c2,1)*44100+1)) * o2vol;
 
-            % Oscillator 1
-            time = o1t;
-            if o1xenv
-                time = time * e * e;
-            end
-            c1 = c1 + time;
-            sample = oscPrecalc(osc1,floor(mod(c1,1)*44100+1)) * o1vol;
-
-            % Oscillator 2
-            time = o2t;
-            if o2xenv
-                time = time * e * e;
-            end
-
-            c2 = c2 + time;
-            sample = sample + oscPrecalc(osc2,floor(mod(c2,1)*44100+1)) * o2vol;
-
-            % Noise oscillator
-            if noiseVol>0
-                sample = sample + (2 * rand - 1) * noiseVol;
-            end
-
-            % Add to (mono) channel buffer
-            noteBuf(1,jj+1) = 80 * sample * e;       
-            noteBuf(2,jj+1) = e;                   
-        end          
+        % Noise oscillator
+        if noiseVol>0
+            sample = sample + (2 * rand(1,numsamples) - 1) * noiseVol;
+        end
+        
+        ret = [80 * sample .* envelope;envelope];
     end
 end
