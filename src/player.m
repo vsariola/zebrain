@@ -28,24 +28,24 @@ function [mMixBuf,envBufs] = player(song)
     samx = (0:44099)/44100;
     % Precalculate oscillators into a table; this is much faster than
     % using lambdas in matlab
-    % Oscillators: 1 = sine, 2 = square, 3 = sawtooth, 4 = triangle
+    % Oscillators: 1 = sine, 2 = square, 3 = triangle
     oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;1-abs(samx*4-2)];
     getnotefreq = @(n) .003959503758 * 2^((n - 256) / 12);    
 
     % Prepare song info
     mNumSamples = 8334900;
+    rowLen = 6615;
+    patternLen = 32;    
     
     % Create work buffer (initially cleared)
     mMixBuf = zeros(2,mNumSamples);
     envBufs = zeros(7,mNumSamples);
     
-    for mCurrentCol = 0:6   
+    for mCurrentCol = 1:7
         % Put performance critical items in local variables
         chnBuf = zeros(2,mNumSamples);
-        instr = song{mCurrentCol+1};
-        instrparams = instr{1};
-        rowLen = 6615;
-        patternLen = 32;    
+        instr = song{mCurrentCol};
+        instrparams = instr{1};       
 
         % Clear note cache.
         noteCache = {};
@@ -67,10 +67,9 @@ function [mMixBuf,envBufs] = player(song)
                         if isempty(indexArray(noteCache,note+1))
                             noiseVol = instrparams(10);
                             attack = instrparams(11)^2 * 4;
-                            sustain = instrparams(12)^2 * 4;
                             release = instrparams(13)^2 * 4;        
 
-                            envelope = [(0:attack-1)/attack,ones(1,sustain),1-(0:release-1)/release];
+                            envelope = [(0:attack-1)/attack,ones(1,instrparams(12)^2 * 4),1-(0:release-1)/release];
                             numsamples = length(envelope);
                             cumsumenv = cumsum(envelope.^2);
 
@@ -102,7 +101,7 @@ function [mMixBuf,envBufs] = player(song)
                         noteBuf = noteCache{note+1};                           
                         range = rowStartSample+1:rowStartSample+length(noteBuf);
                         chnBuf(1,range) = chnBuf(1,range)+noteBuf(1,:);   
-                        envBufs(mCurrentCol+1,range) = envBufs(mCurrentCol+1,range)+noteBuf(2,:)*(col==0);                                                
+                        envBufs(mCurrentCol,range) = envBufs(mCurrentCol,range)+noteBuf(2,:)*(col==0);                                                
                     end
                 end
             end
