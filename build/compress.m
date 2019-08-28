@@ -102,10 +102,10 @@ else
     end
 end                          
 
-header = [header ';d=[tempname 47];mkdir(d);t=[d 65]']; % d=.../, t=.../A
+header = [header ';Y=[tempname 47];mkdir(Y);t=[Y 65]']; % d=.../, t=.../A
 header = [header ';fwrite(fopen(t,''w''),s(~i));fclose all'];
-header = [header sprintf(';unzip(t,d)')];
-header = [header sprintf(';run([d %d]);rmdir(d,''s'')',uint8(p.Results.main))];
+header = [header sprintf(';unzip(t,Y)')];
+header = [header sprintf(';run([Y %d]);rmdir(Y,''s'')',uint8(p.Results.main))];
 header = [header '%%'];
 
 s = length(header)-3;

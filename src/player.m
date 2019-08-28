@@ -22,144 +22,140 @@
 %
 % 3. This notice may not be removed or altered from any source
 %    distribution.
+samx = (0:44099)/44100;
+% Precalculate oscillators into a table; this is much faster than
+% using lambdas in matlab
+% Oscillators: 1 = sine, 2 = square, 3 = triangle
+oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;1-abs(samx*4-2)];
+getnotefreq = @(n) .003959503758 * 2^((n - 256) / 12);    
 
-function [mMixBuf,envBufs] = player(song)
+% Prepare song info
+mNumSamples = 8334900;
+rowLen = 6615;   
 
-    samx = (0:44099)/44100;
-    % Precalculate oscillators into a table; this is much faster than
-    % using lambdas in matlab
-    % Oscillators: 1 = sine, 2 = square, 3 = triangle
-    oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;1-abs(samx*4-2)];
-    getnotefreq = @(n) .003959503758 * 2^((n - 256) / 12);    
+% Create work buffer (initially cleared)
+mMixBuf = zeros(2,mNumSamples);
+envs = zeros(7,mNumSamples);
 
-    % Prepare song info
-    mNumSamples = 8334900;
-    rowLen = 6615;   
-    
-    % Create work buffer (initially cleared)
-    mMixBuf = zeros(2,mNumSamples);
-    envBufs = zeros(7,mNumSamples);
-    
-    for mCurrentCol = 1:7
-        % Put performance critical items in local variables
-        chnBuf = zeros(2,mNumSamples);
-        instr = song{mCurrentCol};
-        instrparams = instr{1};       
+for mCurrentCol = 1:7
+    % Put performance critical items in local variables
+    chnBuf = zeros(2,mNumSamples);
+    instr = song{mCurrentCol};
+    instrparams = instr{1};       
 
-        attack = instrparams(11)^2 * 4;
-        release = instrparams(13)^2 * 4;        
+    attack = instrparams(11)^2 * 4;
+    release = instrparams(13)^2 * 4;        
 
-        envelope = [(0:attack-1)/attack,ones(1,instrparams(12)^2 * 4),1-(0:release-1)/release];        
-        numsamples = length(envelope);                              
-        cumsumenv = cumsum(envelope.^2);
-       
-        % Oscillator 1
-        if instrparams(4) % o1xenv
-            c1 = cumsumenv;
-        else
-            c1 = 1:numsamples;
-        end                    
+    envelope = [(0:attack-1)/attack,ones(1,instrparams(12)^2 * 4),1-(0:release-1)/release];        
+    numsamples = length(envelope);                              
+    cumsumenv = cumsum(envelope.^2);
 
-        % Oscillator 2        
-        if instrparams(9) % o2xenv
-            c2 = cumsumenv;
-        else
-            c2 = 1:numsamples;
-        end              
-        
-        % Clear note cache.
-        noteCache = cell(1,256);
+    % Oscillator 1
+    if instrparams(4) % o1xenv
+        c1 = cumsumenv;
+    else
+        c1 = 1:numsamples;
+    end                    
 
-        % Patterns
-        for p = 1:length(instr{2})
-            cp = instr{2}(p);  
-            
-            if ~cp
-                continue;
-            end
-            
-            % Pattern rows
-            pat = instr{3}{cp};
-            for rc = 1:length(pat)
-                % Calculate start sample number for this row in the pattern
-                rowStartSample = ((p-1) * 32 + mod(rc-1,32)) * rowLen;
+    % Oscillator 2        
+    if instrparams(9) % o2xenv
+        c2 = cumsumenv;
+    else
+        c2 = 1:numsamples;
+    end              
 
-                % Generate notes for this pattern row
-                note = pat(rc);
-                if note
-                    if isempty(noteCache{note+1})                        
-                        noteCache{note+1} = 80 * (oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3)) * c1,1)*44100+1)) * instrparams(2) + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7)) * (1 + .0008 * instrparams(8)) * c2,1)*44100+1)) *  instrparams(6) + (2 * rand(1,numsamples) - 1) * instrparams(10)) .* envelope;
-                    end
+    % Clear note cache.
+    noteCache = cell(1,256);
 
-                    % Copy note from the note cache
-                    noteBuf = noteCache{note+1};                           
-                    range = rowStartSample+1:rowStartSample+numsamples;
-                    chnBuf(1,range) = chnBuf(1,range)+noteBuf;   
-                    envBufs(mCurrentCol,range) = envBufs(mCurrentCol,range)+envelope*(rc<32);                                                
-                end                
-            end
+    % Patterns
+    for p = 1:length(instr{2})
+        cp = instr{2}(p);  
+
+        if ~cp
+            continue;
         end
 
-        % Put performance critical instrument properties in local variables
-        oscLFO = instrparams(16)+1;
-        lfoAmt = instrparams(17) / 512;
-        lfoFreq = 2^(instrparams(18) - 9) / rowLen;
-        fxLFO = instrparams(19);
-        fxFreq = instrparams(21) * 43.23529 * pi / 44100;
-        q = 1 - instrparams(22) / 255;
-        dist = instrparams(23) * 1e-5;
-        drive = instrparams(24) / 32;
-        panAmt = instrparams(25) / 512;
-        panFreq = 2*pi * 2^(instrparams(26) - 9) / rowLen;      
+        % Pattern rows
+        pat = instr{3}{cp};
+        for rc = 1:length(pat)
+            % Calculate start sample number for this row in the pattern
+            rowStartSample = ((p-1) * 32 + mod(rc-1,32)) * rowLen;
 
-        % Clear effect state
-        low = 0;
-        band = 0;        
-        filterActive = 0;    
-        
-        % Perform effects
-        for kk = 1:2:mNumSamples*2
-
-            % We only do effects if we have some sound input
-            if filterActive || chnBuf(kk)                                                                         
-                % State variable filter
-                f = fxFreq;
-                if fxLFO
-                    f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*44100+1)) * lfoAmt + 0.5);
-                end
-                f = 1.5 * sin(f);
-                low = low + f * band;          
-                band = band + f * (q * (chnBuf(kk) - band) - low);
-                tmpsample = low;               
-
-                % Distortion
-                if dist
-                    tmpsample = sin(.5*pi*min(max(tmpsample*dist,-1),1))/dist;                    
+            % Generate notes for this pattern row
+            note = pat(rc);
+            if note
+                if isempty(noteCache{note+1})                        
+                    noteCache{note+1} = 80 * (oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3)) * c1,1)*44100+1)) * instrparams(2) + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7)) * (1 + .0008 * instrparams(8)) * c2,1)*44100+1)) *  instrparams(6) + (2 * rand(1,numsamples) - 1) * instrparams(10)) .* envelope;
                 end
 
-                % Drive
-                tmpsample = tmpsample * drive;
+                % Copy note from the note cache
+                noteBuf = noteCache{note+1};                           
+                range = rowStartSample+1:rowStartSample+numsamples;
+                chnBuf(1,range) = chnBuf(1,range)+noteBuf;   
+                envs(mCurrentCol,range) = envs(mCurrentCol,range)+envelope*(rc<32);                                                
+            end                
+        end
+    end
 
-                % Is the filter active (i.e. still audiable)?
-                filterActive = tmpsample * tmpsample > 1e-5;
+    % Put performance critical instrument properties in local variables
+    oscLFO = instrparams(16)+1;
+    lfoAmt = instrparams(17) / 512;
+    lfoFreq = 2^(instrparams(18) - 9) / rowLen;
+    fxLFO = instrparams(19);
+    fxFreq = instrparams(21) * 43.23529 * pi / 44100;
+    q = 1 - instrparams(22) / 255;
+    dist = instrparams(23) * 1e-5;
+    drive = instrparams(24) / 32;
+    panAmt = instrparams(25) / 512;
+    panFreq = 2*pi * 2^(instrparams(26) - 9) / rowLen;      
 
-                % Panning
-                t = sin(panFreq * kk) * panAmt + 0.5;
-                chnBuf(kk) = tmpsample * (1 - t);
-                chnBuf(kk+1) = tmpsample * t;    
+    % Clear effect state
+    low = 0;
+    band = 0;        
+    filterActive = 0;    
+
+    % Perform effects
+    for kk = 1:2:mNumSamples*2
+
+        % We only do effects if we have some sound input
+        if filterActive || chnBuf(kk)                                                                         
+            % State variable filter
+            f = fxFreq;
+            if fxLFO
+                f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*44100+1)) * lfoAmt + 0.5);
             end
-        end               
-                
-        dlyAmt = instrparams(27) / 255;
-        dly = bitor(instrparams(28) * rowLen,1); % Must be an odd number
-                
-        % Perform delay. This could have been done in the previous
-        % loop, but it was slower than doing a second loop
-        for kk = dly:2:mNumSamples*2
-            chnBuf(kk)=chnBuf(kk)+chnBuf(kk-dly+2) * dlyAmt;
-            chnBuf(kk+1)=chnBuf(kk+1)+chnBuf(kk-dly+1) * dlyAmt;
-        end         
-        
-        mMixBuf = mMixBuf + chnBuf;
-    end       
-end
+            f = 1.5 * sin(f);
+            low = low + f * band;          
+            band = band + f * (q * (chnBuf(kk) - band) - low);
+            tmpsample = low;               
+
+            % Distortion
+            if dist
+                tmpsample = sin(.5*pi*min(max(tmpsample*dist,-1),1))/dist;                    
+            end
+
+            % Drive
+            tmpsample = tmpsample * drive;
+
+            % Is the filter active (i.e. still audiable)?
+            filterActive = tmpsample * tmpsample > 1e-5;
+
+            % Panning
+            t = sin(panFreq * kk) * panAmt + 0.5;
+            chnBuf(kk) = tmpsample * (1 - t);
+            chnBuf(kk+1) = tmpsample * t;    
+        end
+    end               
+
+    dlyAmt = instrparams(27) / 255;
+    dly = bitor(instrparams(28) * rowLen,1); % Must be an odd number
+
+    % Perform delay. This could have been done in the previous
+    % loop, but it was slower than doing a second loop
+    for kk = dly:2:mNumSamples*2
+        chnBuf(kk)=chnBuf(kk)+chnBuf(kk-dly+2) * dlyAmt;
+        chnBuf(kk+1)=chnBuf(kk+1)+chnBuf(kk-dly+1) * dlyAmt;
+    end         
+
+    mMixBuf = mMixBuf + chnBuf;
+end       

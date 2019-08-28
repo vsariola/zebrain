@@ -12,15 +12,17 @@ function build
     demom = readfile('../src/demo.m');
     playerm = readfile('../src/player.m');     
     camerasetupm = readfile('../src/camera_setup.m');     
-    demom = strrep(demom,'loadsong',songm);        
+    demom = strrep(demom,'loadsong;',songm);        
+    demom = strrep(demom,'player;',playerm);        
     demom = strrep(demom,'mainloop',readfile('../src/mainloop.m'));      
-    demom = [demom newline playerm newline camerasetupm];    
+    demom = [newline demom newline camerasetupm];        
     
     outputfilem = [outputdir outputname '_unminified.m'];
     writefile(outputfilem,demom);
     
-    demom = minify(demom,{'endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup'});
-
+    demom = minify(demom,{'song','endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup'});    
+    demom = demom(2:end);    
+    
     outputfilem = [outputdir outputname '.m'];
     writefile(outputfilem,demom);
     outputfilec = [outputdir outputname '_compressed.m'];

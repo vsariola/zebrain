@@ -35,7 +35,7 @@ function ret = minify(code,extrasymbols)
 end
 
 function ret = getcode(i)
-    valids = [char(97:122) char(65:90)]; % a-z A-Z, the variable
+    valids = [char(97:122) char(65:88)]; % a-z A-X, the variable
     % has to start with a letter. We don't need underscores and digits
     % because they can only be used when there is two or more letters
     % and if we hit two letters, it's unlikely we hit three
