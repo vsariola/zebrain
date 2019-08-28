@@ -5,5 +5,5 @@ function demo
     draw = @drawnow;
     sample = @()a.currentSample;
     start_music = @()play(a);
-    mainloop
+    effects;
 end

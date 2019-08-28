@@ -8,17 +8,21 @@ function build
     end
 
     generateSong;
-    songm = readfile('../src/loadsong.m');  
-    demom = readfile('../src/demo.m');
-    playerm = readfile('../src/player.m');     
-    camerasetupm = readfile('../src/camera_setup.m');     
-    demom = strrep(demom,'loadsong;',songm);        
-    demom = strrep(demom,'player;',playerm);        
-    demom = strrep(demom,'mainloop',readfile('../src/mainloop.m'));      
-    demom = [newline demom newline camerasetupm];        
+    demom = readfile('../src/demo.m');     
+    demom = strrep(demom,'loadsong;', readfile('../src/loadsong.m'));        
+    demom = strrep(demom,'player;',readfile('../src/player.m'));        
+    demom = strrep(demom,'effects;',readfile('../src/effects.m'));      
+    demom = [newline demom newline readfile('../src/camera_setup.m')];        
     
     outputfilem = [outputdir outputname '_unminified.m'];
     writefile(outputfilem,demom);
+    
+    demom = strrep(demom,'draw = @drawnow;','');
+    demom = strrep(demom,'sample = @()a.currentSample;','');
+    demom = strrep(demom,'start_music = @()play(a);','');
+    demom = strrep(demom,'draw()','drawnow');
+    demom = strrep(demom,'sample()','a.currentSample;');
+    demom = strrep(demom,'start_music()','play(a)');
     
     demom = minify(demom,{'song','endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup'});    
     demom = demom(2:end);    
