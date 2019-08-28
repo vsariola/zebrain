@@ -94,11 +94,11 @@ while pattern < 35
     scene_counter = sum_triggers(5,cursample);
     cx = cos(part)*50+127;
     cy = sin(part*1.1)*50+127;
-    
+     
     kerroin = interpolate([0,6,10],[1,1,2],part)^2;
     
     time = pi*pattern/34.5;
-    fade = max(sin(time),0)^.3;
+    fade = interpolate([0,7,7.5,10,12,32,34.5,35],[0,1,0,0,1,1,0,0],pattern);
     h=xgrid+xgrid'*1i;
     for f=0:2
         zz=0;
