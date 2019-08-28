@@ -93,7 +93,7 @@ function [mMixBuf,envBufs] = player(song)
 
                     % Copy note from the note cache
                     noteBuf = noteCache{note+1};                           
-                    range = rowStartSample+1:rowStartSample+length(noteBuf);
+                    range = rowStartSample+1:rowStartSample+numsamples;
                     chnBuf(1,range) = chnBuf(1,range)+noteBuf;   
                     envBufs(mCurrentCol,range) = envBufs(mCurrentCol,range)+envelope*(rc<32);                                                
                 end                
