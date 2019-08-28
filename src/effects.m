@@ -103,7 +103,7 @@ while pattern < 35
     for f=0:2
         zz=0;
         for kind=[1:3,5]
-            zz=zz+1./(h-.3*sin(time*kind)*exp(1i*kind/kerroin+time+f-sync(5)));
+            zz=zz+1./(h-.7*sin(time*kind)*exp(1i*(kind/kerroin+scene_counter)+f));
         end
         h=h-3./zz;
     end
@@ -160,7 +160,7 @@ while pattern < 35
     hscat.YData = muljuttu(:,2); 
     hscat.ZData = muljuttu(:,3);
     draw();
-    meshpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.8,.8,0,0],part);
+    meshpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
     grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);
 end
 
