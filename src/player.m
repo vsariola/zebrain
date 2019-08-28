@@ -88,14 +88,14 @@ function [mMixBuf,envBufs] = player(song)
                 note = pat(rc);
                 if note
                     if isempty(noteCache{note+1})                        
-                        noteCache{note+1} = [80 * (oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3)) * c1,1)*44100+1)) * instrparams(2) + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7)) * (1 + .0008 * instrparams(8)) * c2,1)*44100+1)) *  instrparams(6) + (2 * rand(1,numsamples) - 1) * instrparams(10)) .* envelope;envelope];
+                        noteCache{note+1} = 80 * (oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3)) * c1,1)*44100+1)) * instrparams(2) + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7)) * (1 + .0008 * instrparams(8)) * c2,1)*44100+1)) *  instrparams(6) + (2 * rand(1,numsamples) - 1) * instrparams(10)) .* envelope;
                     end
 
                     % Copy note from the note cache
                     noteBuf = noteCache{note+1};                           
                     range = rowStartSample+1:rowStartSample+length(noteBuf);
-                    chnBuf(1,range) = chnBuf(1,range)+noteBuf(1,:);   
-                    envBufs(mCurrentCol,range) = envBufs(mCurrentCol,range)+noteBuf(2,:)*(rc<32);                                                
+                    chnBuf(1,range) = chnBuf(1,range)+noteBuf;   
+                    envBufs(mCurrentCol,range) = envBufs(mCurrentCol,range)+envelope*(rc<32);                                                
                 end                
             end
         end
