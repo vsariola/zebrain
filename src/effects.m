@@ -94,8 +94,6 @@ while pattern < 35
     scene_counter = sum_triggers(5,cursample);
     cx = cos(part)*50+127;
     cy = sin(part*1.1)*50+127;
-     
-    kerroin = interpolate([0,6,10],[1,1,2],part)^2;
     
     time = pi*pattern/34.5;
     fade = interpolate([0,224,249,258,259,1024,1104,1120],[0,1,0,0,1,1,0,0],beat);
@@ -103,7 +101,7 @@ while pattern < 35
     for f=0:2
         zz=0;
         for kind=[1:3,5]
-            zz=zz+1./(h-.7*sin(time*kind)*exp(1i*(kind/kerroin+scene_counter)+f));
+            zz=zz+1./(h-.7*sin(time*kind)*exp(1i*(kind+scene_counter)+f));
         end
         h=h-3./zz;
     end
