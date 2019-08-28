@@ -1,6 +1,8 @@
 function demo_dev(varargin)
     global frame video sample
 
+    close all;
+    
     addpath('../src');
 
     parser = inputParser;

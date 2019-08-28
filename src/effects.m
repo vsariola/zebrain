@@ -98,7 +98,7 @@ while pattern < 35
     kerroin = interpolate([0,6,10],[1,1,2],part)^2;
     
     time = pi*pattern/34.5;
-    fade = interpolate([0,7,7.5,10,12,32,34.5,35],[0,1,0,0,1,1,0,0],pattern);
+    fade = interpolate([0,224,249,258,259,1024,1104,1120],[0,1,0,0,1,1,0,0],beat);
     h=xgrid+xgrid'*1i;
     for f=0:2
         zz=0;
@@ -112,14 +112,14 @@ while pattern < 35
     brain_index = part*20/9+1;
     alphaBrain = mod(brain_index,1);
     ind = floor(brain_index);
-    zz = zz+double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain;    
-    zoom = sync(6).*0.05+1;
-    for angle = 1:4      
-        zz = zz+zz(zoomer(zoom,cx),zoomer(zoom,cy),1);       
+    zz = zz+max(double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain,interpolate([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
+    zoom = sync(6).*.1+interpolate([0,34],[1.2,1],pattern);
+    for angle = 1:5     
+        zz = zz+zz(zoomer(zoom,cx),zoomer(zoom,cy-sync(7)*70),1);       
         zoom = sqrt(zoom);
     end
        
-    image(axes1,tanh((zz/80*fade+sync(1))/64)*640+sync(7)*400);    
+    image(axes1,tanh((zz/80*fade+sync(1))/64)*640);    
     axes1.Visible = 'off';
     
     angle = beat/100 + scene_counter + 1;                        
@@ -147,7 +147,7 @@ while pattern < 35
     end
     
     bar = sin(pi*part)^2^.1;      
-    mysurf.FaceAlpha = interpolate([0,258,258.1,448,512,1280],[0,0,.9,.9,0,0],beat);
+    mysurf.FaceAlpha = interpolate([0,258,258.1,448,512,1280],[0,0,.8,.8,0,0],beat);
     mysurf.EdgeAlpha = interpolate([0,1,1.5,4,5,10],[0,0,1,1,0,0],part);
     mysurf.AmbientStrength = min(sync(5)+0.5,1);
     time = max(part-3,0);
@@ -160,7 +160,7 @@ while pattern < 35
     hscat.YData = muljuttu(:,2); 
     hscat.ZData = muljuttu(:,3);
     draw();
-    meshpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.3,.3,0,0],part);
+    meshpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.8,.8,0,0],part);
     grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);
 end
 
