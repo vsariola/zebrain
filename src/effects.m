@@ -75,7 +75,7 @@ camera_setup;
 
 
 texts = {'bC!z&zTPOLM:','~__z__zz__zz__zz__z''zz_zzzz~z/z\__z\_\z\_\z\_\z\z\`.\z~/__z\__z\_\z\`.z\z\z\z\z`\','4096 bytesz|zMATLABz|zDemosplash 2019','z_z_z~(zvz)~z\z/z~zzvzz','Bits''n''Bites~p01~Brothomstates~Kooma~Orange~CNCD~NoooN','code:pestis/bC!','music:distance/TPOLM'};
-texttimes = [128,192;152,216;640,735;800,896;808,896;1024,1072;1032,1072];
+texttimes = [128,192;152,216;644,734;800,896;808,896;1024,1072;1032,1072];
 texttimes = reshape([texttimes;texttimes+4],7,[]);
 hTexts = arrayfun(@(x,y,z)text(x,y,z,'','VerticalAlign','middle','HorizontalAlign','center','FontWeight','bold','FontName','Courier New','color','w','Interpreter','none'),[10,10,10,20,20,-2,-2],[4,4,4,60,60,-12,-12],[4,1,-1,30,-10,3,0]);
 hTexts(4).Color = 'r';
