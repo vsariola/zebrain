@@ -96,7 +96,7 @@ while pattern < 35
     cy = sin(part*1.1)*50+127;
     
     time = pi*pattern/34.5;
-    fade = interpolate([0,224,249,258,259,1024,1104,1120],[0,1,0,0,1,1,0,0],beat)^.4;
+    fade = interpolate([0,224,240,258,259,1024,1104,1120],[0,.8,0,0,1,1,0,0],beat)^.5;
     h=xgrid+xgrid'*1i;
     for f=0:2
         zz=0;
