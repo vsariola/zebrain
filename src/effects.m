@@ -153,7 +153,7 @@ while pattern < 35
     angle = omega*time;  
     point_b = [(DIA+K*sin(W*angle)).*cos(angle),(DIA+K*sin(W*angle)).*sin(angle),(time+sync(7)*.3)*sin(omega2*time)*A];
     blended = headv * blending + point_b * (1-blending);
-    muljuttu = blended + interpolate([0,6,9],[0,0,3],part)*sin(blended*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3,.4,.5]*time);
+    muljuttu = blended + interpolate([0,6,9],[0,0,3],part)*sin(blended*.5*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3,.4,.5]*time);
     hscat.XData = muljuttu(:,1);
     hscat.YData = muljuttu(:,2); 
     hscat.ZData = muljuttu(:,3);
