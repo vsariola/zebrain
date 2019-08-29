@@ -101,7 +101,7 @@ while pattern < 35
     for f=0:2
         zz=0;
         for kind=[1:3,5]
-            zz=zz+1./(h-.7*sin(time*kind)*exp(1i*(kind+scene_counter)+f));
+            zz=zz+1./(h-.7*sin(time*kind)*exp(1i*kind*(scene_counter+1)+f));
         end
         h=h-3./zz;
     end
@@ -113,7 +113,7 @@ while pattern < 35
     zz = zz+max(double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain,interpolate([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
     zoom = sync(6).*.1+interpolate([0,34],[1.2,1],pattern);
     for angle = 1:5     
-        zz = zz+zz(zoomer(zoom,cx),zoomer(zoom,cy-sync(7)*70),1);       
+        zz = zz+zz(zoomer(zoom,cx),zoomer(zoom+sync(7)*.3,cy));       
         zoom = sqrt(zoom);
     end
        
