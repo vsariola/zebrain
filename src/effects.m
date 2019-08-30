@@ -66,7 +66,7 @@ camera_setup;
 % Init viivat
 grp = hgtransform('Parent',axes2);
 tdata = load('trimesh3d');
-meshpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,'w',grp,0,'none','none');
+meshpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,[1,.9,1],grp,1,'none','none');
 axes3 = create_axes();            
 [grix,gridy] = ndgrid(-1:.01:1);
 I=image(axes3,zeros(size(grix)));    
