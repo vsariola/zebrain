@@ -30,10 +30,14 @@ create_axes=@()axes('position',[0,0,1,1],'visible','off');
 
 axes1 = create_axes(); 
 
-colormap bone    
-colormap(interpolate(1:64,colormap,1:.1:64));
+cmap = @colormap;
+mymap = interpolate(1:64,cmap('bone'),1:.1:64);
+cmap(mymap);
 
 axes2 = create_axes();
+
+cmap(axes2,mymap(:,[3,2,1]));
+
 cu = rand(9e2,1)*2*pi;
 cv = rand(9e2,1)*2*pi;
 uu = linspc(0,2*pi,10)';
