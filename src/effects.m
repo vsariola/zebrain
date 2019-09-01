@@ -6,9 +6,9 @@ rng(0);
 
 linspc = @linspace;
 mri_data_for_iso = load('mri');
-xx = linspc(-1,1,128)*30;
-zz = linspc(-1,1,27)*60;
-head = isosurface(xx,xx,zz,smooth3(squeeze(mri_data_for_iso.D)),5);
+xspc = linspc(-1,1,128)*30;
+zspc = linspc(-1,1,27)*60;
+head = isosurface(xspc,xspc,zspc,smooth3(squeeze(mri_data_for_iso.D)),5);
 interpolate = @(x,v,xq)interp1(x,v,xq,[],'extrap');
 headv = head.vertices;
 omega = randn(size(headv,1),1)*2;
@@ -50,14 +50,14 @@ triangles = delaunay(cu,cv);
 
 grix = (cos(-cu)*A+K*sin(W*cv)+DIA).*cos(cv);
 gridy = (cos(-cu)*A+K*sin(W*cv)+DIA).*sin(cv);
-zz = sin(-cu)*A;
+comp = sin(-cu)*A;
 
 makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'SpecularExponent',5,'SpecularStrength',s,'LineStyle',l,'Marker',m,'MarkerSize',10);                 
-mysurf = makepatch(triangles,[grix(:),gridy(:),zz(:)],zz(:)+6,'flat',axes2,0.7,'-','.');
+mysurf = makepatch(triangles,[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,0.7,'-','.');
 
-xx = head.vertices(:,1)*Inf;
+xspc = head.vertices(:,1)*Inf;
 hold on;
-hscat = scatter3(xx,xx,xx,80,'k.');
+hscat = scatter3(xspc,xspc,xspc,80,'k.');
 
 
 hLight = light(axes2);
@@ -103,25 +103,25 @@ while pattern < 35
     fade = interpolate([0,224,240,258,259,1024,1104,1120],[0,.8,0,0,1,1,0,0],beat)^.5;
     h=xgrid+xgrid'*1i;
     for f=0:2
-        zz=0;
+        comp=0;
         for kind=[1:3,5]
-            zz=zz+1./(h-.7*sin(time*kind)*exp(1i*kind*(scene_counter*2+1)+f));
+            comp=comp+1./(h-.7*sin(time*kind)*exp(1i*kind*(scene_counter*2+1)+f));
         end
-        h=h-3./zz;
+        h=h-3./comp;
     end
-    zz = 256-sqrt(abs(zz))*200;
+    comp = 256-sqrt(abs(comp))*200;
     
     brain_index = part*20/9+1;
     alphaBrain = mod(brain_index,1);
     ind = floor(brain_index);
-    zz = zz+max(double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain,interpolate([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
+    comp = comp+max(double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain,interpolate([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
     zoom = sync(6).*.1+interpolate([0,34],[1.2,1],pattern);
     for angle = 1:5     
-        zz = zz+zz(zoomer(zoom,cx),zoomer(zoom+sync(7)*.3,cy));       
+        comp = comp+comp(zoomer(zoom,cx),zoomer(zoom+sync(7)*.3,cy));       
         zoom = sqrt(zoom);
     end
        
-    image(axes1,tanh((zz/80*fade+sync(1))/64)*640);    
+    image(axes1,tanh((comp/80*fade+sync(1))/64)*640);    
     axes1.Visible = 'off';
     
     angle = beat/100 + scene_counter + 1;                        
