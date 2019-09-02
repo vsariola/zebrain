@@ -36,7 +36,7 @@ cmap(mymap);
 
 axes2 = create_axes();
 
-cmap(axes2,mymap(:,[3,2,1]));
+cmap(axes2,mymap(:,[3,1,2]));
 
 cu = rand(9e2,1)*2*pi;
 cv = rand(9e2,1)*2*pi;
