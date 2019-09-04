@@ -1,6 +1,11 @@
-function build
+function build(makeopt)
+
+    if nargin < 1
+        makeopt = false
+    end
 
     outputdir = '../build/';
+    distdir = '../dist/';
     outputname = 'zebrain';
 
     if ~exist(outputdir,'dir')
@@ -32,6 +37,32 @@ function build
     
     outputfilep = [outputdir outputname '.p'];
     crunch(outputfilemin,'output',outputfilep);   
+    
+    if makeopt
+        demooptm = readfile('demo_opt.m');     
+        demooptm = strrep(demooptm,'song;', readfile('song.m'));        
+        demooptm = strrep(demooptm,'player;',readfile('../src/player.m'));        
+        demooptm = strrep(demooptm,'effects;',readfile('../src/effects.m'));      
+        demooptm = [newline demooptm newline readfile('../src/camera_setup.m')];  
+        demooptm = strrep(demooptm,'(''cache'',true)','(''cache'',false)'); 
+        demooptm = minify(demooptm,{'song','endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup'});    
+        demooptm = demooptm(2:end); 
+
+        outputfileopt = [outputdir outputname '_opt.m'];
+        writefile(outputfileopt,demooptm);
+        origdir = cd;
+        cd(outputdir);
+        pcode([outputname '_opt'],'-inplace');
+        cd(origdir);
+        
+        outputfilepopt = [outputdir outputname '_opt.p'];
+        if ~exist(distdir,'dir')
+            mkdir(distdir);
+        end
+        copyfile(outputfilep,distdir);
+        copyfile(outputfilepopt,distdir)
+    end
+
     rehash
 end
 

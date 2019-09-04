@@ -13,3 +13,5 @@ temp
 build/**
 **/cache/*
 src/song.m
+dist/*.m
+dist/*.p

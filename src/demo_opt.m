@@ -18,7 +18,7 @@ function demo_opt(varargin)
         mkdir(outputdir);
     end   
     
-    cachefile = [outputdir 'songcache.mat'];
+    cachefile = [outputdir,'songcache.mat'];
     
     if ~exist(cachefile,'file') || ~parser.Results.cache
         song;
@@ -31,8 +31,8 @@ function demo_opt(varargin)
     start_time = parser.Results.start * 6615 * 32 / 44100;
     
     if parser.Results.capture
-        audiofile =  [outputdir 'audio.wav'];
-        videofile =  [outputdir 'video.avi'];
+        audiofile =  [outputdir,'audio.wav'];
+        videofile =  [outputdir,'video.avi'];
         start_sample = floor(start_time * 44100 + 1);
         audiowrite(audiofile,mMixBuf(:,start_sample:end)'/32768,44100)
         frame = start_time * parser.Results.fps;
