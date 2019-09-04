@@ -1,37 +1,42 @@
-function demo_dev(varargin)
+function demo_opt(varargin)
     global frame video sample
 
+    outputdir = 'output/';
+    
     close all;
     
-    addpath('../src');
-
     parser = inputParser;
     parser.addParameter('start',0);
     parser.addParameter('cache',true);
     parser.addParameter('mute',false);
     parser.addParameter('capture',false);
     parser.addParameter('fps',60);
+    parser.addParameter('window','full');
     parse(parser,varargin{:});
     
-    if ~exist('output','dir')
-        mkdir('output');
+    if ~exist(outputdir,'dir')
+        mkdir(outputdir);
     end   
     
-    if ~exist('output/songcache.mat','file') || ~parser.Results.cache
-        loadsong;
+    cachefile = [outputdir 'songcache.mat'];
+    
+    if ~exist(cachefile,'file') || ~parser.Results.cache
+        song;
         player;
-        save('output/songcache.mat','mMixBuf','envs');
+        save(cachefile,'mMixBuf','envs');
     else
-        load('output/songcache.mat');
+        load(cachefile);
     end      
     
     start_time = parser.Results.start * 6615 * 32 / 44100;
     
     if parser.Results.capture
+        audiofile =  [outputdir 'audio.wav'];
+        videofile =  [outputdir 'video.avi'];
         start_sample = floor(start_time * 44100 + 1);
-        audiowrite('output/audio.wav',mMixBuf(:,start_sample:end)'/32768,44100)
+        audiowrite(audiofile,mMixBuf(:,start_sample:end)'/32768,44100)
         frame = start_time * parser.Results.fps;
-        video = VideoWriter('output/video.avi','Motion JPEG AVI');
+        video = VideoWriter(videofile,'Motion JPEG AVI');
         video.FrameRate = parser.Results.fps;
         video.Quality = 95;
         open(video);   
@@ -49,12 +54,17 @@ function demo_dev(varargin)
             sample = @()floor((start_time+toc)*44100+1);
         end
     end
+    
+    if strcmp(parser.Results.window,'full')
+        fig = figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none','Pointer','custom','PointerShapeCData',nan(16,16));
+    else
+        fig = figure('MenuBar', 'none', 'ToolBar', 'none');
+    end
     effects;
     
     if parser.Results.capture
         close(video);
     end
-    rmpath('../src');
 end
 
 function capture_draw()   

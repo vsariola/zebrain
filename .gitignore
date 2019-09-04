@@ -10,3 +10,6 @@ temp
 **/LOCAL_APPDATA_FONTCONFIG_CACHE/*
 **/minified/*
 **/songcache.mat
+build/**
+**/cache/*
+src/song.m

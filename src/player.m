@@ -40,7 +40,7 @@ envs = zeros(7,mNumSamples);
 for mCurrentCol = 1:7
     % Put performance critical items in local variables
     chnBuf = zeros(2,mNumSamples);
-    instr = song{mCurrentCol};
+    instr = songdata{mCurrentCol};
     instrparams = instr{1};       
 
     attack = instrparams(11)^2 * 4;
