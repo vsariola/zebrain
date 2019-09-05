@@ -8,7 +8,7 @@ linspc = @linspace;
 mri_data_for_iso = load('mri');
 xspc = linspc(-1,1,128)*30;
 zspc = linspc(-1,1,27)*60;
-smoothed_mri = double(squeeze(mri_data_for_iso.D));
+smoothed_mri = smooth3(squeeze(mri_data_for_iso.D));
 head = isosurface(xspc,xspc,zspc,smoothed_mri,5);
 interpolate = @(x,v,xq)interp1(x,v,xq,[],'extrap');
 headv = head.vertices;
@@ -67,6 +67,11 @@ camera_setup;
 grp = hgtransform('Parent',axes2);
 tdata = load('trimesh3d');
 meshpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,[1,.9,1],grp,1,'none','none');
+
+linev = zeros(4000,1);
+hline = line(linev,linev,linev,'Color',[1,1,1,.5],'LineWidth',5);
+
+
 axes3 = create_axes();            
 [grix,gridy] = ndgrid(-1:.01:1);
 I=image(axes3,zeros(size(grix)));    
@@ -161,6 +166,14 @@ while pattern < 35
     hscat.XData = muljuttu(:,1);
     hscat.YData = muljuttu(:,2); 
     hscat.ZData = muljuttu(:,3);
+    
+    linex = linspc(-2,2,4000) + (part-7)*4;
+    hline.XData = linex*15;
+    liner = sin(.5*sin(linex*2)+.3*sin(linex*3)+.4*sin(linex*4))*2+5;
+    lineangle = cos(.7*sin(linex*5)+.4*sin(linex*6)+.3*sin(linex*4))*30;
+    hline.YData = liner .* sin(lineangle) + 8;
+    hline.ZData = liner .* cos(lineangle);
+    
     draw();
     meshpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
     grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);
