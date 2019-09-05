@@ -31,6 +31,8 @@ axes1 = create_axes();
 cmap = @colormap;
 mymap = interpolate(1:64,cmap('bone'),1:.1:64);
 cmap(mymap);
+im = image(axes1,zeros(255,255));    
+axes1.Visible = 'off';
 
 axes2 = create_axes();
 
@@ -119,8 +121,8 @@ while pattern < 35
         zoom = sqrt(zoom);
     end
        
-    image(axes1,tanh((comp/80*fade+sync(1))/64)*640);    
-    axes1.Visible = 'off';
+    im.CData = tanh((comp/80*fade+sync(1))/64)*640; 
+
     
     angle = beat/100 + scene_counter + 1;                        
 
