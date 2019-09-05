@@ -8,19 +8,19 @@ linspc = @linspace;
 mri_data_for_iso = load('mri');
 xspc = linspc(-1,1,128)*30;
 zspc = linspc(-1,1,27)*60;
-head = isosurface(xspc,xspc,zspc,smooth3(squeeze(mri_data_for_iso.D)),5);
+smoothed_mri = double(squeeze(mri_data_for_iso.D));
+head = isosurface(xspc,xspc,zspc,smoothed_mri,5);
 interpolate = @(x,v,xq)interp1(x,v,xq,[],'extrap');
 headv = head.vertices;
 omega = randn(size(headv,1),1)*2;
 omega2 = randn(size(headv,1),1)*.5;
 
 % Init brain
-mrist = load('mristack');
-mrist = mrist.mristack;
-zoomer = @(zoom,x)mod(round(((0:255)-x)/zoom+x),256)+1;
+mrist = interp3(smoothed_mri,1);
+zoomer = @(zoom,x)mod(round(((0:254)-x)/zoom+x),255)+1;
 % Init valopallot
 
-xrange = linspc(-3,3,256);
+xrange = linspc(-3,3,255);
 [xgrid,dummy]=ndgrid(xrange);
 
 create_axes=@()axes('position',[0,0,1,1],'visible','off');        
@@ -94,8 +94,8 @@ while pattern < 35
     pattern = beat / 32;
     part = pattern / 4;
     scene_counter = sum_triggers(5,cursample);
-    cx = cos(part)*50+127;
-    cy = sin(part*1.1)*50+127;
+    cx = cos(part)*50+126;
+    cy = sin(part*1.1)*50+126;
     
     time = pi*pattern/34.5;
     fade = interpolate([0,224,240,258,259,1024,1104,1120],[0,.8,0,0,1,1,0,0],beat)^.5;
@@ -109,7 +109,7 @@ while pattern < 35
     end
     comp = 256-sqrt(abs(comp))*200;
     
-    brain_index = part*20/9+1;
+    brain_index = 52*(1-part/9)+1;
     alphaBrain = mod(brain_index,1);
     ind = floor(brain_index);
     comp = comp+max(double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain,interpolate([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
