@@ -47,22 +47,10 @@ for mCurrentCol = 1:7
     release = instrparams(13)^2 * 4;        
 
     envelope = [(0:attack-1)/attack,ones(1,instrparams(12)^2 * 4),1-(0:release-1)/release];        
-    numsamples = length(envelope);                              
-    cumsumenv = cumsum(envelope.^2);
-
-    % Oscillator 1
-    if instrparams(4) % o1xenv
-        c1 = cumsumenv;
-    else
-        c1 = 1:numsamples;
-    end                    
-
-    % Oscillator 2        
-    if instrparams(9) % o2xenv
-        c2 = cumsumenv;
-    else
-        c2 = 1:numsamples;
-    end              
+    numsamples = length(envelope);   
+    
+    c1 = cumsum(envelope .^ (2*instrparams(4)));
+    c2 = cumsum(envelope .^ (2*instrparams(9)));
 
     % Clear note cache.
     noteCache = cell(1,256);
