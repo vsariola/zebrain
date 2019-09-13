@@ -29,9 +29,9 @@ create_axes=@()axes('position',[0,0,1,1],'visible','off');
 axes1 = create_axes(); 
 
 cmap = @colormap;
-mymap = interpolate(1:64,cmap('bone'),1:.1:64);
+mymap = interpolate(1:64,cmap('bone'),1:.25:64);
 cmap(mymap);
-im = image(xgrid);    
+im = image(uint8(xgrid));    
 axes1.Visible = 'off';
 
 axes2 = create_axes();
@@ -45,15 +45,12 @@ vv = uu*0;
 cu = [cu;uu;uu;vv;vv+2*pi];
 cv = [cv;vv;vv+2*pi;uu;uu];
 
-
-triangles = delaunay(cu,cv);
-
 grix = (cos(-cu)*A+K*sin(W*cv)+DIA).*cos(cv);
 gridy = (cos(-cu)*A+K*sin(W*cv)+DIA).*sin(cv);
 comp = sin(-cu)*A;
 
 makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'SpecularExponent',5,'SpecularStrength',s,'LineStyle',l,'Marker',m,'MarkerSize',10);                 
-mysurf = makepatch(triangles,[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,0.7,'-','.');
+toruspatch = makepatch(delaunay(cu,cv),[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,0.7,'-','.');
 
 xspc = head.vertices(:,1)*Inf;
 hold on;
@@ -66,11 +63,12 @@ camera_setup;
 % Init viivat
 grp = hgtransform('Parent',axes2);
 tdata = load('trimesh3d');
-meshpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,[1,.9,1],grp,1,'none','none');
+pointpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,[1,.9,1],grp,1,'none','none');
+pointpatch.Visible = 'off';
 
 linev = zeros(4000,1);
 hline = line(linev,linev,linev,'Color',[1,1,1,.5],'LineWidth',5);
-
+hline.Visible = 'off';
 
 axes3 = create_axes();            
 [grix,gridy] = ndgrid(-1:.01:1);
@@ -126,10 +124,10 @@ while pattern < 35
         zoom = sqrt(zoom);
     end
        
-    im.CData = tanh((comp/80*fade+sync(1))/64)*640; 
+    im.CData = uint8(tanh((comp/80*fade+sync(1))/64)*256); 
 
     
-    angle = beat/100 + scene_counter + 1;                        
+    angle = beat/101 + scene_counter + 1;                        
 
     camera_position = [(DIA+K*sin(W*angle))*cos(angle),(DIA+K*sin(W*angle))*sin(angle),0];
     campos(axes2,camera_position);        
@@ -154,9 +152,9 @@ while pattern < 35
     end
     
     bar = sin(pi*part)^2^.1;      
-    mysurf.FaceAlpha = interpolate([0,258,258.1,448,512,1280],[0,0,.8,.8,0,0],beat);
-    mysurf.EdgeAlpha = interpolate([0,1,1.5,4,5,10],[0,0,1,1,0,0],part);
-    mysurf.AmbientStrength = min(sync(5)+0.5,1);
+    toruspatch.FaceAlpha = interpolate([0,258,258.1,448,512,1280],[0,0,.8,.8,0,0],beat);
+    toruspatch.EdgeAlpha = interpolate([0,1,1.5,4,5,10],[0,0,1,1,0,0],part);
+    toruspatch.AmbientStrength = min(sync(5)+0.5,1);
     time = max(part-3,0);
     blending = min(max(part-4,0),1)^.2;
     angle = omega*time;  
@@ -168,14 +166,27 @@ while pattern < 35
     hscat.ZData = muljuttu(:,3);
     
     linex = linspc(-2,2,4000) + (part-7)*4;
-    hline.XData = linex*15;
-    liner = sin(.5*sin(linex*2)+.3*sin(linex*3)+.4*sin(linex*4))*2+5;
-    lineangle = cos(.7*sin(linex*5)+.4*sin(linex*6)+.3*sin(linex*4))*30;
-    hline.YData = liner .* sin(lineangle) + 8;
-    hline.ZData = liner .* cos(lineangle);
-    
+    hline.XData = linex*15+10;
+    liner = sin(.5*sin(linex*2)+.3*sin(linex*3)+.4*sin(linex*4)) .* linex .* linex * 4;
+    lineangle = sin(.7*sin(linex*5)+.4*sin(linex*6)+.3*sin(linex*4))*10;
+    hline.YData = liner .* sin(lineangle) + 20;
+    hline.ZData = liner .* cos(lineangle) + 7;
+   
+    if part>3
+        pointpatch.Visible = 'on';
+    end
+    if part>5
+        toruspatch.Visible = 'off';
+    end
+    if part>6
+        hline.Visible = 'on';
+    end
+    if part>8
+        hline.Visible = 'off';
+    end
+   
     draw();
-    meshpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
+    pointpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
     grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);
 end
 
