@@ -118,7 +118,7 @@ while pattern < 35
     alphaBrain = mod(brain_index,1);
     ind = floor(brain_index);
     comp = comp+max(double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain,interpolate([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
-    zoom = sync(6).*.1+interpolate([0,34],[1.2,1],pattern);
+    zoom = sync(6)*.1+1;
     for angle = 1:5     
         comp = comp+comp(zoomer(zoom,cx),zoomer(zoom+sync(7)*.3,cy));       
         zoom = sqrt(zoom);
@@ -127,7 +127,7 @@ while pattern < 35
     im.CData = uint8(tanh((comp/80*fade+sync(1))/64)*256); 
 
     
-    angle = beat/101 + scene_counter + 1;                        
+    angle = beat/100 + scene_counter + 1;                        
 
     camera_position = [(DIA+K*sin(W*angle))*cos(angle),(DIA+K*sin(W*angle))*sin(angle),0];
     campos(axes2,camera_position);        
