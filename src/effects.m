@@ -49,13 +49,12 @@ grix = (cos(-cu)*A+K*sin(W*cv)+DIA).*cos(cv);
 gridy = (cos(-cu)*A+K*sin(W*cv)+DIA).*sin(cv);
 comp = sin(-cu)*A;
 
-makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'SpecularExponent',5,'SpecularStrength',s,'LineStyle',l,'Marker',m,'MarkerSize',10);                 
+makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'SpecularExponent',5,'SpecularStrength',s,'LineStyle',l,'Marker',m);                 
 toruspatch = makepatch(delaunay(cu,cv),[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,0.7,'-','.');
 
 xspc = head.vertices(:,1)*Inf;
 hold on;
-hscat = scatter3(xspc,xspc,xspc,80,'k.');
-
+hscat = scatter3(xspc,xspc,xspc,1,'k.','Visible','off');
 
 hLight = light(axes2);
 camera_setup;
@@ -63,8 +62,8 @@ camera_setup;
 % Init viivat
 grp = hgtransform('Parent',axes2);
 tdata = load('trimesh3d');
-pointpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,[1,.9,1],grp,1,'none','none');
-pointpatch.Visible = 'off';
+fanpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,[1,.9,1],grp,1,'none','none');
+fanpatch.Visible = 'off';
 
 linev = zeros(4000,1);
 hline = line(linev,linev,linev,'Color',[1,1,1,.5],'LineWidth',5);
@@ -155,6 +154,7 @@ while pattern < 35
     toruspatch.FaceAlpha = interpolate([0,258,258.1,448,512,1280],[0,0,.8,.8,0,0],beat);
     toruspatch.EdgeAlpha = interpolate([0,1,1.5,4,5,10],[0,0,1,1,0,0],part);
     toruspatch.AmbientStrength = min(sync(5)+0.5,1);
+    toruspatch.MarkerSize = fig.Position(3)/160;
     time = max(part-3,0);
     blending = min(max(part-4,0),1)^.2;
     angle = omega*time;  
@@ -173,9 +173,12 @@ while pattern < 35
     hline.ZData = liner .* cos(lineangle) + 7;
    
     if part>3
-        pointpatch.Visible = 'on';
+        hscat.Visible = 'on';
+        hscat.SizeData = fig.Position(3)/20;
     end
+    
     if part>5
+        fanpatch.Visible = 'on';
         toruspatch.Visible = 'off';
     end
     if part>6
@@ -186,7 +189,7 @@ while pattern < 35
     end
    
     draw();
-    pointpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
+    fanpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
     grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);
 end
 
