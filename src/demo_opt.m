@@ -34,7 +34,7 @@ function demo_opt(varargin)
         audiofile =  [outputdir,'audio.wav'];
         videofile =  [outputdir,'video.avi'];
         start_sample = floor(start_time * 44100 + 1);
-        audiowrite(audiofile,mMixBuf(:,start_sample:end)'/32768,44100)
+        audiowrite(audiofile,mMixBuf(:,start_sample:end)',44100)
         frame = start_time * parser.Results.fps;
         video = VideoWriter(videofile,'Motion JPEG AVI');
         video.FrameRate = parser.Results.fps;
@@ -46,7 +46,7 @@ function demo_opt(varargin)
     else 
         draw = @drawnow;
         if ~parser.Results.mute
-            a = audioplayer(mMixBuf/32768,44100);
+            a = audioplayer(mMixBuf,44100);
             start_music = @()play(a,floor(start_time*44100+1));
             sample = @()a.currentSample;
         else

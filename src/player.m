@@ -158,4 +158,6 @@ for mCurrentCol = 1:7
     end         
 
     mMixBuf = mMixBuf + chnBuf;
-end       
+end     
+
+mMixBuf = tanh(mMixBuf/1e5);

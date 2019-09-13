@@ -1,7 +1,7 @@
 function demo
     song;                    
     player;
-    a = audioplayer(mMixBuf/32768,44100);
+    a = audioplayer(mMixBuf,44100);
     draw = @drawnow;
     sample = @()a.currentSample;
     start_music = @()play(a);
