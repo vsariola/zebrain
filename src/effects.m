@@ -53,7 +53,7 @@ makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'
 toruspatch = makepatch(delaunay(cu,cv),[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,0.7,'-','.');
 
 metaballs = makepatch([],[],[],'k',axes2,.7,'none','none');
-metaballs.FaceAlpha = 0.8;
+metaballs.FaceAlpha = 0.7;
 metaballs.Visible = 'off';
 metax = -2:.2:2;
 [metaxx,metayy,metazz] = ndgrid(metax);
@@ -159,7 +159,7 @@ while pattern < 35
     
     bar = sin(pi*part)^2^.1;      
     toruspatch.FaceAlpha = interpolate([0,258,258.1,448,512,1280],[0,0,.8,.8,0,0],beat);
-    toruspatch.EdgeAlpha = interpolate([0,1,1.5,4,5,10],[0,0,1,1,0,0],part);
+    toruspatch.EdgeAlpha = interpolate([0,1,1.5,4,4.3,10],[0,0,1,1,0,0],part);
     toruspatch.AmbientStrength = min(sync(5)+0.5,1);
     toruspatch.MarkerSize = fig.Position(3)/160;
     time = max(part-3,0);
@@ -183,7 +183,7 @@ while pattern < 35
         hscat.Visible = 'on';
         hscat.SizeData = fig.Position(3)/20;
     end
-    if part>4 && part<6
+    if part>4 && part<5.9
         ballcenters = sin(pi*balls*pattern);
         metavalue = zeros(size(metaxx));
         for i = 1:5
