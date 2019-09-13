@@ -52,6 +52,13 @@ comp = sin(-cu)*A;
 makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'SpecularExponent',5,'SpecularStrength',s,'LineStyle',l,'Marker',m);                 
 toruspatch = makepatch(delaunay(cu,cv),[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,0.7,'-','.');
 
+metaballs = makepatch([],[],[],'k',axes2,.7,'none','none');
+metaballs.FaceAlpha = 0.8;
+metaballs.Visible = 'off';
+metax = -2:.2:2;
+[metaxx,metayy,metazz] = ndgrid(metax);
+balls = rand(5,3);
+
 xspc = head.vertices(:,1)*Inf;
 hold on;
 hscat = scatter3(xspc,xspc,xspc,1,'k.','Visible','off');
@@ -150,6 +157,15 @@ while pattern < 35
         hTexts(index).FontSize = fig.Position(3)/50;
     end
     
+    ballcenters = sin(balls*pattern);
+    metavalue = zeros(size(metaxx));
+    for i = 1:5
+        metavalue= metavalue + .2./sqrt((metaxx-ballcenters(i,1)) .^ 2 + (metayy-ballcenters(i,2)) .^ 2 + (metazz-ballcenters(i,3)) .^ 2);
+    end
+    metafv = isosurface(metax*5+7,metax*5,metax*5+7*(pattern-20),metavalue,1);
+    metaballs.Vertices = metafv.vertices;
+    metaballs.Faces = metafv.faces;
+    
     bar = sin(pi*part)^2^.1;      
     toruspatch.FaceAlpha = interpolate([0,258,258.1,448,512,1280],[0,0,.8,.8,0,0],beat);
     toruspatch.EdgeAlpha = interpolate([0,1,1.5,4,5,10],[0,0,1,1,0,0],part);
@@ -176,7 +192,12 @@ while pattern < 35
         hscat.Visible = 'on';
         hscat.SizeData = fig.Position(3)/20;
     end
-    
+    if part>4
+        metaballs.Visible = 'on';
+    end
+    if part>6
+        metaballs.Visible = 'off';
+    end
     if part>5
         fanpatch.Visible = 'on';
         toruspatch.Visible = 'off';
