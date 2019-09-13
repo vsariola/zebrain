@@ -1,1 +1,1 @@
-d:\portable\ffmpeg\bin\ffmpeg -i output/video.avi -i output/audio.wav -c:v libx264 -c:a aac -movflags +faststart output/combined.mp4
+d:\portable\ffmpeg\bin\ffmpeg -i src/output/video.avi -i src/output/audio.wav -c:v libx264 -c:a aac -movflags +faststart src/output/combined.mp4
