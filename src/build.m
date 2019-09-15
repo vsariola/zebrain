@@ -36,7 +36,7 @@ function build(makeopt)
     writefile(outputfilemin,demom);
     
     outputfilep = [outputdir outputname '.p'];
-    crunch(outputfilemin,'output',outputfilep);   
+    crunch(outputfilemin,'output',outputfilep,'use_comma',false);   
     
     if makeopt
         demooptm = readfile('demo_opt.m');     

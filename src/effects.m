@@ -1,3 +1,5 @@
+warning off all
+
 DIA = 10;
 A = 3.5;
 K = 5;
@@ -49,16 +51,16 @@ grix = (cos(-cu)*A+K*sin(W*cv)+DIA).*cos(cv);
 gridy = (cos(-cu)*A+K*sin(W*cv)+DIA).*sin(cv);
 comp = sin(-cu)*A;
 
-makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'SpecularExponent',5,'SpecularStrength',s,'LineStyle',l,'Marker',m);                 
-toruspatch = makepatch(delaunay(cu,cv),[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,0.7,'-','.');
+makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'specularexponent',5,'specularstrength',s,'linestyle',l,'Marker',m);                 
+toruspatch = makepatch(delaunay(cu,cv),[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,.7,'-','.');
 
 metaballs = makepatch([],[],[],'k',axes2,.7,'none','none');
-metaballs.FaceAlpha = 0.7;
+metaballs.FaceAlpha = .7;
 metaballs.Visible = 'off';
 metax = -2:.2:2;
 [metaxx,metayy,metazz] = ndgrid(metax);
 
-xspc = head.vertices(:,1)*Inf;
+xspc = head.vertices(:,1);
 hold on;
 hscat = scatter3(xspc,xspc,xspc,1,'k.','Visible','off');
 
@@ -76,10 +78,9 @@ hline = line(linev,linev,linev,'Color',[1,1,1,.5],'LineWidth',5);
 hline.Visible = 'off';
 
 axes3 = create_axes();            
-[grix,gridy] = ndgrid(-1:.01:1);
-I=image(axes3,zeros(size(grix)));    
+[grix,gridy] = ndgrid(-1:.01:1);   
+alpha( image(axes3,zeros(size(grix))),(grix.^2+gridy.^2)/2);    
 axes3.Visible = 'off'; 
-alpha(I,(grix.^2+gridy.^2)/2);    
 
 axes4 = create_axes();
 camera_setup;
@@ -154,8 +155,8 @@ while pattern < 35
     end
        
     toruspatch.FaceAlpha = interpolate([0,258,258.1,448,512,1280],[0,0,.8,.8,0,0],beat);
-    toruspatch.EdgeAlpha = interpolate([0,1,1.5,4,4.3,10],[0,0,1,1,0,0],part);
-    toruspatch.AmbientStrength = min(sync(5)+0.5,1);
+    toruspatch.EdgeAlpha = interpolate([0,1,1.5,4,4.5,10],[0,0,1,1,0,0],part);
+    toruspatch.AmbientStrength = min(sync(5)+.5,1);
     toruspatch.MarkerSize = figwidth/160;
     time = max(part-3,0);
     blending = min(max(part-4,0),1)^.2;
