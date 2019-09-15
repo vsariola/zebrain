@@ -46,6 +46,7 @@ function build(makeopt)
         demooptm = [newline demooptm newline readfile('../src/camera_setup.m')];  
         demooptm = strrep(demooptm,'(''cache'',true)','(''cache'',false)'); 
         demooptm = minify(demooptm,{'song','endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup'});    
+        demooptm = strrep(demooptm,'perspective','p');
         demooptm = demooptm(2:end); 
 
         outputfileopt = [outputdir outputname '_opt.m'];
