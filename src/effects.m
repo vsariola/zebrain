@@ -87,10 +87,10 @@ axes4 = create_axes();
 camera_setup;
 
 
-texts = {'\___\zzz\/zz_\_,-.__\.-.-.zz.~z\/\_·zz/\zzzz\z\`\/z\\z\z\z.','__z__z\__,-.__.,-.z~z/_\/__\/z\z\_\\\z\','4096 bytesz|zMATLABz|zDemosplash 2019','.s$s,s$s,~¶§§§§§§§²~`§§§§P´~`§´','m/Bits''n''Bites~p01~Brothomstates~Kooma~Orange~CNCD~NoooN','code:pestis/bC!','music:distance/TPOLM','ascii:tes-la/bC!'};
-texttimes = [128,192;152,216;644,734;800,896;808,896;1024,1072;1032,1072;1040,1072];
-texttimes = reshape([texttimes;texttimes+4],8,[]);
-hTexts = arrayfun(@(x,y,z)text(x,y,z,'','VerticalAlign','middle','HorizontalAlign','center','FontWeight','bold','FontName','Courier New','color','w','Interpreter','none'),[10,10,10,20,20,-2,-2,-2],[4,4,4,60,60,-12,-12,-12],[4,-1,-1,30,-10,3,0,-3]);
+texts = {'\___\zz\/z_\_z_z__\z_z_zzz.z~z\/\_·z/\zzz\z\-\/z\\z\z\zz.','__z__z\__z_z__.z_zz~z/_\/__\/z\´\_\\\z\','4096 bytesz|zMATLABz|zDemosplash 2019','.s$s,s$s,~¶§§§§§§§²~`§§§§P´~`§´','m/Bits''n''Bites~p01~Brothomstates~Kooma~Orange~CNCD~NoooN','___\¯¯¯¯¯¯¯¯¯¯¯\z¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/___~__\zzz·:zcodez:·zz`zzzz·:zmusicz:·zzzz/__~\zz`zpestisz/zbC!zzzdistancez/zTPOLMz´zz/~\______zzzzzzz·:zasciiz:·zzzzzz_______/~/z:zzzzzzzapolloz/zbC!zzzzz:zz\~`-----/__________________\----´'};
+texttimes = [128,192;152,216;644,734;800,896;808,896;1024,1072];
+texttimes = reshape([texttimes;texttimes+4],6,[]);
+hTexts = arrayfun(@(x,y,z)text(x,y,z,'','VerticalAlign','middle','HorizontalAlign','center','FontWeight','bold','FontName','Courier New','color','w','Interpreter','none'),[10,10,10,20,20,8],[4,4,4,60,60,.5],[4,-1,-1,30,-10,.5]);
 hTexts(4).Color = 'r';
 rands = rand(1,1000);
 
@@ -153,7 +153,7 @@ while pattern < 35
         str(str_indices) = randi([33,47],1,sum(str_indices));
         str(not_empty & string_sync>(1-offset) | str == 'z') = 32;
         hTexts(index).String = split(str,'~');   
-        hTexts(index).Rotation = -atan2d(xy(1),xy(2));
+        hTexts(index).Rotation = -atan2d(xy(1),xy(2)) + (index==6)*25;
         hTexts(index).FontSize = fig.Position(3)/50;
     end
     
