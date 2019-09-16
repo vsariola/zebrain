@@ -10,6 +10,7 @@ function generate_song
             song.songData{i}{1}(5) = 2;
         end
         song.songData{i}{1} = song.songData{i}{1}([1:13,16:28]);
+        song.songData{i}{1} = round(song.songData{i}{1} ./ [1,3,2,1,1,3,2,1,1,3,1,1,2,1,3,1,1,1,2,2,2,2,3,1,3,1]);
         p = song.songData{i}{2};
         c = song.songData{i}{3}; 
         up = unique(p);
@@ -93,7 +94,9 @@ function exportColumns(f,col)
         if i>1
             fprintf(f,',');
         end
-        exportArray(f,stripTrailingZeros(col{i}{1}));
+        notes = stripTrailingZeros(col{i}{1});
+        notes(notes > 0) = notes(notes > 0) - 98;
+        exportArray(f,notes);               
     end    
     fprintf(f,'}');      
 end
@@ -105,21 +108,14 @@ end
 
 function exportArray(f,array)
     if isempty(array)
-        fprintf(f,'[]');
+        fprintf(f,'''''');
         return;
     end
-    if length(array) == 1
-        fprintf(f,'%g',array);
-        return;
-    end
-    fprintf(f,'[');
+    fprintf(f,'''');
     for i = 1:length(array)
-       if i>1
-           fprintf(f,',');      
-       end
-       fprintf(f,'%g',array(i));      
+       fprintf(f,'%s',char(array(i)+160));      
     end
-    fprintf(f,']');
+    fprintf(f,'''');
 end
 
     

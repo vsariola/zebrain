@@ -27,7 +27,7 @@ samx = (0:44099)/44100;
 % using lambdas in matlab
 % Oscillators: 1 = sine, 2 = square, 3 = triangle
 oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;1-abs(samx*4-2)];
-getnotefreq = @(n) .003959503758 * 2^((n - 256) / 12);    
+getnotefreq = @(n) .003959503758 * 2^((n - 158) / 12);    
 
 % Prepare song info
 mNumSamples = 7620480;
@@ -41,10 +41,10 @@ for mCurrentCol = 1:7
     % Put performance critical items in local variables
     chnBuf = zeros(2,mNumSamples);
     instr = songdata{mCurrentCol};
-    instrparams = instr{1};       
+    instrparams = instr{1}-160;       
 
     attack = instrparams(11)^2 * 4;
-    release = instrparams(13)^2 * 4;        
+    release = instrparams(13)^2 * 16;        
 
     envelope = [(0:attack-1)/attack,ones(1,instrparams(12)^2 * 4),1-(0:release-1)/release];        
     numsamples = length(envelope);   
@@ -57,14 +57,14 @@ for mCurrentCol = 1:7
 
     % Patterns
     for p = 1:length(instr{2})
-        cp = instr{2}(p);  
+        cp = instr{2}(p)-160;  
 
         if ~cp
             continue;
         end
 
         % Pattern rows
-        pat = instr{3}{cp};
+        pat = instr{3}{cp}-160;
         for rc = 1:length(pat)
             % Calculate start sample number for this row in the pattern
             rowStartSample = ((p-1) * 32 + mod(rc-1,32)) * rowLen;
@@ -73,7 +73,7 @@ for mCurrentCol = 1:7
             note = pat(rc);
             if note
                 if isempty(noteCache{note+1})                        
-                    noteCache{note+1} = 80 * (oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3)) * c1,1)*44100+1)) * instrparams(2) + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7)) * (1 + .0008 * instrparams(8)) * c2,1)*44100+1)) *  instrparams(6) + (2 * rand(1,numsamples) - 1) * instrparams(10)) .* envelope;
+                    noteCache{note+1} = 80 * (oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3) * 2) * c1,1)*44100+1)) * instrparams(2) * 3 + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7) * 2) * (1 + .0008 * instrparams(8)) * c2,1)*44100+1)) *  instrparams(6) * 3 + (2 * rand(1,numsamples) - 1) * instrparams(10) * 3) .* envelope;
                 end
 
                 % Copy note from the note cache
@@ -87,14 +87,14 @@ for mCurrentCol = 1:7
 
     % Put performance critical instrument properties in local variables
     oscLFO = instrparams(14)+1;
-    lfoAmt = instrparams(15) / 512;
+    lfoAmt = instrparams(15)*3 / 512;
     lfoFreq = 2^(instrparams(16) - 9) / rowLen;
     fxLFO = instrparams(17);
-    fxFreq = instrparams(19) * 43.23529 * pi / 44100;
-    q = 1 - instrparams(20) / 255;
-    dist = instrparams(21) * 1e-5;
-    drive = instrparams(22) / 32;
-    panAmt = instrparams(23) / 512;
+    fxFreq = instrparams(19) * 271.6553 / 44100;
+    q = 1 - instrparams(20)*2 / 255;
+    dist = instrparams(21) * 2e-5;
+    drive = instrparams(22) / 16;
+    panAmt = instrparams(23)/ 171;
     panFreq = 2*pi * 2^(instrparams(24) - 9) / rowLen;      
 
     % Clear effect state
@@ -135,7 +135,7 @@ for mCurrentCol = 1:7
         end
     end               
 
-    dlyAmt = instrparams(25) / 255;
+    dlyAmt = instrparams(25) / 85;
     dly = bitor(instrparams(26) * rowLen,1); % Must be an odd number
 
     % Perform delay. This could have been done in the previous
