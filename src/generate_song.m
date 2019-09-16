@@ -9,6 +9,7 @@ function generate_song
         if song.songData{i}{1}(5) == 3 % Third oscillator was removed, fourth oscillator is now third
             song.songData{i}{1}(5) = 2;
         end
+        song.songData{i}{1} = song.songData{i}{1}([1:13,16:28]);
         p = song.songData{i}{2};
         c = song.songData{i}{3}; 
         up = unique(p);

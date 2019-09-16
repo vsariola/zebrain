@@ -86,16 +86,16 @@ for mCurrentCol = 1:7
     end
 
     % Put performance critical instrument properties in local variables
-    oscLFO = instrparams(16)+1;
-    lfoAmt = instrparams(17) / 512;
-    lfoFreq = 2^(instrparams(18) - 9) / rowLen;
-    fxLFO = instrparams(19);
-    fxFreq = instrparams(21) * 43.23529 * pi / 44100;
-    q = 1 - instrparams(22) / 255;
-    dist = instrparams(23) * 1e-5;
-    drive = instrparams(24) / 32;
-    panAmt = instrparams(25) / 512;
-    panFreq = 2*pi * 2^(instrparams(26) - 9) / rowLen;      
+    oscLFO = instrparams(14)+1;
+    lfoAmt = instrparams(15) / 512;
+    lfoFreq = 2^(instrparams(16) - 9) / rowLen;
+    fxLFO = instrparams(17);
+    fxFreq = instrparams(19) * 43.23529 * pi / 44100;
+    q = 1 - instrparams(20) / 255;
+    dist = instrparams(21) * 1e-5;
+    drive = instrparams(22) / 32;
+    panAmt = instrparams(23) / 512;
+    panFreq = 2*pi * 2^(instrparams(24) - 9) / rowLen;      
 
     % Clear effect state
     low = 0;
@@ -135,8 +135,8 @@ for mCurrentCol = 1:7
         end
     end               
 
-    dlyAmt = instrparams(27) / 255;
-    dly = bitor(instrparams(28) * rowLen,1); % Must be an odd number
+    dlyAmt = instrparams(25) / 255;
+    dly = bitor(instrparams(26) * rowLen,1); % Must be an odd number
 
     % Perform delay. This could have been done in the previous
     % loop, but it was slower than doing a second loop
