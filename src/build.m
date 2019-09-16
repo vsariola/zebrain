@@ -1,7 +1,7 @@
 function build(makeopt)
 
     if nargin < 1
-        makeopt = false
+        makeopt = false;
     end
 
     outputdir = '../build/';

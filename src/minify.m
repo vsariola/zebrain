@@ -1,6 +1,6 @@
 function ret = minify(code,extrasymbols)
     tokens = regexp(code,'([;\n]|for)\s*(\w+|(\[\s*\w+(\s*,\s*\w+)*\s*\]))\s*=','tokens');
-    t2 = {}
+    t2 = {};
     for i = 1:length(tokens)
         m = tokens{i}{2};
         if m(1) == '['
