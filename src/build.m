@@ -14,13 +14,15 @@ function build(makeopt)
 
     generate_song;
     demom = readfile('demo.m');     
-    demom = strrep(demom,'song;', readfile('song.m'));        
+    demom = strrep(demom,'song;', 'songdata=tmpsong;');        
     demom = strrep(demom,'player;',readfile('../src/player.m'));        
     demom = strrep(demom,'effects;',readfile('../src/effects.m'));      
     demom = [newline demom newline readfile('../src/camera_setup.m')];        
     
     outputfile = [outputdir outputname '.m'];
-    writefile(outputfile,demom);
+    songdata = readfile('../src/song.m');    
+    demom2 = strrep(demom,'tmpsong;',songdata(10:end-1));    
+    writefile(outputfile,demom2);
     
     demom = strrep(demom,'draw = @drawnow;','');
     demom = strrep(demom,'sample = @()a.currentSample;','');
@@ -30,6 +32,8 @@ function build(makeopt)
     demom = strrep(demom,'start_music()','play(a)');
     
     demom = minify(demom,{'song','endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup'});    
+    demom = strrep(demom,'tmpsong;',songdata(10:end-1));
+    
     demom = demom(2:end);    
     
     outputfilemin = [outputdir outputname '.min.m'];
