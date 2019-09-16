@@ -54,15 +54,14 @@ comp = sin(-cu)*A;
 makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'specularexponent',5,'specularstrength',s,'linestyle',l,'Marker',m);                 
 toruspatch = makepatch(delaunay(cu,cv),[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,.7,'-','.');
 
-metaballs = makepatch([],[],[],'k',axes2,.7,'none','none');
-metaballs.FaceAlpha = .7;
-metaballs.Visible = 'off';
-metax = -2:.2:2;
-[metaxx,metayy,metazz] = ndgrid(metax);
-
 xspc = head.vertices(:,1);
 hold on;
 hscat = scatter3(xspc,xspc,xspc,1,'k.','Visible','off');
+
+metaballs = makepatch([],[],[],'w',axes2,.7,'none','none');
+metaballs.Visible = 'off';
+metax = -4:.5:4;
+[metaxx,metayy,metazz] = ndgrid(metax);
 
 hLight = light(axes2);
 camera_setup;
@@ -155,9 +154,9 @@ while pattern < 35
     end
        
     toruspatch.FaceAlpha = interpolate([0,258,258.1,448,512,1280],[0,0,.8,.8,0,0],beat);
-    toruspatch.EdgeAlpha = interpolate([0,1,1.5,4,4.5,10],[0,0,1,1,0,0],part);
+    toruspatch.EdgeAlpha = interpolate([0,4,6,16,17,40],[0,0,1,1,0,0],pattern);
     toruspatch.AmbientStrength = min(sync(5)+.5,1);
-    toruspatch.MarkerSize = figwidth/160;
+    toruspatch.MarkerSize = figwidth/180;
     time = max(part-3,0);
     blending = min(max(part-4,0),1)^.2;
     angle = omega*time;  
@@ -174,24 +173,29 @@ while pattern < 35
     hline.YData = liner .* sin(lineangle) + 20;
     hline.ZData = liner .* cos(lineangle) + 7;
    
+    draw();
+    
     if part>3
         hscat.Visible = 'on';
         hscat.SizeData = figwidth/20;
     end
-    if part>4 && part<5.9
-        ballcenters = sin(pi*reshape(1:15,5,3)*part);
+    if part>4 && part<6
+        ballcenters = sin(pi*reshape(1:15,5,3)*part)*2;
         metavalue = zeros(size(metaxx));
         for i = 1:5
-            metavalue= metavalue + .2./sqrt((metaxx-ballcenters(i,1)) .^ 2 + (metayy-ballcenters(i,2)) .^ 2 + (metazz-ballcenters(i,3)) .^ 2);
+            metavalue= metavalue + .2./sqrt((metaxx-ballcenters(i,1)) .^ 4 + (metayy-ballcenters(i,2)) .^ 4 + (metazz-ballcenters(i,3)) .^ 4);
         end
-        metafv = isosurface(metax*5+14,metax*5-1,metax*5+8*(pattern-20),metavalue,.8);
+        metapos = ([8,0,0]-camera_position);
+        metapos = metapos * 8 / norm(metapos) + camera_position;
+        metafv = isosurface(metax+metapos(1),metax+metapos(2),metax+metapos(3)+(pattern-20).^3/2,metavalue,.18);
         metaballs.Vertices = metafv.vertices;
-        metaballs.Faces = metafv.faces;
+        metaballs.Faces = metafv.faces;   
+        metaballs.FaceColor = [1,.9,1]-sync(7)*.8;
         metaballs.Visible = 'on';
     else
         metaballs.Visible = 'off';
     end
-    if part>5
+    if pattern>17.1
         fanpatch.Visible = 'on';
         toruspatch.Visible = 'off';
     end
@@ -202,9 +206,8 @@ while pattern < 35
         hline.Visible = 'off';
     end
    
-    draw();
     fanpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
-    grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);
+    grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);    
 end
 
 close all
