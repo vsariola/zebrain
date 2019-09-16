@@ -59,29 +59,27 @@ for mCurrentCol = 1:7
     for p = 1:length(instr{2})
         cp = instr{2}(p)-160;  
 
-        if ~cp
-            continue;
-        end
+        if cp            
+            % Pattern rows
+            pat = instr{3}{cp}-160;
+            for rc = 1:length(pat)
+                % Calculate start sample number for this row in the pattern
+                rowStartSample = ((p-1) * 32 + mod(rc-1,32)) * rowLen;
 
-        % Pattern rows
-        pat = instr{3}{cp}-160;
-        for rc = 1:length(pat)
-            % Calculate start sample number for this row in the pattern
-            rowStartSample = ((p-1) * 32 + mod(rc-1,32)) * rowLen;
+                % Generate notes for this pattern row
+                note = pat(rc);
+                if note
+                    if isempty(noteCache{note+1})                        
+                        noteCache{note+1} = 80 * (oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3) * 2) * c1,1)*44100+1)) * instrparams(2) * 3 + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7) * 2) * (1 + .0008 * instrparams(8)) * c2,1)*44100+1)) *  instrparams(6) * 3 + (2 * rand(1,numsamples) - 1) * instrparams(10) * 3) .* envelope;
+                    end
 
-            % Generate notes for this pattern row
-            note = pat(rc);
-            if note
-                if isempty(noteCache{note+1})                        
-                    noteCache{note+1} = 80 * (oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3) * 2) * c1,1)*44100+1)) * instrparams(2) * 3 + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7) * 2) * (1 + .0008 * instrparams(8)) * c2,1)*44100+1)) *  instrparams(6) * 3 + (2 * rand(1,numsamples) - 1) * instrparams(10) * 3) .* envelope;
-                end
-
-                % Copy note from the note cache
-                noteBuf = noteCache{note+1};                           
-                range = rowStartSample+1:rowStartSample+numsamples;
-                chnBuf(1,range) = chnBuf(1,range)+noteBuf;   
-                envs(mCurrentCol,range) = envs(mCurrentCol,range)+envelope*(rc<32);                                                
-            end                
+                    % Copy note from the note cache
+                    noteBuf = noteCache{note+1};                           
+                    range = rowStartSample+1:rowStartSample+numsamples;
+                    chnBuf(1,range) = chnBuf(1,range)+noteBuf;   
+                    envs(mCurrentCol,range) = envs(mCurrentCol,range)+envelope*(rc<32);                                                
+                end                
+            end
         end
     end
 
