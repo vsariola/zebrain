@@ -31,7 +31,8 @@ create_axes=@()axes('position',[0,0,1,1],'Visible','off');
 axes1 = create_axes(); 
 
 cmap = @colormap;
-mymap = interpolate(1:64,cmap('bone'),1:.25:64);
+bonemap = cmap('bone');
+mymap = interpolate(1:length(bonemap),bonemap,linspc(1,length(bonemap),256));
 cmap(mymap);
 im = image(uint8(xgrid));    
 axes1.Visible = 'off';
