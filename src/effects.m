@@ -137,8 +137,13 @@ while pattern < 35
     campos(axes4,camera_position);
     camlight(hLight,'HEADLIGHT'); 
     
-    screen_z = view(axes2) * [0;0;1;0];
-    xy = screen_z(1:2)/screen_z(3);
+    
+    vec_forward = ([8,.5,.5]-camera_position);
+    vec_forward = vec_forward / norm(vec_forward);
+    proj = @(vec) vec - dot(vec,vec_forward) * vec_forward;
+    vec_up = proj([.7,0,1]);
+    vec_horiz = proj([0,0,1]);
+    angle = atan2d(norm(cross(vec_up,vec_horiz)),dot(vec_up,vec_horiz)) * sign(dot(vec_forward, cross(vec_up, vec_horiz)));
 
     for index = 1:length(texts)
         str = texts{index};
@@ -149,7 +154,7 @@ while pattern < 35
         str(str_indices) = randi([33,47],1,sum(str_indices));
         str(not_empty & string_sync>(1-offset) | str == 'z') = 32;
         hTexts(index).String = split(str,'~');   
-        hTexts(index).Rotation = -atan2d(xy(1),xy(2)) + (index==6)*25;
+        hTexts(index).Rotation = -angle + (index==6)*25;
         hTexts(index).FontSize = figwidth/50;
     end
        
