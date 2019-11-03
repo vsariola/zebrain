@@ -1,19 +1,14 @@
-DIA = 10;
 A = 3.5;
-K = 5;
-W = 3;
 rng(0);
 
 linspc = @linspace;
 mri_data_for_iso = load('mri');
 xspc = linspc(-1,1,128)*30;
-zspc = linspc(-1,1,27)*60;
 smoothed_mri = smooth3(squeeze(mri_data_for_iso.D));
-head = isosurface(xspc,xspc,zspc,smoothed_mri,5);
-interpolate = @(x,v,xq)interp1(x,v,xq,[],'extrap');
+head = isosurface(xspc,xspc,linspc(-1,1,27)*60,smoothed_mri,5);
+interpolate = @(a,b,c)interp1(a,b,c,[],'extrap');
 headv = head.vertices;
-omega = randn(size(headv,1),1)*2;
-omega2 = randn(size(headv,1),1)*.5;
+omega = randn(size(headv));
 
 % Init brain
 mrist = interp3(smoothed_mri,1);
@@ -39,15 +34,15 @@ axes2 = create_axes();
 
 cmap(axes2,mymap(:,[3,1,2]));
 
-cu = rand(9e2,1)*2*pi;
-cv = rand(9e2,1)*2*pi;
-uu = linspc(0,2*pi,10)';
+cu = rand(9e2,1);
+cv = rand(9e2,1);
+uu = linspc(0,1,10)';
 vv = uu*0;
-cu = [cu;uu;uu;vv;vv+2*pi]+1e-4;
-cv = [cv;vv;vv+2*pi;uu;uu];
+cu = [cu;uu;uu;vv;vv+1]*2*pi+1e-6;
+cv = [cv;vv;vv+1;uu;uu]*2*pi;
 
-grix = (cos(-cu)*A+K*sin(W*cv)+DIA).*cos(cv);
-gridy = (cos(-cu)*A+K*sin(W*cv)+DIA).*sin(cv);
+grix = (cos(-cu)*A+5*sin(3*cv)+10).*cos(cv);
+gridy = (cos(-cu)*A+5*sin(3*cv)+10).*sin(cv);
 comp = sin(-cu)*A;
 
 makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'specularexponent',5,'specularstrength',s,'linestyle',l,'Marker',m);                 
@@ -80,10 +75,10 @@ angle = linspc(0,2*pi,32);
 lx = [cos(angle);cos(angle);angle*nan]*50;
 ly = [sin(angle);sin(angle);angle*nan]*50;
 lz = [12+rand(size(angle));28+rand(size(angle));angle*nan]*50;
-makeline = @(m,w)line(lx(:)*m,ly(:)*m,lz(:),'Color',[1,1,1,.5],'LineWidth',w,'Parent',linegroup);
-makeline(1.06,20);
-makeline(1.03,15);
-makeline(1,10);
+makeline = @(m)line(lx(:)*m,ly(:)*m,lz(:),'Color',[1,1,1,.5],'Parent',linegroup);
+l1=makeline(1.06);
+l2=makeline(1.03);
+l3=makeline(1);
 
 axes3 = create_axes();            
 [grix,gridy] = ndgrid(-1:.01:1);   
@@ -106,7 +101,7 @@ sum_triggers = cumsum(envs & ~[zeros(7,1),envs(:,1:(end-1))],2);
 start_music();
 pattern = 0;
 while pattern < 35
-    figwidth = fig.Position(3);
+    figwidth = fig.Position(3)
     cursample = sample();
     sync = @(c)envs(c,cursample);
     beat = cursample/6615;  
@@ -141,7 +136,7 @@ while pattern < 35
     
     angle = beat/100 + scene_counter + 1;                        
 
-    camera_position = [(DIA+K*sin(W*angle))*cos(angle),(DIA+K*sin(W*angle))*sin(angle),0];
+    camera_position = [(10+5*sin(3*angle))*cos(angle),(10+5*sin(3*angle))*sin(angle),0];
     campos(axes2,camera_position);        
     campos(axes4,camera_position);
     camlight(hLight,'HEADLIGHT'); 
@@ -165,8 +160,8 @@ while pattern < 35
     toruspatch.MarkerSize = figwidth/180;
     time = max(part-3,0);
     blending = min(max(part-4,0),1)^.2;
-    angle = omega*time;  
-    blended = headv * blending + [(DIA+K*sin(W*angle)).*cos(angle),(DIA+K*sin(W*angle)).*sin(angle),(time+sync(7)*.3)*sin(omega2*time)*A] * (1-blending);
+    angle = omega(:,1)*2*time;  
+    blended = headv * blending + [(10+5*sin(3*angle)).*cos(angle),(10+5*sin(3*angle)).*sin(angle),(time+sync(7)*.3)*sin(omega(:,2)/2*time)*A] * (1-blending);
     muljuttu = blended + interpolate([0,6,9],[0,0,3],part)*sin(blended*.5*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3,.4,.5]*time);
     hscat.XData = muljuttu(:,1);
     hscat.YData = muljuttu(:,2); 
@@ -179,6 +174,10 @@ while pattern < 35
     hline.YData = liner .* sin(lineangle) + 20;
     hline.ZData = liner .* cos(lineangle) + 7;
    
+    l1.LineWidth = figwidth/80;
+    l2.LineWidth = figwidth/100;
+    l3.LineWidth = figwidth/150;    
+    
     draw();
     
     if part>3
