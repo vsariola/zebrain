@@ -30,7 +30,7 @@ oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;1-abs(samx*4-2)];
 getnotefreq = @(n) .003959503758 * 2^((n - 158) / 12);    
 
 % Prepare song info
-mNumSamples = 7620480;
+mNumSamples = 75e5;
 rowLen = 6615;   
 
 % Create work buffer (initially cleared)
