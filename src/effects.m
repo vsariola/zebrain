@@ -19,16 +19,15 @@ create_axes=@()axes('position',[0,0,1,1],'Visible','off');
 
 axes1 = create_axes(); 
 
-cmap = @colormap;
-bonemap = cmap('bone');
+bonemap = colormap('bone');
 mymap = interpolate(1:length(bonemap),bonemap,linspc(1,length(bonemap),256));
-cmap(mymap);
+colormap(mymap);
 im = image(uint8(xgrid));    
 axes1.Visible = 'off';
 
 axes2 = create_axes();
 
-cmap(axes2,mymap(:,[3,1,2]));
+colormap(axes2,mymap(:,[3,1,2]));
 
 uu = linspc(0,1,10)';
 vv = uu*0;
