@@ -89,7 +89,7 @@ camera_setup;
 
 
 texts = {'\___\zz\/z_\_z_z__\z_z_zzz.z~z\/\_·z/\zzz\z\-\/z\\z\z\zz.','__z__z\__z_z__.z_zz~z/_\/__\/z\´\_\\\z\','4096 bytesz|zMATLABz|zDemosplash 2019','.s$s,s$s,~¶§§§§§§§²~`§§§§P´~`§´','m/Bits''n''Bites~p01~Brothomstates~Kooma~Orange~CNCD~NoooN','___\¯¯¯¯¯¯¯¯¯¯¯\z¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/___~__\zzz·:zcodez:·zz`zzzz·:zmusicz:·zzzz/__~\zz`zpestisz/zbC!zzzdistancez/zTPOLMz´zz/~\______zzzzzzz·:zasciiz:·zzzzzz_______/~/z:zzzzzzzapolloz/zbC!zzzzz:zz\~`-----/__________________\----´'};
-texttimes = [128,192;152,216;644,734;800,896;808,896;1024,1072];
+texttimes = [128,192;152,216;644,734;800,896;808,896;1016,1072];
 texttimes = reshape([texttimes;texttimes+4],6,[]);
 hTexts = arrayfun(@(x,y,z)text(x,y,z,'','horizontalAlign','center','fontweight','bold','fontname','Courier New','Color','w','interpreter','none'),[10,10,10,20,20,8],[4,4,4,60,60,.5],[4,-1,-1,30,-10,.5]);
 hTexts(4).Color = 'r';
