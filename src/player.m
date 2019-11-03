@@ -27,7 +27,7 @@ samx = (0:44099)/44100;
 % using lambdas in matlab
 % Oscillators: 1 = sine, 2 = square, 3 = triangle
 oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;1-abs(samx*4-2)];
-getnotefreq = @(n) .003959503758 * 2^((n - 158) / 12);    
+getnotefreq = @(n) .00395 * 2^((n - 158) / 12);    
 
 % Prepare song info
 mNumSamples = 75e5;
