@@ -106,13 +106,13 @@ for mCurrentCol = 1:7
         % We only do effects if we have some sound input
         if filterActive || chnBuf(kk)                                                                         
             % State variable filter
-            f = fxFreq;
+            freq = fxFreq;
             if fxLFO
-                f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*1e5+1)) * lfoAmt + .5);
+                freq = freq * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*1e5+1)) * lfoAmt + .5);
             end
-            f = 1.5 * sin(f);
-            low = low + f * band;          
-            band = band + f * (q * (chnBuf(kk) - band) - low);
+            freq = 1.5 * sin(freq);
+            low = low + freq * band;          
+            band = band + freq * (q * (chnBuf(kk) - band) - low);
             tmpsample = low;               
 
             % Distortion

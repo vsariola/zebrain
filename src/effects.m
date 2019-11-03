@@ -93,16 +93,16 @@ while pattern < 35
     figwidth = fig.Position(3);
     cursample = sample();
     sync = @(c)envs(c,cursample);
-    beat = cursample/rowLen;  
+    beat = cursample/6615;  
     pattern = beat / 32;
     part = pattern / 4;
     
     time = pi*pattern/34.5;
     h=xgrid+xgrid'*1i;
-    for f=0:2
+    for find=0:2
         comp=0;
         for kind=[1:3,5]
-            comp=comp+1./(h-.7*sin(time*kind)*exp(1i*kind*(sum_triggers(5,cursample)*2+1)+f));
+            comp=comp+1./(h-.7*sin(time*kind)*exp(1i*kind*(sum_triggers(5,cursample)*2+1)+find));
         end
         h=h-3./comp;
     end
