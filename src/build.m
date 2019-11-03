@@ -31,7 +31,7 @@ function build(makeopt)
     demom = strrep(demom,'sample()','a.currentSample;');
     demom = strrep(demom,'start_music()','play(a)');
     
-    demom = minify(demom,{'song','endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup'});    
+    demom = minify(demom,{'song','endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup','xgrid'});    
     demom = strrep(demom,'tmpsong;',songdata(10:end-1));
     
     demom = demom(2:end);    
@@ -49,7 +49,7 @@ function build(makeopt)
         demooptm = strrep(demooptm,'effects;',readfile('../src/effects.m'));      
         demooptm = [newline demooptm newline readfile('../src/camera_setup.m')];  
         demooptm = strrep(demooptm,'(''cache'',true)','(''cache'',false)'); 
-        demooptm = minify(demooptm,{'song','endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup'});    
+        demooptm = minify(demooptm,{'song','endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup','xgrid'});    
         demooptm = strrep(demooptm,'perspective','p');
         demooptm = demooptm(2:end); 
 
