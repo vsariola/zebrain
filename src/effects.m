@@ -77,6 +77,16 @@ linev = zeros(4000,1);
 hline = line(linev,linev,linev,'Color',[1,1,1,.5],'LineWidth',5);
 hline.Visible = 'off';
 
+linegroup = hgtransform('Parent',axes2);
+angle = linspc(0,2*pi,32);
+lx = [cos(angle);cos(angle);angle*nan]*50;
+ly = [sin(angle);sin(angle);angle*nan]*50;
+lz = [12+rand(size(angle));28+rand(size(angle));angle*nan]*50;
+makeline = @(m,w)line(lx(:)*m,ly(:)*m,lz(:),'Color',[1,1,1,.5],'LineWidth',w,'Parent',linegroup);
+makeline(1.06,20);
+makeline(1.03,15);
+makeline(1,10);
+
 axes3 = create_axes();            
 [grix,gridy] = ndgrid(-1:.01:1);   
 alpha( image(axes3,zeros(size(grix))),(grix.^2+gridy.^2)/2);    
@@ -206,6 +216,14 @@ while pattern < 35
    
     fanpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
     grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);    
+
+    if part>4
+        linegroup.Matrix = makehgtform('translate',0,0,-mod(beat,32)*50);    
+    end
+    
+    if part>5
+        linegroup.Visible = 'off';
+    end
 end
 
 close all
