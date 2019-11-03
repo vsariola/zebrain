@@ -137,8 +137,6 @@ while pattern < 35
     campos(axes2,camera_position);        
     campos(axes4,camera_position);
     camlight(hLight,'HEADLIGHT'); 
-    
-    angle = interpolate([0,.3,.9,1.7,2,5.1,5.8,6.2],[-37,23,35,19,21,-34,-25,-37],mod(angle,2*pi));
 
     for index = 1:length(texts)
         str = texts{index};
@@ -149,7 +147,7 @@ while pattern < 35
         str(str_indices) = randi([33,47],1,sum(str_indices));
         str(not_empty & string_sync>(1-offset) | str == 'z') = 32;
         hTexts(index).String = split(str,'~');   
-        hTexts(index).Rotation = -angle + (index==6)*25;
+        hTexts(index).Rotation = interpolate([0,.3,.9,1.7,2,5.1,5.8,6.2],[37,-23,-35,-19,-21,34,25,37],mod(angle,2*pi)) + (index==6)*25;
         hTexts(index).FontSize = figwidth/50;
     end
        
@@ -185,7 +183,7 @@ while pattern < 35
         for i = 1:5
             metavalue= metavalue + .2./sqrt((metaxx-ballcenters(i,1)) .^ 4 + (metayy-ballcenters(i,2)) .^ 4 + (metazz-ballcenters(i,3)) .^ 4);
         end
-        metapos = ([8,0,0]-camera_position);
+        metapos = [8,0,0]-camera_position;
         metapos = metapos * 8 / norm(metapos) + camera_position;
         metafv = isosurface(metax+metapos(1),metax+metapos(2),metax+metapos(3)+(pattern-20).^3/2,metavalue,.18);
         metaballs.Vertices = metafv.vertices;
