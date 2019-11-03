@@ -22,11 +22,11 @@
 %
 % 3. This notice may not be removed or altered from any source
 %    distribution.
-samx = (0:44099)/44100;
+samx = (0:1e5-1)/1e5;
 % Precalculate oscillators into a table; this is much faster than
 % using lambdas in matlab
 % Oscillators: 1 = sine, 2 = square, 3 = triangle
-oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;1-abs(samx*4-2)];
+oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;1-abs(samx*4-2)] * 3;
 getnotefreq = @(n) .00395 * 2^((n - 158) / 12);    
 
 % Prepare song info
@@ -70,7 +70,7 @@ for mCurrentCol = 1:7
                 note = pat(rc);
                 if note
                     if isempty(noteCache{note+1})                        
-                        noteCache{note+1} = 80 * (oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3) * 2) * c1,1)*44100+1)) * instrparams(2) * 3 + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7) * 2) * (1 + .0008 * instrparams(8)) * c2,1)*44100+1)) *  instrparams(6) * 3 + (2 * rand(1,numsamples) - 1) * instrparams(10) * 3) .* envelope;
+                        noteCache{note+1} = 80 * (oscPrecalc(instrparams(1)+1,floor(mod(getnotefreq(note + instrparams(3) * 2) * c1,1)*1e5+1)) * instrparams(2) + oscPrecalc(instrparams(5)+1,floor(mod(getnotefreq(note + instrparams(7) * 2) * (1 + .0008 * instrparams(8)) * c2,1)*1e5+1)) *  instrparams(6) + (6 * rand(1,numsamples) - 3) * instrparams(10)) .* envelope;
                     end
 
                     % Copy note from the note cache
@@ -85,7 +85,7 @@ for mCurrentCol = 1:7
 
     % Put performance critical instrument properties in local variables
     oscLFO = instrparams(14)+1;
-    lfoAmt = instrparams(15)*3 / 512;
+    lfoAmt = instrparams(15) / 512;
     lfoFreq = 2^(instrparams(16) - 9) / rowLen;
     fxLFO = instrparams(17);
     fxFreq = instrparams(19) / 162.3381;
@@ -108,7 +108,7 @@ for mCurrentCol = 1:7
             % State variable filter
             f = fxFreq;
             if fxLFO
-                f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*44100+1)) * lfoAmt + 0.5);
+                f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*1e5+1)) * lfoAmt + 0.5);
             end
             f = 1.5 * sin(f);
             low = low + f * band;          
