@@ -1,5 +1,3 @@
-warning off all
-
 DIA = 10;
 A = 3.5;
 K = 5;
@@ -45,7 +43,7 @@ cu = rand(9e2,1)*2*pi;
 cv = rand(9e2,1)*2*pi;
 uu = linspc(0,2*pi,10)';
 vv = uu*0;
-cu = [cu;uu;uu;vv;vv+2*pi];
+cu = [cu;uu;uu;vv;vv+2*pi]+1e-4;
 cv = [cv;vv;vv+2*pi;uu;uu];
 
 grix = (cos(-cu)*A+K*sin(W*cv)+DIA).*cos(cv);
