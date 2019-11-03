@@ -56,8 +56,7 @@ tdata = load('trimesh3d');
 fanpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,[1,.9,1],grp,1,'none','none');
 fanpatch.Visible = 'off';
 
-linev = zeros(4000,1);
-hline = line(linev,linev,linev,'Color',[1,1,1,.5],'LineWidth',5);
+hline = line(zeros(4000,1),zeros(4000,1),zeros(4000,1),'Color',[1,1,1,.5],'LineWidth',5);
 hline.Visible = 'off';
 
 linegroup = hgtransform('Parent',axes2);
@@ -94,17 +93,16 @@ while pattern < 35
     figwidth = fig.Position(3);
     cursample = sample();
     sync = @(c)envs(c,cursample);
-    beat = cursample/6615;  
+    beat = cursample/rowLen;  
     pattern = beat / 32;
     part = pattern / 4;
-    scene_counter = sum_triggers(5,cursample);
     
     time = pi*pattern/34.5;
     h=xgrid+xgrid'*1i;
     for f=0:2
         comp=0;
         for kind=[1:3,5]
-            comp=comp+1./(h-.7*sin(time*kind)*exp(1i*kind*(scene_counter*2+1)+f));
+            comp=comp+1./(h-.7*sin(time*kind)*exp(1i*kind*(sum_triggers(5,cursample)*2+1)+f));
         end
         h=h-3./comp;
     end
@@ -123,7 +121,7 @@ while pattern < 35
     im.CData = uint8(tanh((comp/80*interpolate([0,224,240,258,259,1024,1104,1120],[0,.6,0,0,1,1,0,0],beat)^.5+sync(1))/64)*256); 
 
     
-    angle = beat/100 + scene_counter + 1;                        
+    angle = beat/100 + sum_triggers(5,cursample) + 1;                        
 
     camera_position = [(10+5*sin(3*angle))*cos(angle),(10+5*sin(3*angle))*sin(angle),0];
     campos(axes2,camera_position);        
@@ -190,25 +188,28 @@ while pattern < 35
         hscat.SizeData = figwidth/20;
     end
     
-    if part>6
-        hline.Visible = 'on';
-    end
     if part>8
         hline.Visible = 'off';
     end
-
-    if part>4
-        linegroup.Matrix = makehgtform('translate',0,0,-mod(beat,32)*50);    
-    end
     
-    if part>5
-        linegroup.Visible = 'off';
+    if part>6
+        hline.Visible = 'on';
     end
     
     if pattern>17.1
         fanpatch.Visible = 'on';
         toruspatch.Visible = 'off';
     end
+        
+    if part>5
+        linegroup.Visible = 'off';
+    end
+
+    if part>4
+        linegroup.Matrix = makehgtform('translate',0,0,-mod(beat,32)*50);    
+    end
+
+   
     fanpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
     grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);    
 end
