@@ -108,7 +108,7 @@ for mCurrentCol = 1:7
             % State variable filter
             f = fxFreq;
             if fxLFO
-                f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*1e5+1)) * lfoAmt + 0.5);
+                f = f * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*1e5+1)) * lfoAmt + .5);
             end
             f = 1.5 * sin(f);
             low = low + f * band;          
@@ -127,7 +127,7 @@ for mCurrentCol = 1:7
             filterActive = tmpsample * tmpsample > 1e-5;
 
             % Panning
-            t = sin(panFreq * kk) * panAmt + 0.5;
+            t = sin(panFreq * kk) * panAmt + .5;
             chnBuf(kk) = tmpsample * (1 - t);
             chnBuf(kk+1) = tmpsample * t;    
         end

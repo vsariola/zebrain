@@ -1,11 +1,10 @@
 rng(0);
 
 linspc = @linspace;
-mri_data_for_iso = load('mri');
-xspc = linspc(-1,1,128)*30;
-smoothed_mri = smooth3(squeeze(mri_data_for_iso.D));
-head = isosurface(xspc,xspc,linspc(-1,1,27)*60,smoothed_mri,5);
 interpolate = @(a,b,c)interp1(a,b,c,[],'extrap');
+mri_data_for_iso = load('mri');
+smoothed_mri = smooth3(squeeze(mri_data_for_iso.D));
+head = isosurface(linspc(-1,1,128)*30,linspc(-1,1,128)*30,linspc(-1,1,27)*60,smoothed_mri,5);
 headv = head.vertices;
 omega = randn(size(headv));
 
@@ -47,9 +46,8 @@ comp = sin(-cu)*3.5;
 makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'specularexponent',5,'specularstrength',s,'linestyle',l,'Marker',m);                 
 toruspatch = makepatch(delaunay(cu,cv),[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,.7,'-','.');
 
-xspc = headv(:,1);
 hold on;
-hscat = scatter3(xspc,xspc,xspc,1,'k.','Visible','off');
+hscat = scatter3(headv(:,1),headv(:,1),headv(:,1),1,'k.','Visible','off');
 
 metaballs = makepatch([],[],[],'w',axes2,.7,'none','none');
 metaballs.Visible = 'off';
