@@ -1,4 +1,3 @@
-A = 3.5;
 rng(0);
 
 linspc = @linspace;
@@ -11,7 +10,7 @@ headv = head.vertices;
 omega = randn(size(headv));
 
 % Init brain
-mrist = interp3(smoothed_mri,1);
+mrist = double(interp3(smoothed_mri,1));
 zoomer = @(zoom,x)mod(round(((0:254)-x)/zoom+x),255)+1;
 % Init valopallot
 
@@ -41,9 +40,9 @@ vv = uu*0;
 cu = [cu;uu;uu;vv;vv+1]*2*pi+1e-6;
 cv = [cv;vv;vv+1;uu;uu]*2*pi;
 
-grix = (cos(-cu)*A+5*sin(3*cv)+10).*cos(cv);
-gridy = (cos(-cu)*A+5*sin(3*cv)+10).*sin(cv);
-comp = sin(-cu)*A;
+grix = (cos(-cu)*3.5+5*sin(3*cv)+10).*cos(cv);
+gridy = (cos(-cu)*3.5+5*sin(3*cv)+10).*sin(cv);
+comp = sin(-cu)*3.5;
 
 makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'specularexponent',5,'specularstrength',s,'linestyle',l,'Marker',m);                 
 toruspatch = makepatch(delaunay(cu,cv),[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,.7,'-','.');
@@ -92,7 +91,7 @@ camera_setup;
 texts = {'\___\zz\/z_\_z_z__\z_z_zzz.z~z\/\_·z/\zzz\z\-\/z\\z\z\zz.','__z__z\__z_z__.z_zz~z/_\/__\/z\´\_\\\z\','4096 bytesz|zMATLABz|zDemosplash 2019','.s$s,s$s,~¶§§§§§§§²~`§§§§P´~`§´','m/Bits''n''Bites~p01~Brothomstates~Kooma~Orange~CNCD~NoooN','___\¯¯¯¯¯¯¯¯¯¯¯\z¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/___~__\zzz·:zcodez:·zz`zzzz·:zmusicz:·zzzz/__~\zz`zpestisz/zbC!zzzdistancez/zTPOLMz´zz/~\______zzzzzzz·:zasciiz:·zzzzzz_______/~/z:zzzzzzzapolloz/zbC!zzzzz:zz\~`-----/__________________\----´'};
 texttimes = [128,192;152,216;644,734;800,896;808,896;1024,1072];
 texttimes = reshape([texttimes;texttimes+4],6,[]);
-hTexts = arrayfun(@(x,y,z)text(x,y,z,'','verticalAlign','middle','horizontalAlign','center','fontweight','bold','fontname','Courier New','Color','w','interpreter','none'),[10,10,10,20,20,8],[4,4,4,60,60,.5],[4,-1,-1,30,-10,.5]);
+hTexts = arrayfun(@(x,y,z)text(x,y,z,'','horizontalAlign','center','fontweight','bold','fontname','Courier New','Color','w','interpreter','none'),[10,10,10,20,20,8],[4,4,4,60,60,.5],[4,-1,-1,30,-10,.5]);
 hTexts(4).Color = 'r';
 rands = rand(1,1000);
 
@@ -101,7 +100,7 @@ sum_triggers = cumsum(envs & ~[zeros(7,1),envs(:,1:(end-1))],2);
 start_music();
 pattern = 0;
 while pattern < 35
-    figwidth = fig.Position(3)
+    figwidth = fig.Position(3);
     cursample = sample();
     sync = @(c)envs(c,cursample);
     beat = cursample/6615;  
@@ -110,7 +109,6 @@ while pattern < 35
     scene_counter = sum_triggers(5,cursample);
     
     time = pi*pattern/34.5;
-    fade = interpolate([0,224,240,258,259,1024,1104,1120],[0,.6,0,0,1,1,0,0],beat)^.5;
     h=xgrid+xgrid'*1i;
     for f=0:2
         comp=0;
@@ -124,14 +122,14 @@ while pattern < 35
     brain_index = 52*(1-part/9)+1;
     alphaBrain = mod(brain_index,1);
     ind = floor(brain_index);
-    comp = comp+max(double(mrist(:,:,ind))*(1-alphaBrain)+double(mrist(:,:,ind+1))*alphaBrain,interpolate([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
+    comp = comp+max(mrist(:,:,ind)*(1-alphaBrain)+mrist(:,:,ind+1)*alphaBrain,interpolate([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
     zoom = sync(6)*.1+1;
     for angle = 1:5     
         comp = comp+comp(zoomer(zoom,cos(part)*50+126),zoomer(zoom+sync(7)*.3,sin(part*1.1)*50+126));       
         zoom = sqrt(zoom);
     end
        
-    im.CData = uint8(tanh((comp/80*fade+sync(1))/64)*256); 
+    im.CData = uint8(tanh((comp/80*interpolate([0,224,240,258,259,1024,1104,1120],[0,.6,0,0,1,1,0,0],beat)^.5+sync(1))/64)*256); 
 
     
     angle = beat/100 + scene_counter + 1;                        
@@ -158,10 +156,10 @@ while pattern < 35
     toruspatch.EdgeAlpha = interpolate([0,4,6,16,17,40],[0,0,1,1,0,0],pattern);
     toruspatch.AmbientStrength = min(sync(5)+.5,1);
     toruspatch.MarkerSize = figwidth/180;
-    time = max(part-3,0);
+    time = part-3;
     blending = min(max(part-4,0),1)^.2;
     angle = omega(:,1)*2*time;  
-    blended = headv * blending + [(10+5*sin(3*angle)).*cos(angle),(10+5*sin(3*angle)).*sin(angle),(time+sync(7)*.3)*sin(omega(:,2)/2*time)*A] * (1-blending);
+    blended = headv * blending + [(10+5*sin(3*angle)).*cos(angle),(10+5*sin(3*angle)).*sin(angle),(time+sync(7)*.3)*sin(omega(:,2)/2*time)*3.5] * (1-blending);
     muljuttu = blended + interpolate([0,6,9],[0,0,3],part)*sin(blended*.5*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3,.4,.5]*time);
     hscat.XData = muljuttu(:,1);
     hscat.YData = muljuttu(:,2); 
@@ -179,11 +177,7 @@ while pattern < 35
     l3.LineWidth = figwidth/150;    
     
     draw();
-    
-    if part>3
-        hscat.Visible = 'on';
-        hscat.SizeData = figwidth/20;
-    end
+   
     if part>4 && part<6
         ballcenters = sin(pi*reshape(1:15,5,3)*part)*2;
         metavalue = zeros(size(metaxx));
@@ -200,19 +194,17 @@ while pattern < 35
     else
         metaballs.Visible = 'off';
     end
-    if pattern>17.1
-        fanpatch.Visible = 'on';
-        toruspatch.Visible = 'off';
+    if part>3
+        hscat.Visible = 'on';
+        hscat.SizeData = figwidth/20;
     end
+    
     if part>6
         hline.Visible = 'on';
     end
     if part>8
         hline.Visible = 'off';
     end
-   
-    fanpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
-    grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);    
 
     if part>4
         linegroup.Matrix = makehgtform('translate',0,0,-mod(beat,32)*50);    
@@ -221,6 +213,13 @@ while pattern < 35
     if part>5
         linegroup.Visible = 'off';
     end
+    
+    if pattern>17.1
+        fanpatch.Visible = 'on';
+        toruspatch.Visible = 'off';
+    end
+    fanpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
+    grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);    
 end
 
 close all
