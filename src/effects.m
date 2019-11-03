@@ -155,9 +155,9 @@ while pattern < 35
     hscat.ZData = muljuttu(:,3);
     
     linex = linspc(-2,2,4000) + (part-7)*4;
-    hline.XData = linex*15+10;
     liner = sin(.5*sin(linex*2)+.3*sin(linex*3)+.4*sin(linex*4)) .* linex .* linex * 4;
     lineangle = sin(.7*sin(linex*5)+.4*sin(linex*6)+.3*sin(linex*4))*10;
+    hline.XData = linex*15+10;    
     hline.YData = liner .* sin(lineangle) + 20;
     hline.ZData = liner .* cos(lineangle) + 7;
    
