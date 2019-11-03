@@ -10,7 +10,7 @@ function generate_song
             song.songData{i}{1}(5) = 2;
         end
         song.songData{i}{1} = song.songData{i}{1}([1:13,16:28]);
-        song.songData{i}{1} = round(song.songData{i}{1} ./ [1,3,2,1,1,3,2,1,1,3,1,1,2,1,3,1,1,1,2,2,2,2,3,1,3,1]);
+        song.songData{i}{1} = floor(song.songData{i}{1} ./ [1,3,2,1,1,3,2,1,1,3,1,1,2,1,3,1,1,1,2,2,2,2,3,1,3,1]);
         p = song.songData{i}{2};
         c = song.songData{i}{3}; 
         up = unique(p);
