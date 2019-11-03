@@ -138,13 +138,7 @@ while pattern < 35
     campos(axes4,camera_position);
     camlight(hLight,'HEADLIGHT'); 
     
-    
-    vec_forward = ([8,.5,.5]-camera_position);
-    vec_forward = vec_forward / norm(vec_forward);
-    proj = @(vec) vec - dot(vec,vec_forward) * vec_forward;
-    vec_up = proj([.7,0,1]);
-    vec_horiz = proj([0,0,1]);
-    angle = atan2d(norm(cross(vec_up,vec_horiz)),dot(vec_up,vec_horiz)) * sign(dot(vec_forward, cross(vec_up, vec_horiz)));
+    angle = interpolate([0,.3,.9,1.7,2,5.1,5.8,6.2],[-37,23,35,19,21,-34,-25,-37],mod(angle,2*pi));
 
     for index = 1:length(texts)
         str = texts{index};
