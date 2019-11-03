@@ -1,5 +1,3 @@
-rng(0);
-
 linspc = @linspace;
 interpolate = @(a,b,c)interp1(a,b,c,[],'extrap');
 mri_data_for_iso = load('mri');
@@ -32,19 +30,15 @@ axes2 = create_axes();
 
 cmap(axes2,mymap(:,[3,1,2]));
 
-cu = rand(9e2,1);
-cv = rand(9e2,1);
 uu = linspc(0,1,10)';
 vv = uu*0;
-cu = [cu;uu;uu;vv;vv+1]*2*pi+1e-6;
-cv = [cv;vv;vv+1;uu;uu]*2*pi;
+cu = [rand(9e2,1);uu;uu;vv;vv+1]*2*pi+1e-6;
+cv = [rand(9e2,1);vv;vv+1;uu;uu]*2*pi;
 
-grix = (cos(-cu)*3.5+5*sin(3*cv)+10).*cos(cv);
-gridy = (cos(-cu)*3.5+5*sin(3*cv)+10).*sin(cv);
 comp = sin(-cu)*3.5;
 
 makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'specularexponent',5,'specularstrength',s,'linestyle',l,'Marker',m);                 
-toruspatch = makepatch(delaunay(cu,cv),[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,.7,'-','.');
+toruspatch = makepatch(delaunay(cu,cv),[(cos(-cu)*3.5+5*sin(3*cv)+10).*cos(cv),(cos(-cu)*3.5+5*sin(3*cv)+10).*sin(cv),comp],comp(:)+6,'flat',axes2,.7,'-','.');
 
 hold on;
 hscat = scatter3(headv(:,1),headv(:,1),headv(:,1),1,'k.','Visible','off');
@@ -78,8 +72,8 @@ l2=makeline(1.03);
 l3=makeline(1);
 
 axes3 = create_axes();            
-[grix,gridy] = ndgrid(-1:.01:1);   
-alpha( image(axes3,zeros(size(grix))),(grix.^2+gridy.^2)/2);    
+[gridx,gridy] = ndgrid(-1:.01:1);   
+alpha( image(axes3,zeros(size(gridx))),(gridx.^2+gridy.^2)/2);    
 axes3.Visible = 'off'; 
 
 axes4 = create_axes();

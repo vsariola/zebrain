@@ -1,4 +1,6 @@
 function demo
+    rng(0);
+
     song;                    
     player;
     a = audioplayer(mMixBuf,44100);

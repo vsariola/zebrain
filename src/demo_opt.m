@@ -2,6 +2,7 @@ function demo_opt(varargin)
     global frame video sample
 
     outputdir = 'output/';
+    rng(0);
     
     close all;
     
