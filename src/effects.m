@@ -48,7 +48,7 @@ comp = sin(-cu)*A;
 makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'specularexponent',5,'specularstrength',s,'linestyle',l,'Marker',m);                 
 toruspatch = makepatch(delaunay(cu,cv),[grix(:),gridy(:),comp(:)],comp(:)+6,'flat',axes2,.7,'-','.');
 
-xspc = head.vertices(:,1);
+xspc = headv(:,1);
 hold on;
 hscat = scatter3(xspc,xspc,xspc,1,'k.','Visible','off');
 
@@ -141,7 +141,7 @@ while pattern < 35
     campos(axes4,camera_position);
     camlight(hLight,'HEADLIGHT'); 
 
-    for index = 1:length(texts)
+    for index = 1:6
         str = texts{index};
         not_empty = str ~= '~' & str ~= 'z';
         string_sync = interpolate(texttimes(index,:),[1,0,0,1],beat);
