@@ -187,13 +187,11 @@ while pattern < 35
         hscat.Visible = 'on';
         hscat.SizeData = figwidth/20;
     end
-    
-    if part>8
-        hline.Visible = 'off';
-    end
-    
-    if part>6
+       
+    if part>6 && part<8
         hline.Visible = 'on';
+    else
+        hline.Visible = 'off';
     end
     
     if pattern>17.1

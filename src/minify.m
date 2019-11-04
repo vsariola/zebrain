@@ -1,9 +1,4 @@
-function ret = minify(code,symbols,newsymbols)
-    for i = 1:length(symbols)
-        pattern = ['(\W+)' symbols{i} '(?=\W)'];
-        c = ['$1symbol' newsymbols{i}];
-        code = regexprep(code,pattern,c);
-    end
+function ret = minify(code)    
     code = regexprep(code,'(\W+)symbol(\w+)(?=\W)','$1$2');
     code = regexprep(code,'([^%]+)[^\n]*','$1\n');
     code = regexprep(code,'\n',';');

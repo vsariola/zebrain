@@ -13,37 +13,40 @@ function build(makeopt)
     end
 
     generate_song;
-    demom = readfile('demo.m');     
-    demom = strrep(demom,'song;', 'songdata=tmpsong;');      
+    
     playersrc = readfile('../src/player.m');
     s1 = find_symbols(playersrc,{},{'mMixBuf','envs'});
-    demom = strrep(demom,'player;',playersrc);       
+    n1 = arrayfun(@getcode,1:length(s1),'UniformOutput',false);    
+    
     effectssrc = readfile('../src/effects.m');
+    effectssrc = strrep(effectssrc,'draw()','drawnow');
+    effectssrc = strrep(effectssrc,'sample()','audio.currentSample;');
+    effectssrc = strrep(effectssrc,'start_music()','play(audio)');
     s2 = find_symbols(effectssrc,{},{'mMixBuf','envs'});
-    demom = strrep(demom,'effects;',readfile('../src/effects.m'));      
-    demom = [newline demom newline readfile('../src/camera_setup.m')];        
+    n2 = arrayfun(@getcode,1:length(s2),'UniformOutput',false);    
     
-    n1 = arrayfun(@getcode,1:length(s1),'UniformOutput',false);
-    n2 = arrayfun(@getcode,1:length(s2),'UniformOutput',false);
-    
-    outputfile = [outputdir outputname '.m'];
-    songdata = readfile('../src/song.m');    
-    demom2 = strrep(demom,'tmpsong;',songdata(10:end-1));    
-    writefile(outputfile,demom2);
-    
+    demom = readfile('demo.m');     
+    demom = strrep(demom,'song;', 'songdata=tmpsong;');              
     demom = strrep(demom,'draw = @drawnow;','');
-    demom = strrep(demom,'sample = @()a.currentSample;','');
-    demom = strrep(demom,'start_music = @()play(a);','');
-    demom = strrep(demom,'draw()','drawnow');
-    demom = strrep(demom,'sample()','a.currentSample;');
-    demom = strrep(demom,'start_music()','play(a)');
-    
-    s3 = find_symbols(demom,{'song','endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup','xgrid'},[s1,s2]);
+    demom = strrep(demom,'sample = @()audio.currentSample;','');
+    demom = strrep(demom,'start_music = @()play(audio);','');       
+    demom = [newline demom newline readfile('../src/camera_setup.m')];            
+    s3 = find_symbols(demom,{'demo','camera_setup','mMixBuf','envs'},[s1,s2]);
     n3 = arrayfun(@getcode,(1:length(s3))+max(length(n1),length(n2)),'UniformOutput',false);
     
-    demom = minify(demom,[s1,s2,s3],[n1,n2,n3]);    
-    demom = strrep(demom,'tmpsong;',songdata(10:end-1));
     
+    demom = replace_symbols(demom,s3,n3);
+    demom = strrep(demom,'player;',replace_symbols(playersrc,[s1,s3],[n1,n3]));           
+    demom = strrep(demom,'effects;',replace_symbols(effectssrc,[s2,s3],[n2,n3]));      
+    songdata = readfile('../src/song.m');        
+    
+    outputfile = [outputdir outputname '.m'];    
+    writefile(outputfile,demom);
+           
+    % s3 = find_symbols(demom,{'song','endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup','xgrid'},[s1,s2]);   ´
+    
+    demom = minify(demom);              
+    demom = strrep(demom,'tmpsong;',songdata(10:end-1));        
     demom = demom(2:end);    
     
     outputfilemin = [outputdir outputname '.min.m'];
@@ -51,6 +54,11 @@ function build(makeopt)
     
     outputfilep = [outputdir outputname '.p'];
     crunch(outputfilemin,'output',outputfilep,'use_comma',false);   
+    
+    if ~exist(distdir,'dir')
+        mkdir(distdir);
+    end
+    copyfile(outputfilep,distdir);
     
     if makeopt
         demooptm = readfile('demo_opt.m');     
@@ -70,11 +78,7 @@ function build(makeopt)
         pcode([outputname '_opt'],'-inplace');
         cd(origdir);
         
-        outputfilepopt = [outputdir outputname '_opt.p'];
-        if ~exist(distdir,'dir')
-            mkdir(distdir);
-        end
-        copyfile(outputfilep,distdir);
+        outputfilepopt = [outputdir outputname '_opt.p'];        
         copyfile(outputfilepopt,distdir)
     end
 
