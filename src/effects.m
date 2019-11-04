@@ -1,209 +1,243 @@
+%-------------------------------------
+% Short hands for often used functions
+%-------------------------------------
+linspc = @linspace; %  handle to shorten linspace
+interp = @(a,b,c)interp1(a,b,c,[],'extrap'); % handle to shorten interp1
+make_axes = @()axes('position',[0,0,1,1],'Visible','off'); % short hand to make a fullscreen axes
+make_patch = @(a,b,c,d,e,f,g,h)patch('faces',a,'vertices',b,'facevertexcdata',c,'facecolor',d,'edgecolor','k','parent',e,'specularexponent',5,'specularstrength',f,'linestyle',g,'Marker',h);                 
 
-linspc = @linspace;
-interpolate = @(a,b,c)interp1(a,b,c,[],'extrap');
-mri_data_for_iso = load('mri');
-smoothed_mri = smooth3(squeeze(mri_data_for_iso.D));
-head = isosurface(linspc(-1,1,128)*30,linspc(-1,1,128)*30,linspc(-1,1,27)*60,smoothed_mri,5);
-headv = head.vertices;
-omega = randn(size(headv));
+%------------------------------
+% Load and process the MRI-data
+%------------------------------
+% MRI-data is displayed in the background image and it's isosurface'
+% vertices are the dots visible in the final scenes 
+mri_raw = load('mri');
+mri_smoothed = smooth3(squeeze(mri_raw.D));
+fv = isosurface(linspc(-1,1,128)*30,linspc(-1,1,128)*30,linspc(-1,1,27)*60,mri_smoothed,5); % we find the isosurface of the MRI-data to make a head
+head_vert = fv.vertices; % just a short hand for the vertices of the head
+omega = randn(size(head_vert)); % the points start as a cloud, omega are the random coordinates in cloud
+mri_scaled = double(interp3(mri_smoothed,1));  % the volume data in the background
 
-% Init brain
-mrist = double(interp3(smoothed_mri,1));
-zoomer = @(zoom,x)mod(round(((0:254)-x)/zoom+x),255)+1;
-% Init valopallot
+%--------------------------------------------------------------------
+% Initialize axes1, which contains the background brain & light balls
+%--------------------------------------------------------------------
+axes1 = make_axes();
 
-xrange = linspc(-3,3,255);
-[xgrid,~]=ndgrid(xrange);
+zoomer = @(zoom,x)mod(round(((0:254)-x)/zoom+x),255)+1; % zoomer is needed for the light balls in the background
+[xgrid,~] = ndgrid(linspc(-3,3,255)); % the grid for the light balls in the background
 
-create_axes=@()axes('position',[0,0,1,1],'Visible','off');        
+mymap = interp([0,130,255],[0,0,0,0;.4,.6,.7,.9;1,1,1,1],0:255);
+colormap(mymap(:,[1,2,3])); % teal colormap for the background
+h_image = image(uint8(xgrid));    
+axes1.Visible = 'off'; % image shows the axes, hide the axes again
 
+%----------------------------------------------------------------------
+% Initialize axes2, which contains the 3D scene:
+% torus, point cloud, metaballs, lasers, wiggly line, fan, light source
+%----------------------------------------------------------------------
+axes2 = make_axes();
 
-axes1 = create_axes(); 
+colormap(axes2,mymap(:,[4,3,1])); % orange colormap for the objects
 
-mymap = interpolate([0,130,255],[0,0,0,0;.4,.6,.7,.9;1,1,1,1],0:255);
-colormap(mymap(:,[1,2,3]));
-im = image(uint8(xgrid));    
-axes1.Visible = 'off';
+% Initialize torus
+angle = linspc(0,1,10)'; % cu and cv are the torus uv vertex locations
+angle2 = angle*0;
+xx = [rand(9e2,1);angle;angle;angle2;angle2+1]*2*pi+1e-6; % u-coordinates
+yy = [rand(9e2,1);angle2;angle2+1;angle;angle]*2*pi; % v-coordinates
+ww = sin(-xx)*3.5; % colors
 
-axes2 = create_axes();
+h_torus = make_patch(delaunay(xx,yy),[(cos(-xx)*3.5+5*sin(3*yy)+10).*cos(yy),(cos(-xx)*3.5+5*sin(3*yy)+10).*sin(yy),ww],ww(:)+6,'flat',axes2,.7,'-','.');
 
-colormap(axes2,mymap(:,[4,3,1]));
+% Initialize point cloud
+hold on; % scatter overwrites the patch without hold
+h_points = scatter3(head_vert(:,1),head_vert(:,1),head_vert(:,1),1,'k.','Visible','off');
 
-uu = linspc(0,1,10)';
-vv = uu*0;
-cu = [rand(9e2,1);uu;uu;vv;vv+1]*2*pi+1e-6;
-cv = [rand(9e2,1);vv;vv+1;uu;uu]*2*pi;
-
-comp = sin(-cu)*3.5;
-
-makepatch = @(f,v,c,a,p,s,l,m)patch('faces',f,'vertices',v,'facevertexcdata',c,'facecolor',a,'edgecolor','k','parent',p,'specularexponent',5,'specularstrength',s,'linestyle',l,'Marker',m);                 
-toruspatch = makepatch(delaunay(cu,cv),[(cos(-cu)*3.5+5*sin(3*cv)+10).*cos(cv),(cos(-cu)*3.5+5*sin(3*cv)+10).*sin(cv),comp],comp(:)+6,'flat',axes2,.7,'-','.');
-
-hold on;
-hscat = scatter3(headv(:,1),headv(:,1),headv(:,1),1,'k.','Visible','off');
-
-metaballs = makepatch([],[],[],'w',axes2,.7,'none','none');
-metaballs.Visible = 'off';
+% Initialize metaballs
+h_balls = make_patch([],[],[],'w',axes2,.7,'none','none');
+h_balls.Visible = 'off';
 metax = -4:.5:4;
 [metaxx,metayy,metazz] = ndgrid(metax);
 
-hLight = light(axes2);
-camera_setup;
+% Initialize fan
+grp_fan = hgtransform('Parent',axes2);
+trimesh = load('trimesh3d');
+h_fan = make_patch(trimesh.tri,[trimesh.x(:),trimesh.y(:),trimesh.z(:)]*3,1,[.9,.7,.4],grp_fan,1,'none','none');
+h_fan.Visible = 'off';
 
-% Init viivat
-grp = hgtransform('Parent',axes2);
-tdata = load('trimesh3d');
-fanpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,[.9,.7,.4],grp,1,'none','none');
-fanpatch.Visible = 'off';
+% Initialize wiggly line
+h_wiggly = line(zeros(4000,1),zeros(4000,1),zeros(4000,1),'Color',[1,1,1,.5],'LineWidth',5);
+h_wiggly.Visible = 'off';
 
-hline = line(zeros(4000,1),zeros(4000,1),zeros(4000,1),'Color',[1,1,1,.5],'LineWidth',5);
-hline.Visible = 'off';
-
-linegroup = hgtransform('Parent',axes2);
+% Initialize lasers
+grp_laser = hgtransform('Parent',axes2);
 angle = linspc(0,2*pi,100);
-lx = [cos(angle);cos(angle);angle*nan]*50;
-ly = [sin(angle);sin(angle);angle*nan]*50;
-lz = [12+rand(size(angle))+floor(rand(size(angle))*5)*32;28+rand(size(angle))+floor(rand(size(angle))*5)*32;angle*nan]*50;
-makeline = @(m)line(lx(:)*m,ly(:)*m,lz(:),'Color',[1,1,1,.2],'Parent',linegroup);
-hbars = arrayfun(makeline,1.04 .^ (1:6));
+xx = [cos(angle);cos(angle);angle*nan]*50;
+yy = [sin(angle);sin(angle);angle*nan]*50;
+ww = [12+rand(size(angle))+floor(rand(size(angle))*5)*32;28+rand(size(angle))+floor(rand(size(angle))*5)*32;angle*nan]*50;
+make_laser = @(a)line(xx(:)*a,yy(:)*a,ww(:),'Color',[1,1,1,.2],'Parent',grp_laser);
+h_laser = arrayfun(make_laser,1.04 .^ (1:6));
 
-axes3 = create_axes();            
-[gridx,gridy] = ndgrid(-1:.01:1);   
-alpha( image(axes3,zeros(size(gridx))),(gridx.^2+gridy.^2)/2);    
-axes3.Visible = 'off'; 
-
-axes4 = create_axes();
+% Initialize light source and camera
+h_light = light(axes2);
 camera_setup;
 
+%--------------------------------------------------------
+% Initialize axes3, which contains alpha blended gradient
+%--------------------------------------------------------
+axes3 = make_axes();            
+[xx,yy] = ndgrid(-1:.01:1);   
+alpha( image(axes3,zeros(size(xx))),(xx.^2+yy.^2)/2);    
+axes3.Visible = 'off'; % Image shows axes, must hide again
 
+%----------------------------------------------------------------------
+% Initialize axes4, which contains the texts
+%----------------------------------------------------------------------
+axes4 = make_axes();
 texts = {'\___\zz\/z_\_z_z__\z_z_zzz.z~z\/\_·z/\zzz\z\-\/z\\z\z\zz.','__z__z\__z_z__.z_zz~z/_\/__\/z\´\_\\\z\','4096 bytesz|zMATLABz|zDemosplash 2019','.s$s,s$s,~¶§§§§§§§²~`§§§§P´~`§´','m/Bits''n''Bites~p01~Brothomstates~Kooma~Orange~CNCD~NoooN','___\¯¯¯¯¯¯¯¯¯¯¯\z¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/___~__\zzz·:zcodez:·zz`zzzz·:zmusicz:·zzzz/__~\zz`zpestisz/zbC!zzzdistancez/zTPOLMz´zz/~\______zzzzzzz·:zasciiz:·zzzzzz_______/~/z:zzzzzzzapolloz/zbC!zzzzz:zz\~`-----/__________________\----´'};
-texttimes = [128,192;152,216;644,734;800,896;808,896;1016,1072];
-texttimes = reshape([texttimes;texttimes+4],6,[]);
-hTexts = arrayfun(@(x,y,z)text(x,y,z,'','horizontalAlign','center','fontweight','bold','fontname','Courier New','Color','w','interpreter','none'),[10,10,10,20,20,8],[4,4,4,60,60,.5],[4,-1,-1,30,-10,.5]);
-hTexts(4).Color = 'r';
-rands = rand(1,1000);
+text_times = [128,192;152,216;644,734;800,896;808,896;1016,1072];
+text_times = reshape([text_times;text_times+4],6,[]);
+h_text = arrayfun(@(x,y,z)text(x,y,z,'','horizontalAlign','center','fontweight','bold','fontname','Courier New','Color','w','interpreter','none'),[10,10,10,20,20,8],[4,4,4,60,60,.5],[4,-1,-1,30,-10,.5]);
+h_text(4).Color = 'r'; % heart should be red
+text_rands = rand(1,1000);
+camera_setup;
 
+%----------------------------------------------------------------------
+% Main loop
+%----------------------------------------------------------------------
 sum_triggers = cumsum(envs & ~[zeros(7,1),envs(:,1:(end-1))],2);
-
 start_music();
 pattern = 0;
 while pattern < 35
-    figwidth = fig.Position(3);
-    cursample = sample();
-    sync = @(c)envs(c,cursample);
-    beat = cursample/6615;  
+    % Sync variables, based on the current sample
+    fig_width = fig.Position(3);
+    cur_sample = sample();
+    sync = @(a)envs(a,cur_sample);
+    beat = cur_sample / 6615; 
     pattern = beat / 32;
     part = pattern / 4;
     
+    % Light ball effect
     time = pi*pattern/34.5;
-    h=xgrid+xgrid'*1i;
-    for find=0:2
-        comp=0;
-        for kind=[1:3,5]
-            comp=comp+1./(h-.7*sin(time*kind)*exp(1i*kind*(sum_triggers(5,cursample)*2+1)+find));
+    xx = xgrid + xgrid'*1i;
+    for ind = 0:2
+        ww = 0;
+        for ind2 = [1:3,5]
+            ww = ww + 1./(xx - .7*sin(time*ind2)*exp(1i*ind2*(sum_triggers(5,cur_sample)*2+1)+ind));
         end
-        h=h-3./comp;
+        xx = xx - 3./ww;
     end
-    comp = 256-sqrt(abs(comp))*200;
+    ww = 256 - sqrt(abs(ww))*200;
     
-    brain_index = 52*(1-part/9)+1;
+    % Background brain effect
+    brain_index = 52*(1-part/9) + 1;
     alphaBrain = mod(brain_index,1);
     ind = floor(brain_index);
-    comp = comp+max(mrist(:,:,ind)*(1-alphaBrain)+mrist(:,:,ind+1)*alphaBrain,interpolate([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
-    zoom = sync(6)*.1+1;
-    for angle = 1:5     
-        comp = comp+comp(zoomer(zoom,cos(part)*50+126),zoomer(zoom+sync(7)*.3,sin(part*1.1)*50+126));       
+    ww = ww + max(mri_scaled(:,:,ind)*(1-alphaBrain)+mri_scaled(:,:,ind+1)*alphaBrain,interp([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
+    zoom = sync(6)*.1 + 1;
+    for ind = 1:5
+        ww = ww + ww(zoomer(zoom,cos(part)*50+126),zoomer(zoom+sync(7)*.3,sin(part*1.1)*50+126));       
         zoom = sqrt(zoom);
     end
        
-    im.CData = uint8(tanh((comp/80*interpolate([0,224,240,258,259,1024,1104,1120],[0,.6,0,0,1,1,0,0],beat)^.5+sync(1))/64)*256); 
+    % Update image, containing light balls and brain
+    h_image.CData = uint8(tanh((ww/80*interp([0,224,240,258,259,1024,1104,1120],[0,.6,0,0,1,1,0,0],beat)^.5 + sync(1))/64)*256); 
 
-    
-    angle = beat/100 + sum_triggers(5,cursample) + 1;                        
-
+    % Move camera so it stays always inside the torus
+    angle = beat/100 + sum_triggers(5,cur_sample) + 1;                        
     camera_position = [(10+5*sin(3*angle))*cos(angle),(10+5*sin(3*angle))*sin(angle),0];
     campos(axes2,camera_position);        
-    campos(axes4,camera_position);
-    camlight(hLight,'HEADLIGHT'); 
+    campos(axes4,camera_position); % The texts and the 3D scene have the same camera, even though the texts are always on top
+    camlight(h_light,'HEADLIGHT'); % Update also the light source
 
-    for index = 1:6
-        str = texts{index};
+    for ind = 1:6
+        % Update text
+        str = texts{ind};
         not_empty = str ~= '~' & str ~= 'z';
-        string_sync = interpolate(texttimes(index,:),[1,0,0,1],beat);
-        offset = rands(1:length(str))*.5;
-        str_indices = not_empty & string_sync>(.5-offset);
+        string_sync = interp(text_times(ind,:),[1,0,0,1],beat);
+        offset = text_rands(1:length(str))*.5;
+        str_indices = not_empty & string_sync > (.5-offset);
         str(str_indices) = randi([33,47],1,sum(str_indices));
-        str(not_empty & string_sync>(1-offset) | str == 'z') = 32;
-        hTexts(index).String = split(str,'~');   
-        hTexts(index).Rotation = interpolate([0,.3,.9,1.7,2,5.1,5.8,6.2],[37,-23,-35,-19,-21,34,25,37],mod(angle,2*pi)) + (index==6)*25;
-        hTexts(index).FontSize = figwidth/50;
+        str(not_empty & string_sync > (1-offset) | str == 'z') = 32;
+        h_text(ind).String = split(str,'~');   
+        h_text(ind).Rotation = interp([0,.3,.9,1.7,2,5.1,5.8,6.2],[37,-23,-35,-19,-21,34,25,37],mod(angle,2*pi)) + (ind==6)*25;
+        h_text(ind).FontSize = fig_width/50;
         
-        hbars(index).LineWidth = (figwidth*(1+sync(7)*2))/150;
+        % Sync laser width to snare
+        h_laser(ind).LineWidth = fig_width * (1+sync(7)*2) / 150;
     end
-       
-    toruspatch.FaceAlpha = interpolate([0,258,258.1,448,512,1280],[0,0,.8,.8,0,0],beat);
-    toruspatch.EdgeAlpha = interpolate([0,4,6,16,17,40],[0,0,1,1,0,0],pattern);
-    toruspatch.AmbientStrength = min(sync(5)+.5,1);
-    toruspatch.MarkerSize = figwidth/180;
-    time = part-3;
-    blending = min(max(part-4,0),1)^.2;
-    angle = omega(:,1)*2*time;  
-    blended = headv * blending + [(10+5*sin(3*angle)).*cos(angle),(10+5*sin(3*angle)).*sin(angle),(time+sync(7)*.3)*sin(omega(:,2)/2*time)*3.5] * (1-blending);
-    muljuttu = blended + interpolate([0,6,9],[0,0,3],part)*sin(blended*.5*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3,.4,.5]*time);
-    hscat.XData = muljuttu(:,1);
-    hscat.YData = muljuttu(:,2); 
-    hscat.ZData = muljuttu(:,3);
     
-    linex = linspc(-2,2,4000) + (part-7)*4;
-    liner = sin(.5*sin(linex*2)+.3*sin(linex*3)+.4*sin(linex*4)) .* linex .* linex * 4;
-    lineangle = sin(.7*sin(linex*5)+.4*sin(linex*6)+.3*sin(linex*4))*10;
-    hline.XData = linex*15+10;    
-    hline.YData = liner .* sin(lineangle) + 20;
-    hline.ZData = liner .* cos(lineangle) + 7;
+    % Update torus
+    h_torus.FaceAlpha = interp([0,258,258.1,448,512,1280],[0,0,.8,.8,0,0],beat);
+    h_torus.EdgeAlpha = interp([0,4,6,16,17,40],[0,0,1,1,0,0],pattern);
+    h_torus.AmbientStrength = min(sync(5)+.5,1);
+    h_torus.MarkerSize = fig_width/180;
+    
+    % Update point cloud
+    time = part - 3;
+    xx = min(max(part-4,0),1)^.2; % xx is the blending
+    angle = omega(:,1)*2*time;  
+    yy = head_vert * xx + [(10+5*sin(3*angle)).*cos(angle),(10+5*sin(3*angle)).*sin(angle),(time+sync(7)*.3)*sin(omega(:,2)/2*time)*3.5]*(1 - xx);
+    zz = yy + interp([0,6,9],[0,0,3],part)*sin(yy*.5*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3,.4,.5]*time);
+    h_points.XData = zz(:,1);
+    h_points.YData = zz(:,2); 
+    h_points.ZData = zz(:,3);
+    
+    % Update wiggly line
+    xx = linspc(-2,2,4000) + (part-7)*4;
+    yy = sin(.5*sin(xx*2)+.3*sin(xx*3)+.4*sin(xx*4)) .* xx .* xx * 4;
+    angle = sin(.7*sin(xx*5)+.4*sin(xx*6)+.3*sin(xx*4)) * 10;
+    h_wiggly.XData = xx*15 + 10;    
+    h_wiggly.YData = yy.*sin(angle) + 20;
+    h_wiggly.ZData = yy.*cos(angle) + 7;
           
+    % Finally, draw the scene (why is it at this position?)
     draw();
    
+    % Update metaballs
     if part>4 && part<6
-        ballcenters = sin(pi*reshape(1:15,5,3)*part)*2;
-        metavalue = zeros(size(metaxx));
+        xx = sin(pi*reshape(1:15,5,3)*part)*2;
+        ww = zeros(size(metaxx));
         for i = 1:5
-            metavalue= metavalue + .2./sqrt((metaxx-ballcenters(i,1)) .^ 4 + (metayy-ballcenters(i,2)) .^ 4 + (metazz-ballcenters(i,3)) .^ 4);
+            ww = ww + .2./sqrt((metaxx-xx(i,1)).^4 + (metayy-xx(i,2)).^4 + (metazz-xx(i,3)).^4);
         end
-        metapos = [8,0,0]-camera_position;
-        metapos = metapos * 8 / norm(metapos) + camera_position;
-        metafv = isosurface(metax+metapos(1),metax+metapos(2),metax+metapos(3)+(pattern-20).^3/2,metavalue,.18);
-        metaballs.Vertices = metafv.vertices;
-        metaballs.Faces = metafv.faces;   
-        metaballs.FaceColor = [.9,.7,.4]-sync(7)*.4;
-        metaballs.Visible = 'on';
+        yy = [8,0,0] - camera_position;
+        yy = yy*8/norm(yy) + camera_position;
+        fv = isosurface(metax+yy(1),metax+yy(2),metax+yy(3)+(pattern-20).^3/2,ww,.18);
+        h_balls.Vertices = fv.vertices;
+        h_balls.Faces = fv.faces;   
+        h_balls.FaceColor = [.9,.7,.4] - sync(7)*.4;
+        h_balls.Visible = 'on';
     else
-        metaballs.Visible = 'off';
+        h_balls.Visible = 'off';
     end
-    if part>3
-        hscat.Visible = 'on';
-        hscat.SizeData = figwidth/20;
+    
+    % Only show point cloud after part 3
+    if part > 3
+        h_points.Visible = 'on';
+        h_points.SizeData = fig_width/20;
     end
        
+    % Wiggly line is shown between parts 6 and 8
     if part>6 && part<8
-        hline.Visible = 'on';
+        h_wiggly.Visible = 'on';
     else
-        hline.Visible = 'off';
+        h_wiggly.Visible = 'off';
     end
     
-    if pattern>17.1
-        fanpatch.Visible = 'on';
-        toruspatch.Visible = 'off';
+    % Hide torus when the fan enters
+    if pattern > 17.1
+        h_fan.Visible = 'on';
+        h_torus.Visible = 'off';
     end
         
-    if part>5.5
-        linegroup.Visible = 'off';
+    % Hide lasers after part > 5.5
+    if part > 5.5
+        grp_laser.Visible = 'off';
     end
     
-    linegroup.Matrix = makehgtform('translate',0,0,(512-beat)*50);        
-
-   
-    fanpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
-    grp.Matrix = makehgtform('yrotate',pi/2)*makehgtform('zrotate',pattern);    
+    grp_laser.Matrix = makehgtform('translate',0,0,(512-beat) * 50); % Move lasers with beat
+    grp_fan.Matrix = makehgtform('yrotate',pi/2) * makehgtform('zrotate',pattern); % Rotate fan slowly
+    h_fan.FaceAlpha = interp([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part); % Fade in and fade out fan
 end
 
 close all
