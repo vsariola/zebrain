@@ -60,14 +60,12 @@ hline = line(zeros(4000,1),zeros(4000,1),zeros(4000,1),'Color',[1,1,1,.5],'LineW
 hline.Visible = 'off';
 
 linegroup = hgtransform('Parent',axes2);
-angle = linspc(0,2*pi,32);
+angle = linspc(0,2*pi,100);
 lx = [cos(angle);cos(angle);angle*nan]*50;
 ly = [sin(angle);sin(angle);angle*nan]*50;
-lz = [12+rand(size(angle));28+rand(size(angle));angle*nan]*50;
-makeline = @(m)line(lx(:)*m,ly(:)*m,lz(:),'Color',[1,1,1,.5],'Parent',linegroup);
-l1=makeline(1.06);
-l2=makeline(1.03);
-l3=makeline(1);
+lz = [12+rand(size(angle))+floor(rand(size(angle))*5)*32;28+rand(size(angle))+floor(rand(size(angle))*5)*32;angle*nan]*50;
+makeline = @(m)line(lx(:)*m,ly(:)*m,lz(:),'Color',[1,1,1,.2],'Parent',linegroup);
+hbars = arrayfun(makeline,1.04 .^ (1:6));
 
 axes3 = create_axes();            
 [gridx,gridy] = ndgrid(-1:.01:1);   
@@ -139,6 +137,8 @@ while pattern < 35
         hTexts(index).String = split(str,'~');   
         hTexts(index).Rotation = interpolate([0,.3,.9,1.7,2,5.1,5.8,6.2],[37,-23,-35,-19,-21,34,25,37],mod(angle,2*pi)) + (index==6)*25;
         hTexts(index).FontSize = figwidth/50;
+        
+        hbars(index).LineWidth = (figwidth*(1+sync(7)*2))/150;
     end
        
     toruspatch.FaceAlpha = interpolate([0,258,258.1,448,512,1280],[0,0,.8,.8,0,0],beat);
@@ -160,11 +160,7 @@ while pattern < 35
     hline.XData = linex*15+10;    
     hline.YData = liner .* sin(lineangle) + 20;
     hline.ZData = liner .* cos(lineangle) + 7;
-   
-    l1.LineWidth = figwidth/80;
-    l2.LineWidth = figwidth/100;
-    l3.LineWidth = figwidth/150;    
-    
+          
     draw();
    
     if part>4 && part<6
@@ -199,13 +195,11 @@ while pattern < 35
         toruspatch.Visible = 'off';
     end
         
-    if part>5
+    if part>5.5
         linegroup.Visible = 'off';
     end
-
-    if part>4
-        linegroup.Matrix = makehgtform('translate',0,0,-mod(beat,32)*50);    
-    end
+    
+    linegroup.Matrix = makehgtform('translate',0,0,(512-beat)*50);        
 
    
     fanpatch.FaceAlpha = interpolate([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part);
