@@ -20,14 +20,14 @@ create_axes=@()axes('position',[0,0,1,1],'Visible','off');
 
 axes1 = create_axes(); 
 
-mymap = interpolate([0,91,195,255],[0,0,0;.3,.3,.4;.7,.8,.9;1,1,1],0:255);
-colormap(mymap);
+mymap = interpolate([0,130,255],[0,0,0,0;.4,.6,.7,.9;1,1,1,1],0:255);
+colormap(mymap(:,[1,2,3]));
 im = image(uint8(xgrid));    
 axes1.Visible = 'off';
 
 axes2 = create_axes();
 
-colormap(axes2,mymap(:,[2,2,1]));
+colormap(axes2,mymap(:,[4,3,1]));
 
 uu = linspc(0,1,10)';
 vv = uu*0;
@@ -53,7 +53,7 @@ camera_setup;
 % Init viivat
 grp = hgtransform('Parent',axes2);
 tdata = load('trimesh3d');
-fanpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,[1,1,.9],grp,1,'none','none');
+fanpatch = makepatch(tdata.tri,[tdata.x(:),tdata.y(:),tdata.z(:)]*3,1,[.9,.7,.4],grp,1,'none','none');
 fanpatch.Visible = 'off';
 
 hline = line(zeros(4000,1),zeros(4000,1),zeros(4000,1),'Color',[1,1,1,.5],'LineWidth',5);
@@ -174,7 +174,7 @@ while pattern < 35
         metafv = isosurface(metax+metapos(1),metax+metapos(2),metax+metapos(3)+(pattern-20).^3/2,metavalue,.18);
         metaballs.Vertices = metafv.vertices;
         metaballs.Faces = metafv.faces;   
-        metaballs.FaceColor = [1,1,.9]-sync(7)*.8;
+        metaballs.FaceColor = [.9,.7,.4]-sync(7)*.4;
         metaballs.Visible = 'on';
     else
         metaballs.Visible = 'off';
