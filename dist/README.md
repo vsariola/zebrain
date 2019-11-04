@@ -2,6 +2,8 @@
 
 A 4k intro written in MATLAB. `zebrain.p` is the official version submitted to the competition, `zebrain_opt.p` is an alternative version that has options for running it windowed or for capturing a 60p video.
 
+Source code: https://github.com/vsariola/zebrain
+
 ## How to run
 
 1. Change Matlab current directory or add to path the location of `zebrain.p`
