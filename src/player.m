@@ -87,13 +87,12 @@ for mCurrentCol = 1:7
     oscLFO = instrparams(14)+1;
     lfoAmt = instrparams(15) / 512;
     lfoFreq = 2^(instrparams(16) - 9) / rowLen;
-    fxLFO = instrparams(17);
-    fxFreq = instrparams(19) / 162.3381;
-    q = 1 - instrparams(20)*2 / 255;
-    dist = instrparams(21) * 2e-5;
-    drive = instrparams(22) / 16;
-    panAmt = instrparams(23)/ 171;
-    panFreq = 2*pi * 2^(instrparams(24) - 9) / rowLen;      
+    fxFreq = instrparams(18) / 162.3381;
+    q = 1 - instrparams(19)*2 / 255;
+    dist = instrparams(20) * 2e-5;
+    drive = instrparams(21) / 16;
+    panAmt = instrparams(22)/ 171;
+    panFreq = 2*pi * 2^(instrparams(23) - 9) / rowLen;      
 
     % Clear effect state
     low = 0;
@@ -106,11 +105,7 @@ for mCurrentCol = 1:7
         % We only do effects if we have some sound input
         if filterActive || chnBuf(kk)                                                                         
             % State variable filter
-            freq = fxFreq;
-            if fxLFO
-                freq = freq * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*1e5+1)) * lfoAmt + .5);
-            end
-            freq = 1.5 * sin(freq);
+            freq = 1.5 * sin(fxFreq * (oscPrecalc(oscLFO,floor(mod(lfoFreq * kk,1)*1e5+1)) * lfoAmt + .5));
             low = low + freq * band;          
             band = band + freq * (q * (chnBuf(kk) - band) - low);
             tmpsample = low;               
@@ -130,8 +125,8 @@ for mCurrentCol = 1:7
         end
     end               
 
-    dlyAmt = instrparams(25) / 85;
-    dly = bitor(instrparams(26) * rowLen,1); % Must be an odd number
+    dlyAmt = instrparams(24) / 85;
+    dly = bitor(instrparams(25) * rowLen,1); % Must be an odd number
 
     % Perform delay. This could have been done in the previous
     % loop, but it was slower than doing a second loop

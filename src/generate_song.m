@@ -11,6 +11,11 @@ function generate_song
         end
         song.songData{i}{1} = song.songData{i}{1}([1:13,16:28]);
         song.songData{i}{1} = floor(song.songData{i}{1} ./ [1,3,2,1,1,3,2,1,1,3,1,1,2,1,3,1,1,1,2,2,2,2,3,1,3,1]);
+        if ~song.songData{i}{1}(17)
+            song.songData{i}{1}(19) = song.songData{i}{1}(19)*2; % double fxFreq
+            song.songData{i}{1}(15) = 0; % set lfoAMT = 0; these two equal to disabling LFO
+        end
+        song.songData{i}{1} = song.songData{i}{1}([1:16,18:end]); % drop the fxLFO, it's not needed
         p = song.songData{i}{2};
         c = song.songData{i}{3}; 
         up = unique(p);
