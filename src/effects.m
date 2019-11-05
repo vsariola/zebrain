@@ -5,6 +5,7 @@ linspc = @linspace; %  handle to shorten linspace
 interp = @(a,b,c)interp1(a,b,c,[],'extrap'); % handle to shorten interp1
 make_axes = @()axes('position',[0,0,1,1],'Visible','off'); % short hand to make a fullscreen axes
 make_patch = @(a,b,c,d,e,f,g,h)patch('faces',a,'vertices',b,'facevertexcdata',c,'facecolor',d,'edgecolor','k','parent',e,'specularexponent',5,'specularstrength',f,'linestyle',g,'Marker',h);                 
+text_rands = rand(1,1000);
 
 %------------------------------
 % Load and process the MRI-data
@@ -69,10 +70,10 @@ h_wiggly = line(0,0,0,'Color',[1,1,1,.5],'LineWidth',5);
 
 % Initialize lasers
 grp_laser = hgtransform('Parent',axes2);
-angle = linspc(0,2*pi,100);
+angle = linspc(0,2*pi,64);
 xx = [cos(angle);cos(angle);angle*nan]*50;
 yy = [sin(angle);sin(angle);angle*nan]*50;
-ww = [12+rand(size(angle))+floor(rand(size(angle))*5)*32;28+rand(size(angle))+floor(rand(size(angle))*5)*32;angle*nan]*50;
+ww = [12+floor(rand(size(angle))*5)*32;28+floor(rand(size(angle))*5)*32;angle*nan]*50;
 make_laser = @(a)line(xx(:)*a,yy(:)*a,ww(:),'Color',[1,1,1,.2],'Parent',grp_laser);
 h_laser = arrayfun(make_laser,1.04 .^ (1:6));
 
@@ -104,7 +105,6 @@ text_times = [128,192;152,216;644,734;800,896;808,896;1016,1072];
 text_times = reshape([text_times;text_times+4],6,[]);
 h_text = arrayfun(@(x,y,z)text(x,y,z,'','horizontalAlign','center','fontweight','bold','fontname','Courier New','Color','w','interpreter','none'),[10,10,10,20,20,8],[4,4,4,60,60,.5],[4,-1,-1,30,-10,.5]);
 h_text(4).Color = 'r'; % heart should be red
-text_rands = rand(1,1000);
 camera_setup;
 
 %----------------------------------------------------------------------
@@ -202,7 +202,7 @@ while pattern < 35
     end      
           
     % Update tree    
-    if part > 7
+    if part > 7.5
         xx = @(a)reshape([interp1(0:.1:.6,tree{a},tanh(linspc(-1,0,50)+pattern-32),'spline');nan(1,128)],1,[]);
         h_tree.XData = xx(1)+3;    
         h_tree.YData = xx(2);    
