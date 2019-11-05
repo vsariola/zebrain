@@ -77,6 +77,25 @@ ww = [12+rand(size(angle))+floor(rand(size(angle))*5)*32;28+rand(size(angle))+fl
 make_laser = @(a)line(xx(:)*a,yy(:)*a,ww(:),'Color',[1,1,1,.2],'Parent',grp_laser);
 h_laser = arrayfun(make_laser,1.04 .^ (1:6));
 
+% Initialize tree
+tree_x = []; 
+tree_y = [];
+tree_z = [];
+for i = 1:7
+    xx = [];
+    yy = [];
+    ww = [];
+    for j = 0:1        
+        xx = [xx,[randn(1,2^(i-1))*.1;tree_x*.8+rand()*4]];
+        yy = [yy,[randn(1,2^(i-1))*.1;tree_y*.8+rand()*4-j*4]];
+        ww = [ww,[randn(1,2^(i-1))*.1;tree_z*.8+2]];
+    end
+    tree_x = xx;
+    tree_y = yy;    
+    tree_z = ww;    
+end
+h_tree = line;
+
 % Initialize light source and camera
 h_light = light(axes2);
 camera_setup;
@@ -190,6 +209,16 @@ while pattern < 35
     h_wiggly.YData = yy.*sin(angle) + 20;
     h_wiggly.ZData = yy.*cos(angle) + 7;
           
+    % Update tree    
+    if part>7.8
+        tt = (beat-1024)/4;        
+        ww = linspc(tt-7,tt,50);    
+        h_tree.XData = reshape([interp1(0:6,tree_x,ww,'pchip');nan(1,128)],1,[])+3;    
+        h_tree.YData = reshape([interp1(0:6,tree_y,ww,'pchip');nan(1,128)],1,[]);    
+        h_tree.ZData = reshape([interp1(0:6,tree_z,ww,'pchip');nan(1,128)],1,[])-3;    
+        h_tree.LineWidth = fig_width/300;
+    end
+    
     % Finally, draw the scene (why is it at this position?)
     draw();
    
