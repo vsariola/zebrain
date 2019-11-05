@@ -14,8 +14,8 @@ text_rands = rand(1,1000);
 % vertices are the dots visible in the final scenes 
 mri_raw = load('mri');
 mri_smoothed = smooth3(squeeze(mri_raw.D));
-fv = isosurface(linspc(-1,1,128)*30,linspc(-1,1,128)*30,linspc(-1,1,27)*60,mri_smoothed,5); % we find the isosurface of the MRI-data to make a head
-head_vert = fv.vertices; % just a short hand for the vertices of the head
+ww = isosurface(linspc(-1,1,128)*30,linspc(-1,1,128)*30,linspc(-1,1,27)*60,mri_smoothed,5); % we find the isosurface of the MRI-data to make a head
+head_vert = ww.vertices; % just a short hand for the vertices of the head
 omega = randn(size(head_vert)); % the points start as a cloud, omega are the random coordinates in cloud
 mri_scaled = double(interp3(mri_smoothed,1));  % the volume data in the background
 
@@ -24,7 +24,7 @@ mri_scaled = double(interp3(mri_smoothed,1));  % the volume data in the backgrou
 %--------------------------------------------------------------------
 axes1 = make_axes();
 
-zoomer = @(zoom,x)mod(round(((0:254)-x)/zoom+x),255)+1; % zoomer is needed for the light balls in the background
+zoomer = @(a,b)mod(round(((0:254)-b)/a+b),255)+1; % zoomer is needed for the light balls in the background
 [xgrid,~] = ndgrid(linspc(-3,3,255)); % the grid for the light balls in the background
 
 mymap = interp([0,130,255],[0,0,0,0;.4,.6,.7,.9;1,1,1,1],0:255);
@@ -62,7 +62,7 @@ metax = -4:.5:4;
 % Initialize fan
 grp_fan = hgtransform('Parent',axes2);
 trimesh = load('trimesh3d');
-h_fan = make_patch(trimesh.tri,[trimesh.x(:),trimesh.y(:),trimesh.z(:)]*3,1,[.9,.7,.4],grp_fan,1,'none','none');
+h_fan = make_patch(trimesh.tri,[trimesh.x,trimesh.y,trimesh.z]*3,1,[.9,.7,.4],grp_fan,1,'none','none');
 h_fan.Visible = 'off';
 
 % Initialize wiggly line
@@ -73,9 +73,9 @@ grp_laser = hgtransform('Parent',axes2);
 angle = linspc(0,2*pi,64);
 xx = [cos(angle);cos(angle);angle*nan]*50;
 yy = [sin(angle);sin(angle);angle*nan]*50;
-ww = [12+floor(rand(size(angle))*5)*32;28+floor(rand(size(angle))*5)*32;angle*nan]*50;
+ww = [12+floor(rand(1,64)*5)*32;28+floor(rand(1,64)*5)*32;angle*nan]*50;
 make_laser = @(a)line(xx(:)*a,yy(:)*a,ww(:),'Color',[1,1,1,.2],'Parent',grp_laser);
-h_laser = arrayfun(make_laser,1.04 .^ (1:6));
+h_laser = arrayfun(make_laser,1.04 .^ (0:5));
 
 % Initialize tree
 tree = cell(1,3);
@@ -93,7 +93,7 @@ camera_setup;
 %--------------------------------------------------------
 axes3 = make_axes();            
 [xx,yy] = ndgrid(-1:.01:1);   
-alpha( image(axes3,zeros(size(xx))),(xx.^2+yy.^2)/2);    
+alpha(image(axes3,zeros(size(xx))),xx.^2/2+yy.^2/2);    
 axes3.Visible = 'off'; % Image shows axes, must hide again
 
 %----------------------------------------------------------------------
@@ -203,10 +203,10 @@ while pattern < 35
           
     % Update tree    
     if part > 7.5
-        xx = @(a)reshape([interp1(0:.1:.6,tree{a},tanh(linspc(-1,0,50)+pattern-32),'spline');nan(1,128)],1,[]);
-        h_tree.XData = xx(1)+3;    
+        xx = @(a)reshape([interp1(0:.1:.6,tree{a},tanh(linspc(0,1,50)+pattern-33),'spline');nan(1,128)],1,[]);
+        h_tree.XData = xx(1) + 3;    
         h_tree.YData = xx(2);    
-        h_tree.ZData = xx(3)-3;    
+        h_tree.ZData = xx(3) - 3;    
         h_tree.LineWidth = fig_width/500;
     end
     
@@ -222,9 +222,9 @@ while pattern < 35
         end
         yy = [8,0,0] - camera_position;
         yy = yy*8/norm(yy) + camera_position;
-        fv = isosurface(metax+yy(1),metax+yy(2),metax+yy(3)+(pattern-20).^3/2,ww,.18);
-        h_balls.Vertices = fv.vertices;
-        h_balls.Faces = fv.faces;   
+        ww = isosurface(metax+yy(1),metax+yy(2),metax+yy(3)+(pattern-20).^3/2,ww,.18);
+        h_balls.Vertices = ww.vertices;
+        h_balls.Faces = ww.faces;   
         h_balls.FaceColor = [.9,.7,.4] - sync(7)*.4;
         h_balls.Visible = 'on';
     else

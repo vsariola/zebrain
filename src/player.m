@@ -120,16 +120,13 @@ for mCurrentCol = 1:7
                 tmpsample = sin(.5*pi*min(max(tmpsample*dist,-1),1))/dist;                    
             end
 
-            % Drive
-            tmpsample = tmpsample * drive;
-
             % Is the filter active (i.e. still audiable)?
             filterActive = tmpsample * tmpsample > 1e-5;
 
             % Panning
             t = sin(panFreq * kk) * panAmt + .5;
-            chnBuf(kk) = tmpsample * (1 - t);
-            chnBuf(kk+1) = tmpsample * t;    
+            chnBuf(kk) = drive * tmpsample * (1 - t);
+            chnBuf(kk+1) = drive * tmpsample * t;    
         end
     end               
 
