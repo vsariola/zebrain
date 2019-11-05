@@ -65,8 +65,7 @@ h_fan = make_patch(trimesh.tri,[trimesh.x(:),trimesh.y(:),trimesh.z(:)]*3,1,[.9,
 h_fan.Visible = 'off';
 
 % Initialize wiggly line
-h_wiggly = line(zeros(4000,1),zeros(4000,1),zeros(4000,1),'Color',[1,1,1,.5],'LineWidth',5);
-h_wiggly.Visible = 'off';
+h_wiggly = line(0,0,0,'Color',[1,1,1,.5],'LineWidth',5);
 
 % Initialize lasers
 grp_laser = hgtransform('Parent',axes2);
@@ -78,23 +77,11 @@ make_laser = @(a)line(xx(:)*a,yy(:)*a,ww(:),'Color',[1,1,1,.2],'Parent',grp_lase
 h_laser = arrayfun(make_laser,1.04 .^ (1:6));
 
 % Initialize tree
-tree_x = []; 
-tree_y = [];
-tree_z = [];
-for i = 1:7
-    xx = [];
-    yy = [];
-    ww = [];
-    for j = 0:1        
-        xx = [xx,[randn(1,2^(i-1))*.1;tree_x*.8+rand()*4]];
-        yy = [yy,[randn(1,2^(i-1))*.1;tree_y*.8+rand()*4-j*4]];
-        ww = [ww,[randn(1,2^(i-1))*.1;tree_z*.8+2]];
-    end
-    tree_x = xx;
-    tree_y = yy;    
-    tree_z = ww;    
+tree = cell(1,3);
+for ind = 2.^(0:6)
+    tree = {[[randn(1,ind)*.1;tree{1}*.8+rand()*4],[randn(1,ind)*.1;tree{1}*.8+rand()*4]],[[randn(1,ind)*.1;tree{2}*.8+rand()*4],[randn(1,ind)*.1;tree{2}*.8+rand()*4-4]],[[randn(1,ind)*.1;tree{3}*.8+2],[randn(1,ind)*.1;tree{3}*.8+2]]};            
 end
-h_tree = line;
+h_tree = line(0,0,0,'Color','k');
 
 % Initialize light source and camera
 h_light = light(axes2);
@@ -196,27 +183,31 @@ while pattern < 35
     xx = min(max(part-4,0),1)^.2; % xx is the blending
     angle = omega(:,1)*2*time;  
     yy = head_vert * xx + [(10+5*sin(3*angle)).*cos(angle),(10+5*sin(3*angle)).*sin(angle),(time+sync(7)*.3)*sin(omega(:,2)/2*time)*3.5]*(1 - xx);
-    zz = yy + interp([0,6,9],[0,0,3],part)*sin(yy*.5*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3,.4,.5]*time);
-    h_points.XData = zz(:,1);
-    h_points.YData = zz(:,2); 
-    h_points.ZData = zz(:,3);
+    xx = yy + interp([0,6,9],[0,0,3],part)*sin(yy*.5*sin(time+[.2,1.1,.3;.4,.3,.9;1.2,.5,.1])+[.3,.4,.5]*time);
+    h_points.XData = xx(:,1);
+    h_points.YData = xx(:,2); 
+    h_points.ZData = xx(:,3);
     
-    % Update wiggly line
-    xx = linspc(-2,2,4000) + (part-7)*4;
-    yy = sin(.5*sin(xx*2)+.3*sin(xx*3)+.4*sin(xx*4)) .* xx .* xx * 4;
-    angle = sin(.7*sin(xx*5)+.4*sin(xx*6)+.3*sin(xx*4)) * 10;
-    h_wiggly.XData = xx*15 + 10;    
-    h_wiggly.YData = yy.*sin(angle) + 20;
-    h_wiggly.ZData = yy.*cos(angle) + 7;
+    % Update wiggly line    
+    if part>6 && part<8
+        xx = linspc(-2,2,4000) + (part-7)*4;
+        yy = sin(.5*sin(xx*2)+.3*sin(xx*3)+.4*sin(xx*4)) .* xx .* xx * 4;
+        angle = sin(.7*sin(xx*5)+.4*sin(xx*6)+.3*sin(xx*4)) * 10;
+        h_wiggly.XData = xx*15 + 10;    
+        h_wiggly.YData = yy.*sin(angle) + 20;
+        h_wiggly.ZData = yy.*cos(angle) + 7;
+        h_wiggly.Visible = 'on';
+    else
+        h_wiggly.Visible = 'off';
+    end      
           
     % Update tree    
-    if part>7.8
-        tt = (beat-1024)/4;        
-        ww = linspc(tt-7,tt,50);    
-        h_tree.XData = reshape([interp1(0:6,tree_x,ww,'pchip');nan(1,128)],1,[])+3;    
-        h_tree.YData = reshape([interp1(0:6,tree_y,ww,'pchip');nan(1,128)],1,[]);    
-        h_tree.ZData = reshape([interp1(0:6,tree_z,ww,'pchip');nan(1,128)],1,[])-3;    
-        h_tree.LineWidth = fig_width/300;
+    if part > 7
+        xx = @(a)reshape([interp1(0:.1:.6,tree{a},tanh(linspc(-1,0,50)+pattern-32),'spline');nan(1,128)],1,[]);
+        h_tree.XData = xx(1)+3;    
+        h_tree.YData = xx(2);    
+        h_tree.ZData = xx(3)-3;    
+        h_tree.LineWidth = fig_width/500;
     end
     
     % Finally, draw the scene (why is it at this position?)
@@ -226,8 +217,8 @@ while pattern < 35
     if part>4 && part<6
         xx = sin(pi*reshape(1:15,5,3)*part)*2;
         ww = zeros(size(metaxx));
-        for i = 1:5
-            ww = ww + .2./sqrt((metaxx-xx(i,1)).^4 + (metayy-xx(i,2)).^4 + (metazz-xx(i,3)).^4);
+        for ind = 1:5
+            ww = ww + .2./sqrt((metaxx-xx(ind,1)).^4 + (metayy-xx(ind,2)).^4 + (metazz-xx(ind,3)).^4);
         end
         yy = [8,0,0] - camera_position;
         yy = yy*8/norm(yy) + camera_position;
@@ -246,13 +237,6 @@ while pattern < 35
         h_points.SizeData = fig_width/20;
     end
        
-    % Wiggly line is shown between parts 6 and 8
-    if part>6 && part<8
-        h_wiggly.Visible = 'on';
-    else
-        h_wiggly.Visible = 'off';
-    end
-    
     % Hide torus when the fan enters
     if pattern > 17.1
         h_fan.Visible = 'on';
