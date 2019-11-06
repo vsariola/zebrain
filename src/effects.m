@@ -71,10 +71,10 @@ h_wiggly = line(0,0,0,'Color',[1,1,1,.5],'LineWidth',5);
 % Initialize lasers
 grp_laser = hgtransform('Parent',axes2);
 angle = linspc(0,2*pi,64);
-xx = [cos(angle);cos(angle);angle*nan]*50;
-yy = [sin(angle);sin(angle);angle*nan]*50;
+xx = [1;1;nan] .* cos(angle) * 50;
+yy = [1;1;nan] .* sin(angle) * 50;
 ww = [12+floor(rand(1,64)*5)*32;28+floor(rand(1,64)*5)*32;angle*nan]*50;
-make_laser = @(a)line(xx(:)*a,yy(:)*a,ww(:),'Color',[1,1,1,.2],'Parent',grp_laser);
+make_laser = @(a)line(xx(:)*a,yy(:)*a,ww(:),'Color',[1,1,1,.2],'Parent',grp_laser,'Clipping','off');
 h_laser = arrayfun(make_laser,1.04 .^ (0:5));
 
 % Initialize tree
