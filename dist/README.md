@@ -23,7 +23,7 @@ To combine the .avi and .wav files, ffmpeg can be used with the following comman
 
 `zebrain_opt('capture',true,'fps',60)` capture at a specific fps (default: 60).
 
-`zebrain_opt('cache',false)` prevents caching of the song data. By default, zebrain_opt cached the song data, because this is the script we used to debug the code faster.
+`zebrain_opt('cache',false)` prevents caching of the song data. By default, zebrain_opt caches the song data, because this is the script we used to debug the code faster.
 
 `zebrain_opt('window',[])` run the demo windowed, instead of full screen.
 
@@ -39,7 +39,7 @@ To combine the .avi and .wav files, ffmpeg can be used with the following comman
 - The overhead from pcode is 134 bytes, zip-file headers & directories adds another 101 bytes, so we have 235 bytes of overheads. All the rest is zopfli optimized DEFLATEd code. The overhead could be further pushed down by making the self executing script more dirty: for example, by hard coding the name of the script, or not using temporary directory, or by not deleting temporary files etc. This could further reduce the size of the pcode part, but would also make the script less robust.
 - The visuals are one figure, created with `figure('WindowState','fullscreen', 'MenuBar', 'none', 'ToolBar', 'none','Pointer','custom','PointerShapeCData',nan(16,16));`
 - We have four overlaying axes. The blurred images are computed on CPU and shown on the bottom axes. The 3D-objects (`patch`, `line`, `scatter3`...) are on the second axes. Third axes has a an alpha-blended image that creates the gradient to black in the corners. The top-most axes contains the texts (`text(x,y,z,...)`).
-- The song was tracked with [Soundbox](https://github.com/mbitsnbites/soundbox); we just ported the player to Matlab: [matsoundbox](https://github.com/vsariola/matsoundbox) 
+- The song was tracked with [Soundbox](https://github.com/mbitsnbites/soundbox); we just ported the player to Matlab: [matsoundbox](https://github.com/vsariola/matsoundbox). The song data is stored in strings instead of arrays, because array definititions require a comma between each element, increasing the code length. The difference is not huge, because the commas compress quite nicely, but this still gained a good number of bytes.
 - The track is rendered into a waveform, which played using `a=audioplayer(...);play(a)`. Current time we get from `a.currentSample`.
 - While rendering the track, we save the sound envelopes for each channel. These envelopes are added to various places during the rendering of the demo, to make effects sync to music.
 - `drawnow` is used to refresh the screen.
@@ -54,7 +54,7 @@ ascii: apollo/bC!
 
 ## Kudos
 
-m/Bits'n'Bytes, who wrote [Soundbox](https://github.com/mbitsnbites/soundbox) the tracker used for the music
+m/Bits'n'Bytes, who wrote [Soundbox](https://github.com/mbitsnbites/soundbox), the tracker used for the music
 
 p01, whose [write-ups](http://www.p01.org/) about 4k development in javascript also helped and inspired methods how to write shorter code in MATLAB
 
