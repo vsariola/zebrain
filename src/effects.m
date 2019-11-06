@@ -203,7 +203,7 @@ while pattern < 35
           
     % Update tree    
     if part > 7.5
-        xx = @(a)reshape([interp1(0:.1:.6,tree{a},tanh(linspc(0,1,50)+pattern-33),'spline');nan(1,128)],1,[]);
+        xx = @(a)reshape([interp1(0:.1:.6,tree{a},tanh(linspc(0,1,50)+pattern-32.75),'spline');nan(1,128)],1,[]);
         h_tree.XData = xx(1) + 3;    
         h_tree.YData = xx(2);    
         h_tree.ZData = xx(3) - 3;    
