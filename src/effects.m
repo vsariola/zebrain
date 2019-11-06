@@ -146,7 +146,7 @@ while pattern < 35
     end
        
     % Update image, containing light balls and brain
-    h_image.CData = uint8(tanh((ww/80*interp([0,224,240,258,259,1024,1104,1120],[0,.6,0,0,1,1,0,0],beat)^.5 + sync(1))/64)*256); 
+    h_image.CData = uint8(tanh((ww/80*interp([0,50,224,242,258,259,1024,1095,1104,1120],[0,.4,.8,0,0,1,1,.5,0,0],beat) + sync(1))/64)*256); 
 
     % Move camera so it stays always inside the torus
     angle = beat/100 + sum_triggers(5,cur_sample) + 1;                        
