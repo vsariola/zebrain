@@ -76,8 +76,7 @@ angle = linspc(0,2*pi,64);
 xx = [1;1;nan] .* cos(angle) * 50;
 yy = [1;1;nan] .* sin(angle) * 50;
 ww = [12+floor(rand(1,64)*5)*32;28+floor(rand(1,64)*5)*32;angle*nan]*50;
-make_laser = @(a)line(xx(:)*a,yy(:)*a,ww(:),'Color',[1,1,1,.2],'Parent',grp_laser,'Clipping','off');
-h_laser = arrayfun(make_laser,1.04 .^ (0:5));
+h_laser = arrayfun(@(a)line(xx(:)*a,yy(:)*a,ww(:),'Color',[1,1,1,.2],'Parent',grp_laser,'Clipping','off'),1.04 .^ (0:5));
 
 % Initialize tree
 tree = cell(1,3);
@@ -136,9 +135,9 @@ while pattern < 35
     ww = 256 - sqrt(abs(ww))*200;
     
     % Background brain effect
-    brain_index = 52*(1-part/9) + 1;
-    alphaBrain = mod(brain_index,1);
-    ind = floor(brain_index);
+    ind = 52*(1-part/9) + 1;
+    alphaBrain = mod(ind,1);
+    ind = floor(ind);
     ww = ww + max(mri_scaled(:,:,ind)*(1-alphaBrain)+mri_scaled(:,:,ind+1)*alphaBrain,interp([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
     yy = sync(6)*.1 + 1;
     for ind = 1:5
@@ -158,14 +157,14 @@ while pattern < 35
 
     for ind = 1:6
         % Update text
-        str = texts{ind};
-        not_empty = str ~= '~' & str ~= 'z';
-        string_sync = interp(text_times(ind,:),[1,0,0,1],beat);
-        offset = text_rands(1:length(str))*.5;
-        str_indices = not_empty & string_sync > (.5-offset);
-        str(str_indices) = randi([33,47],1,sum(str_indices));
-        str(not_empty & string_sync > (1-offset) | str == 'z') = 32;
-        h_text(ind).String = split(str,'~');   
+        xx = texts{ind}; % string
+        yy = xx ~= '~' & xx ~= 'z'; % yy = not_empty
+        ww = interp(text_times(ind,:),[1,0,0,1],beat);
+        offset = text_rands(1:length(xx))*.5;
+        str_indices = yy & ww > (.5-offset);
+        xx(str_indices) = randi([33,47],1,sum(str_indices));
+        xx(yy & ww > (1-offset) | xx == 'z') = 32;
+        h_text(ind).String = split(xx,'~');   
         h_text(ind).Rotation = interp([0,.3,.9,1.7,2,5.1,5.8,6.2],[37,-23,-35,-19,-21,34,25,37],mod(angle,2*pi)) + (ind==6)*25;
         h_text(ind).FontSize = fig_width/50;
         

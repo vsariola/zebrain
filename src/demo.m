@@ -4,7 +4,7 @@ function demo
     audio = audioplayer(mMixBuf,44100);
     draw = @drawnow;
     sample = @()audio.currentSample;
-    start_music = @()play(audio);rng(0); % Initialize rng, so that sound and demo are always the same       
+    start_music = @()play(audio);
     
     % fig is stored to get the size in pixels, to adjust all markers and
     % line widths to proper scale.
