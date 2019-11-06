@@ -58,7 +58,7 @@ h_points = scatter3(head_vert(:,1),head_vert(:,1),head_vert(:,1),1,'k.','Visible
 % Initialize metaballs
 h_balls = make_patch([],[],[],'w',axes2,.7,'none','none');
 h_balls.Visible = 'off';
-metax = -4:.5:4;
+metax = linspc(-3,3,17);
 [metaxx,metayy,metazz] = ndgrid(metax);
 
 % Initialize fan
@@ -212,14 +212,13 @@ while pattern < 35
    
     % Update metaballs
     if part>4 && part<6
-        xx = sin(pi*(1:15)*part)*2;
+        xx = sin(pi*(1:15)*part)*1.2;
         ww = zeros(size(metaxx));
         for ind = 1:5
-            ww = ww + .2./sqrt((metaxx-xx(ind)).^4 + (metayy-xx(ind+5)).^4 + (metazz-xx(ind+10)).^4);
-        end
-        yy = [8,0,0] - camera_position;
-        yy = yy*8/norm(yy) + camera_position;
-        ww = isosurface(metax+yy(1),metax+yy(2),metax+yy(3)+(pattern-20).^3/2,ww,.18);
+            ww = ww + 1./sqrt((metaxx-xx(ind)).^4 + (metayy-xx(ind+5)).^4 + (metazz-xx(ind+10)).^4);
+        end     
+        yy = [6.2,4.2,.5];
+        ww = isosurface(metax+yy(1),metax+yy(2),metax+yy(3)+(pattern-20).^3/2,ww,2.2);
         h_balls.Vertices = ww.vertices;
         h_balls.Faces = ww.faces;   
         h_balls.FaceColor = [.9,.7,.4] - sync(7)*.4;
