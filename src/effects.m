@@ -19,15 +19,16 @@ yy = smooth3(squeeze(xx.D));
 ww = isosurface(linspc(-1,1,128)*30,linspc(-1,1,128)*30,linspc(-1,1,27)*60,yy,5); % we find the isosurface of the MRI-data to make a head
 head_vert = ww.vertices; % just a short hand for the vertices of the head
 omega = randn(size(head_vert)); % the points start as a cloud, omega are the random coordinates in cloud
-mri_scaled = double(interp3(yy,1));  % the volume data in the background
+xx = load('mristack');
+mri_scaled = smooth3(xx.mristack,'box',5);  % the volume data in the background
 
 %--------------------------------------------------------------------
 % Initialize axes1, which contains the background brain & light balls
 %--------------------------------------------------------------------
 axes1 = make_axes();
 
-zoomer = @(a,b)mod(round(((0:254)-b)/a+b),255)+1; % zoomer is needed for the light balls in the background
-[xgrid,~] = ndgrid(linspc(-3,3,255)); % the grid for the light balls in the background
+zoomer = @(a,b)mod(round(((0:255)-b)/a+b),256)+1; % zoomer is needed for the light balls in the background
+[xgrid,~] = ndgrid(linspc(-3,3,256)); % the grid for the light balls in the background
 
 xx = interp([0,130,255],[0,0,0,0;.4,.6,.7,.9;1,1,1,1],0:255);
 colormap(xx(:,[1,2,3])); % teal colormap for the background
@@ -135,7 +136,7 @@ while pattern < 35
     ww = 256 - sqrt(abs(ww))*200;
     
     % Background brain effect
-    ind = 52*(1-part/9) + 1;
+    ind = 20*part/9 + 1;
     alphaBrain = mod(ind,1);
     ind = floor(ind);
     ww = ww + max(mri_scaled(:,:,ind)*(1-alphaBrain)+mri_scaled(:,:,ind+1)*alphaBrain,interp([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
