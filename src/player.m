@@ -30,7 +30,7 @@ oscPrecalc = [sin(samx*2*pi);(samx < .5)*2-1;1-abs(samx*4-2)] * 3;
 getnotefreq = @(n) .00395 * 2^((n - 158) / 12);    
 
 % Prepare song info
-mNumSamples = 75e5;
+mNumSamples = 78e5;
 rowLen = 6615;   
 
 % Create work buffer (initially cleared)
@@ -64,7 +64,7 @@ for mCurrentCol = 1:7
             pat = instr{3}{cp}-160;
             for rc = 1:length(pat)
                 % Calculate start sample number for this row in the pattern
-                rowStartSample = ((p-1) * 32 + mod(rc-1,32)) * rowLen;
+                rowStartSample = (p * 32 + mod(rc-1,32)) * rowLen;
 
                 % Generate notes for this pattern row
                 note = pat(rc);
