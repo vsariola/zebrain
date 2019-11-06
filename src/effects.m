@@ -1,3 +1,5 @@
+rng(0); % Initialize rng, so that sound and demo are always the same
+
 %------------------------------------
 % Shorthands for often used functions
 %------------------------------------

@@ -1,8 +1,7 @@
 function demo_opt(varargin)
     global frame video sample
 
-    outputdir = 'output/';
-    rng(0);
+    outputdir = 'output/';    
     
     close all;
     
@@ -61,6 +60,7 @@ function demo_opt(varargin)
     else
         fig = figure('MenuBar', 'none', 'ToolBar', 'none');
     end
+        
     effects;
     
     if parser.Results.capture
