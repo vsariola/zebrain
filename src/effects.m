@@ -119,7 +119,7 @@ while pattern < 35
     fig_width = fig.Position(3);
     cur_sample = sample();
     sync = @(a)envs(a,cur_sample);
-    beat = max(cur_sample / 6615 - 32,1); 
+    beat = max(cur_sample / 6615 - 16,1); 
     pattern = beat / 32;
     part = pattern / 4;
     

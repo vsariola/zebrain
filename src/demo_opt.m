@@ -28,7 +28,7 @@ function demo_opt(varargin)
         load(cachefile);
     end      
     
-    start_time = parser.Results.start * 6615 * 32 / 44100;
+    start_time = (parser.Results.start * 32 + 16) * 6615 / 44100;
     
     if parser.Results.capture
         audiofile =  [outputdir,'audio.wav'];

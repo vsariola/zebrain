@@ -64,7 +64,7 @@ for mCurrentCol = 1:7
             pat = instr{3}{cp}-160;
             for rc = 1:length(pat)
                 % Calculate start sample number for this row in the pattern
-                rowStartSample = (p * 32 + mod(rc-1,32)) * rowLen;
+                rowStartSample = (p * 32 - 16 + mod(rc-1,32)) * rowLen;
 
                 % Generate notes for this pattern row
                 note = pat(rc);
