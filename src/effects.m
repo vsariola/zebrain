@@ -1,11 +1,11 @@
-%-------------------------------------
-% Short hands for often used functions
-%-------------------------------------
+%------------------------------------
+% Shorthands for often used functions
+%------------------------------------
 linspc = @linspace; %  handle to shorten linspace
 interp = @(a,b,c)interp1(a,b,c,[],'extrap'); % handle to shorten interp1
 make_axes = @()axes('position',[0,0,1,1],'Visible','off'); % short hand to make a fullscreen axes
 make_patch = @(a,b,c,d,e,f,g,h)patch('faces',a,'vertices',b,'facevertexcdata',c,'facecolor',d,'edgecolor','k','parent',e,'specularexponent',5,'specularstrength',f,'linestyle',g,'Marker',h);                 
-text_rands = rand(1,1000);
+text_rands = rand(1,300);
 
 %------------------------------
 % Load and process the MRI-data
@@ -101,7 +101,7 @@ axes3.Visible = 'off'; % Image shows axes, must hide again
 %----------------------------------------------------------------------
 axes4 = make_axes();
 texts = {'\___\zz\/z_\_z_z__\z_z_zzz.z~z\/\_·z/\zzz\z\-\/z\\z\z\zz.','__z__z\__z_z__.z_zz~z/_\/__\/z\´\_\\\z\','4096 bytesz|zMATLABz|zDemosplash 2019','.s$s,s$s,~¶§§§§§§§²~`§§§§P´~`§´','m/Bits''n''Bites~p01~Brothomstates~Kooma~Orange~CNCD~NoooN','___\¯¯¯¯¯¯¯¯¯¯¯\z¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/___~__\zzz·:zcodez:·zz`zzzz·:zmusicz:·zzzz/__~\zz`zpestisz/zbC!zzzdistancez/zTPOLMz´zz/~\______zzzzzzz·:zasciiz:·zzzzzz_______/~/z:zzzzzzzapolloz/zbC!zzzzz:zz\~`-----/__________________\----´'};
-text_times = [128,192;152,216;644,734;800,896;808,896;1016,1072];
+text_times = [128,192;152,216;644,734;800,896;808,896;1016,1080];
 text_times = reshape([text_times;text_times+4],6,[]);
 h_text = arrayfun(@(x,y,z)text(x,y,z,'','horizontalAlign','center','fontweight','bold','fontname','Courier New','Color','w','interpreter','none'),[10,10,10,20,20,8],[4,4,4,60,60,.5],[4,-1,-1,30,-10,.5]);
 h_text(4).Color = 'r'; % heart should be red
@@ -123,12 +123,11 @@ while pattern < 35
     part = pattern / 4;
     
     % Light ball effect
-    time = pi*pattern/34.5;
     xx = xgrid + xgrid'*1i;
     for ind = 0:2
         ww = 0;
         for ind2 = [1:3,5]
-            ww = ww + 1./(xx - .7*sin(time*ind2)*exp(1i*ind2*(sum_triggers(5,cur_sample)*2+1)+ind));
+            ww = ww + 1./(xx - .7*sin(pi*pattern/34.5*ind2)*exp(1i*ind2*(sum_triggers(5,cur_sample)*2+1)+ind));
         end
         xx = xx - 3./ww;
     end
@@ -150,7 +149,7 @@ while pattern < 35
 
     % Move camera so it stays always inside the torus
     angle = beat/100 + sum_triggers(5,cur_sample) + 1;                        
-    camera_position = [(10+5*sin(3*angle))*cos(angle),(10+5*sin(3*angle))*sin(angle),0];
+    camera_position = (10+5*sin(3*angle)) * [cos(angle),sin(angle),0];
     campos(axes2,camera_position);        
     campos(axes4,camera_position); % The texts and the 3D scene have the same camera, even though the texts are always on top
     camlight(h_light,'HEADLIGHT'); % Update also the light source
@@ -191,8 +190,8 @@ while pattern < 35
     % Update wiggly line    
     if part>6 && part<8
         xx = linspc(-2,2,4000) + (part-7)*4;
-        yy = sin(.5*sin(xx*2)+.3*sin(xx*3)+.4*sin(xx*4)) .* xx .* xx * 4;
-        angle = sin(.7*sin(xx*5)+.4*sin(xx*6)+.3*sin(xx*4)) * 10;
+        yy = sin([.5,.3,.4]*sin([2;3;4]*xx)) .* xx .* xx * 4;
+        angle = sin([.7,.4,.3]*sin([5;6;4]*xx)) * 10;
         h_wiggly.XData = xx*15 + 10;    
         h_wiggly.YData = yy.*sin(angle) + 20;
         h_wiggly.ZData = yy.*cos(angle) + 7;
@@ -215,10 +214,10 @@ while pattern < 35
    
     % Update metaballs
     if part>4 && part<6
-        xx = sin(pi*reshape(1:15,5,3)*part)*2;
+        xx = sin(pi*(1:15)*part)*2;
         ww = zeros(size(metaxx));
         for ind = 1:5
-            ww = ww + .2./sqrt((metaxx-xx(ind,1)).^4 + (metayy-xx(ind,2)).^4 + (metazz-xx(ind,3)).^4);
+            ww = ww + .2./sqrt((metaxx-xx(ind)).^4 + (metayy-xx(ind+5)).^4 + (metazz-xx(ind+10)).^4);
         end
         yy = [8,0,0] - camera_position;
         yy = yy*8/norm(yy) + camera_position;
