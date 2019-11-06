@@ -212,13 +212,13 @@ while pattern < 35
    
     % Update metaballs
     if part>4 && part<6
-        xx = sin(pi*(1:15)*part)*1.2;
+        xx = sin(pi*(1:15)*part)*1.5;
         ww = zeros(size(metaxx));
         for ind = 1:5
             ww = ww + 1./sqrt((metaxx-xx(ind)).^4 + (metayy-xx(ind+5)).^4 + (metazz-xx(ind+10)).^4);
         end     
-        yy = [6.2,4.2,.5];
-        ww = isosurface(metax+yy(1),metax+yy(2),metax+yy(3)+(pattern-20).^3/2,ww,2.2);
+        yy = [7.2,5.5,.5];
+        ww = isosurface(metax+yy(1),metax+yy(2),metax+yy(3)+(pattern-20).^3/2,ww,1.6);
         h_balls.Vertices = ww.vertices;
         h_balls.Faces = ww.faces;   
         h_balls.FaceColor = [.9,.7,.4] - sync(7)*.4;
