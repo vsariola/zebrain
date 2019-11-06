@@ -1,4 +1,4 @@
-rng(0); % Initialize rng, so that sound and demo are always the same
+rng(0); % Initialize rng, so that demo is always the same
 
 %------------------------------------
 % Shorthands for often used functions
@@ -14,12 +14,12 @@ text_rands = rand(1,300);
 %------------------------------
 % MRI-data is displayed in the background image and it's isosurface'
 % vertices are the dots visible in the final scenes 
-mri_raw = load('mri');
-mri_smoothed = smooth3(squeeze(mri_raw.D));
-ww = isosurface(linspc(-1,1,128)*30,linspc(-1,1,128)*30,linspc(-1,1,27)*60,mri_smoothed,5); % we find the isosurface of the MRI-data to make a head
+xx = load('mri');
+yy = smooth3(squeeze(xx.D));
+ww = isosurface(linspc(-1,1,128)*30,linspc(-1,1,128)*30,linspc(-1,1,27)*60,yy,5); % we find the isosurface of the MRI-data to make a head
 head_vert = ww.vertices; % just a short hand for the vertices of the head
 omega = randn(size(head_vert)); % the points start as a cloud, omega are the random coordinates in cloud
-mri_scaled = double(interp3(mri_smoothed,1));  % the volume data in the background
+mri_scaled = double(interp3(yy,1));  % the volume data in the background
 
 %--------------------------------------------------------------------
 % Initialize axes1, which contains the background brain & light balls
@@ -29,8 +29,8 @@ axes1 = make_axes();
 zoomer = @(a,b)mod(round(((0:254)-b)/a+b),255)+1; % zoomer is needed for the light balls in the background
 [xgrid,~] = ndgrid(linspc(-3,3,255)); % the grid for the light balls in the background
 
-mymap = interp([0,130,255],[0,0,0,0;.4,.6,.7,.9;1,1,1,1],0:255);
-colormap(mymap(:,[1,2,3])); % teal colormap for the background
+xx = interp([0,130,255],[0,0,0,0;.4,.6,.7,.9;1,1,1,1],0:255);
+colormap(xx(:,[1,2,3])); % teal colormap for the background
 h_image = image(uint8(xgrid));    
 axes1.Visible = 'off'; % image shows the axes, hide the axes again
 
@@ -40,7 +40,7 @@ axes1.Visible = 'off'; % image shows the axes, hide the axes again
 %----------------------------------------------------------------------
 axes2 = make_axes();
 
-colormap(axes2,mymap(:,[4,3,1])); % orange colormap for the objects
+colormap(axes2,xx(:,[4,3,1])); % orange colormap for the objects
 
 % Initialize torus
 angle = linspc(0,1,10)'; % cu and cv are the torus uv vertex locations
@@ -63,8 +63,8 @@ metax = -4:.5:4;
 
 % Initialize fan
 grp_fan = hgtransform('Parent',axes2);
-trimesh = load('trimesh3d');
-h_fan = make_patch(trimesh.tri,[trimesh.x,trimesh.y,trimesh.z]*3,1,[.9,.7,.4],grp_fan,1,'none','none');
+xx = load('trimesh3d');
+h_fan = make_patch(xx.tri,[xx.x,xx.y,xx.z]*3,1,[.9,.7,.4],grp_fan,1,'none','none');
 h_fan.Visible = 'off';
 
 % Initialize wiggly line
@@ -128,8 +128,8 @@ while pattern < 35
     xx = xgrid + xgrid'*1i;
     for ind = 0:2
         ww = 0;
-        for ind2 = [1:3,5]
-            ww = ww + 1./(xx - .7*sin(pi*pattern/34.5*ind2)*exp(1i*ind2*(sum_triggers(5,cur_sample)*2+1)+ind));
+        for yy = [1:3,5]
+            ww = ww + 1./(xx - .7*sin(pi*pattern/34.5*yy)*exp(1i*yy*(sum_triggers(5,cur_sample)*2+1)+ind));
         end
         xx = xx - 3./ww;
     end
@@ -140,10 +140,10 @@ while pattern < 35
     alphaBrain = mod(brain_index,1);
     ind = floor(brain_index);
     ww = ww + max(mri_scaled(:,:,ind)*(1-alphaBrain)+mri_scaled(:,:,ind+1)*alphaBrain,interp([0,2,2.5,3,6,8],[0,0,1,1,0,0],part)*255);    
-    zoom = sync(6)*.1 + 1;
+    yy = sync(6)*.1 + 1;
     for ind = 1:5
-        ww = ww + ww(zoomer(zoom,cos(part)*50+126),zoomer(zoom+sync(7)*.3,sin(part*1.1)*50+126));       
-        zoom = sqrt(zoom);
+        ww = ww + ww(zoomer(yy,cos(part)*50+126),zoomer(yy+sync(7)*.3,sin(part*1.1)*50+126));       
+        yy = sqrt(yy);
     end
        
     % Update image, containing light balls and brain
@@ -209,10 +209,7 @@ while pattern < 35
         h_tree.YData = xx(2);    
         h_tree.ZData = xx(3) - 3;    
         h_tree.LineWidth = fig_width/500;
-    end
-    
-    % Finally, draw the scene (why is it at this position?)
-    draw();
+    end   
    
     % Update metaballs
     if part>4 && part<6
@@ -252,6 +249,9 @@ while pattern < 35
     grp_laser.Matrix = makehgtform('translate',0,0,(512-beat) * 50); % Move lasers with beat
     grp_fan.Matrix = makehgtform('yrotate',pi/2) * makehgtform('zrotate',pattern); % Rotate fan slowly
     h_fan.FaceAlpha = interp([0,5,5.5,7.34,7.4,9],[0,0,.4,.4,0,0],part); % Fade in and fade out fan
+    
+    % Finally, draw the scene
+    draw();
 end
 
 close all
