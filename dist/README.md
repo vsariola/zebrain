@@ -8,6 +8,8 @@ A 4k intro written in MATLAB. `zebrain.p` is the official version submitted to t
 
 Source code: https://github.com/vsariola/zebrain
 
+Full screen capture: https://youtu.be/wvJI-Ik7Ne0
+
 ## Prerequisites to run
 
 1. Fairly new MATLAB, e.g. R2019a or newer. The intro was written and tested on Matlab R2019a & R2019b - win64. It may or may not work on any other platforms. At least R2018a is needed, because it is the first version that supports full screen. Might work windowed with earlier versions, we have not tested (try `zebrain_dbg('window',[]`).
