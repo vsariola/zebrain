@@ -16,3 +16,4 @@ src/song.m
 dist/*.m
 dist/*.p
 run_encode.bat
+zebrain.zip
