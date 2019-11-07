@@ -12,18 +12,19 @@ function demo_opt(varargin)
     parser.addParameter('capture',false);
     parser.addParameter('fps',60);
     parser.addParameter('window','full');
-    parse(parser,varargin{:});
-    
-    if ~exist(outputdir,'dir')
-        mkdir(outputdir);
-    end   
+    parse(parser,varargin{:});   
     
     cachefile = [outputdir,'songcache.mat'];
     
     if ~exist(cachefile,'file') || ~parser.Results.cache
         song;
         player;
-        save(cachefile,'mMixBuf','envs');
+        if parser.Results.cache
+            if ~exist(outputdir,'dir')
+                mkdir(outputdir);
+            end   
+            save(cachefile,'mMixBuf','envs');
+        end
     else
         load(cachefile);
     end      
@@ -35,6 +36,9 @@ function demo_opt(varargin)
     end
     
     if parser.Results.capture
+        if ~exist(outputdir,'dir')
+            mkdir(outputdir);
+        end   
         audiofile =  [outputdir,'audio.wav'];
         videofile =  [outputdir,'video.avi'];
         start_sample = floor(start_time * 44100 + 1);
