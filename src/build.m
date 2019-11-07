@@ -1,4 +1,5 @@
 function build(make_all)
+    addpath('../mat-crunch');
 
     if nargin < 1
         make_all = false;
