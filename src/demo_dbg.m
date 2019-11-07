@@ -6,7 +6,7 @@ function demo_opt(varargin)
     close all;
     
     parser = inputParser;
-    parser.addParameter('start',0);
+    parser.addParameter('start',[]);
     parser.addParameter('cache',true);
     parser.addParameter('mute',false);
     parser.addParameter('capture',false);
@@ -28,7 +28,11 @@ function demo_opt(varargin)
         load(cachefile);
     end      
     
-    start_time = (parser.Results.start * 32 + 16) * 6615 / 44100;
+    if ~isempty(parser.Results.start)
+        start_time = (parser.Results.start * 32 + 16) * 6615 / 44100;
+    else
+        start_time = 0;
+    end
     
     if parser.Results.capture
         audiofile =  [outputdir,'audio.wav'];
