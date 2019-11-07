@@ -69,7 +69,7 @@ h_fan = make_patch(xx.tri,[xx.x,xx.y,xx.z]*3,1,[.9,.7,.4],grp_fan,1,'none','none
 h_fan.Visible = 'off';
 
 % Initialize wiggly line
-h_wiggly = line(0,0,0,'Color',[1,1,1,.5],'LineWidth',5);
+h_wiggly = line(0,0,0,'Color',[1,1,1,.5]);
 
 % Initialize lasers
 grp_laser = hgtransform('Parent',axes2);
@@ -194,6 +194,7 @@ while pattern < 35
         xx = linspc(-2,2,4000) + (part-7)*4;
         yy = sin([.5,.3,.4]*sin([2;3;4]*xx)) .* xx .* xx * 4;
         angle = sin([.7,.4,.3]*sin([5;6;4]*xx)) * 10;
+        h_wiggly.LineWidth = fig_width/300;
         h_wiggly.XData = xx*15 + 10;    
         h_wiggly.YData = yy.*sin(angle) + 20;
         h_wiggly.ZData = yy.*cos(angle) + 7;
