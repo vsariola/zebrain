@@ -1,5 +1,5 @@
 function ret = minify(code)    
-    code = regexprep(code,'(\W+)symbol(\w+)(?=\W)','$1$2');
+    code = strtrim(code);
     code = regexprep(code,'([^%]+)[^\n]*','$1\n');
     code = regexprep(code,'\n',';');
     code = regexprep(code,'\s+',' ');

@@ -1,7 +1,7 @@
-function build(makeopt)
+function build(make_all)
 
     if nargin < 1
-        makeopt = false;
+        make_all = false;
     end
 
     outputdir = '../build/';
@@ -14,72 +14,36 @@ function build(makeopt)
 
     generate_song;
     
-    playersrc = readfile('../src/player.m');
-    s1 = find_symbols(playersrc,{},{'mMixBuf','envs'});
-    n1 = arrayfun(@getcode,1:length(s1),'UniformOutput',false);    
-    
-    effectssrc = readfile('../src/effects.m');
-    effectssrc = strrep(effectssrc,'draw()','drawnow');
-    effectssrc = strrep(effectssrc,'sample()','audio.currentSample;');
-    effectssrc = strrep(effectssrc,'start_music()','play(audio)');
-    s2 = find_symbols(effectssrc,{},{'mMixBuf','envs'});
-    n2 = arrayfun(@getcode,1:length(s2),'UniformOutput',false);    
-    
-    demom = readfile('demo.m');     
-    demom = strrep(demom,'song;', 'songdata=tmpsong;');              
-    demom = strrep(demom,'draw = @drawnow;','');
-    demom = strrep(demom,'sample = @()audio.currentSample;','');
-    demom = strrep(demom,'start_music = @()play(audio);','');       
-    demom = [newline demom newline readfile('../src/camera_setup.m')];            
-    s3 = find_symbols(demom,{'demo','camera_setup','mMixBuf','envs'},[s1,s2]);
-    n3 = arrayfun(@getcode,(1:length(s3))+max(length(n1),length(n2)),'UniformOutput',false);
-    
-    
-    demom = replace_symbols(demom,s3,n3);
-    demom = strrep(demom,'player;',replace_symbols(playersrc,[s1,s3],[n1,n3]));           
-    demom = strrep(demom,'effects;',replace_symbols(effectssrc,[s2,s3],[n2,n3]));      
-    songdata = readfile('../src/song.m');        
-    
-    outputfile = [outputdir outputname '.m'];    
-    writefile(outputfile,demom);
-           
-    % s3 = find_symbols(demom,{'song','endPattern','songData','mCurrentCol','player','gensync','demo','indexCell','indexArray','createNote','row','col','time','camera_setup','xgrid'},[s1,s2]);   ´
-    
-    demom = minify(demom);              
-    demom = strrep(demom,'tmpsong;',songdata(10:end-1));        
-    demom = demom(2:end);    
-    
-    outputfilemin = [outputdir outputname '.min.m'];
-    writefile(outputfilemin,demom);
-    
+    build_file('demo.m',[outputdir outputname]);
     outputfilep = [outputdir outputname '.p'];
-    crunch(outputfilemin,'output',outputfilep,'use_comma',false);   
+    crunch([outputdir outputname '.min.m'],'output',outputfilep,'use_comma',false);   
     
     if ~exist(distdir,'dir')
         mkdir(distdir);
     end
     copyfile(outputfilep,distdir);
     
-    if makeopt
-        demooptm = readfile('demo_opt.m');     
-        demooptm = strrep(demooptm,'song;', readfile('song.m'));        
-        demooptm = strrep(demooptm,'player;',readfile('../src/player.m'));        
-        demooptm = strrep(demooptm,'effects;',readfile('../src/effects.m'));      
-        demooptm = [newline demooptm newline readfile('../src/camera_setup.m')];  
-        demooptm = strrep(demooptm,'(''cache'',true)','(''cache'',false)'); 
-        demooptm = minify(demooptm,[s1,s2,s3],[n1,n2,n3]);    
-        demooptm = strrep(demooptm,'perspective','p');
-        demooptm = demooptm(2:end); 
-
-        outputfileopt = [outputdir outputname '_opt.m'];
-        writefile(outputfileopt,demooptm);
+    if make_all
+        dbgout = [outputdir outputname '_dbg'];
+        build_file('demo_dbg.m',dbgout,true,true);   
         origdir = cd;
         cd(outputdir);
-        pcode([outputname '_opt'],'-inplace');
+        pcode([outputname '_dbg.m'],'-inplace');
         cd(origdir);
+        copyfile([dbgout '.p'],[distdir outputname '_dbg.p']);
         
-        outputfilepopt = [outputdir outputname '_opt.p'];        
-        copyfile(outputfilepopt,distdir)
+        noiptout = [outputdir outputname '_noipt'];
+        build_file('demo.m',noiptout,false);
+        crunch([noiptout '.min.m'],'output',[noiptout '.p'],'use_comma',false);  
+        copyfile([noiptout '.p'],distdir);        
+        
+        dbgout_noipt = [outputdir outputname '_dbg_noipt'];
+        build_file('demo_dbg.m',dbgout_noipt,false,true);   
+        origdir = cd;
+        cd(outputdir);
+        pcode([outputname '_dbg_noipt.m'],'-inplace');
+        cd(origdir);
+        copyfile([dbgout_noipt '.p'],[distdir outputname '_dbg_noipt.p']);
     end
 
     rehash
@@ -97,22 +61,62 @@ function str = readfile(filename)
     fclose(f);
 end
 
-function ret = getcode(i)
-    valids = [char(97:122) char(65:88)]; % a-z A-X, the variable
-    % has to start with a letter. We don't need underscores and digits
-    % because they can only be used when there is two or more letters
-    % and if we hit two letters, it's unlikely we hit three
+function build_file(input_file,output_file,use_ipt,debug)
+    if nargin < 3
+        use_ipt = true;
+    end
+    if nargin < 4
+        debug = false;
+    end
     
-    n = length(valids);        
-    ret = [];
-    for j = 1:10
-        if (i <= n)            
-            ret = [valids(i) ret];    
-            return;
-        else
-            c = mod(i-1,n);
-            ret = [valids(c+1) ret];        
-            i = (i -1- c)/n;               
-        end
+    playersrc = readfile('../src/player.m');
+    
+    effectssrc = readfile('../src/effects.m');
+    if ~debug       
+        effectssrc = strrep(effectssrc,'draw()','drawnow');
+        effectssrc = strrep(effectssrc,'sample()','audio.currentSample;');
+        effectssrc = strrep(effectssrc,'start_music()','play(audio)');
+    end
+    if ~use_ipt % patch the code to not use the image processing code, effectively negating commit #5e828d4
+        effectssrc = strrep(effectssrc,'xx = load(''mristack'');','');
+        effectssrc = strrep(effectssrc,'mri_scaled = smooth3(xx.mristack,''box'',5);','mri_scaled = double(interp3(yy,1));');
+        effectssrc = strrep(effectssrc,'zoomer = @(a,b)mod(round(((0:255)-b)/a+b),256)+1;','zoomer = @(a,b)mod(round(((0:254)-b)/a+b),255)+1;');
+        effectssrc = strrep(effectssrc,'[xgrid,~] = ndgrid(linspc(-3,3,256));','[xgrid,~] = ndgrid(linspc(-3,3,255));');
+        effectssrc = strrep(effectssrc,'ind = 20*part/9 + 1;','ind = 52*(1-part/9) + 1;');
+    end
+    
+    demom = readfile(input_file);      
+    if ~debug
+        demom = strrep(demom,'draw = @drawnow;','');
+        demom = strrep(demom,'sample = @()audio.currentSample;','');
+        demom = strrep(demom,'start_music = @()play(audio);','');  
+    else
+        demom = strrep(demom,'(''cache'',true)','(''cache'',false)'); % disable caching in the released debug script        
+    end
+    demom = [newline demom newline readfile('../src/camera_setup.m')];  
+    
+    songsrc = readfile('../src/song.m');
+    
+    if ~debug
+        [sp,np] = find_symbols(playersrc,{},{'mMixBuf','envs'});   
+        [se,ne] = find_symbols(effectssrc,{},{'mMixBuf','envs'});
+        [sd,nd] = find_symbols(demom,{'songdata','demo','camera_setup','mMixBuf','envs'},[sp,se],max(length(np),length(ne)));
+        demom = replace_symbols(demom,sd,nd);
+        playersrc = replace_symbols(playersrc,[sp,sd],[np,nd]);
+        effectssrc = replace_symbols(effectssrc,[se,sd],[ne,nd]);
+        songsrc = replace_symbols(songsrc,[se,sd],[ne,nd]);        
+    end
+    demom = strrep(demom,'player;',playersrc);           
+    demom = strrep(demom,'effects;',effectssrc);      
+
+    demom_before_min = strrep(demom,'song;',songsrc);    
+    outputfile = [output_file '.m'];    
+    writefile(outputfile,demom_before_min);
+    
+    if ~debug
+        demom = minify(demom);    
+        demom = strrep(demom,'song;',songsrc); % songdata doesn't like minification so we put it there only after minifiers      
+        outputfilemin = [output_file '.min.m'];
+        writefile(outputfilemin,demom);
     end
 end

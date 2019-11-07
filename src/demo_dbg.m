@@ -46,9 +46,9 @@ function demo_opt(varargin)
     else 
         draw = @drawnow;
         if ~parser.Results.mute
-            a = audioplayer(mMixBuf,44100);
-            start_music = @()play(a,floor(start_time*44100+1));
-            sample = @()a.currentSample;
+            audio = audioplayer(mMixBuf,44100);
+            start_music = @()play(audio,floor(start_time*44100+1));
+            sample = @()audio.currentSample;
         else
             start_music = @tic;
             sample = @()floor((start_time+toc)*44100+1);
