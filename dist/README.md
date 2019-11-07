@@ -59,7 +59,7 @@ ascii: apollo/bC!
 
 ## Kudos
 
-m/Bits'n'Bytes, who wrote [Soundbox](https://github.com/mbitsnbites/soundbox), the tracker used for the music
+m/Bits'n'Bites, who wrote [Soundbox](https://github.com/mbitsnbites/soundbox), the tracker used for the music
 
 p01, whose [write-ups](http://www.p01.org/) about 4k development in javascript also helped and inspired methods how to write shorter code in MATLAB
 
