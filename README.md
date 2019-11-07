@@ -2,7 +2,7 @@
 
 Source code for the 4k intro "zebrain" by bC! & TPOLM.
 
-See [dist/README.md](../blob/master/dist/README.md) for more details.
+See [dist/README.md](../master/dist/README.md) for more details.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ See [dist/README.md](../blob/master/dist/README.md) for more details.
 
 1. Change MATLAB current directory to `src/`
 2. Run `demo`
-3. Alternatively, run `demo_dbg`, with the options as described in [dist/README.md](../blob/master/dist/README.md)
+3. Alternatively, run `demo_dbg`, with the options as described in [dist/README.md](../master/dist/README.md)
 
 ## Build
 
@@ -25,4 +25,4 @@ See [dist/README.md](../blob/master/dist/README.md) for more details.
 
 ## License
 
-[MIT](../blob/master/LICENSE)
+[MIT](../master/LICENSE)
