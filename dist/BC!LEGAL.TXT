@@ -1,0 +1,76 @@
+                          ........................
+                          
+         :÷÷÷÷yyyyl             :÷÷÷÷yyyy÷÷÷÷:
+         :•l ... •l             :•l ...... l?
+          •l ::: l?             •l :::::: l?
+          l?::: :?             l?:::::: •l
+          l?:::. ?      ˝˝¸¸¸¸¸¸""   __,,,?:::::: •l
+          :? ::: •l”””§§§§yyyy÷÷÷÷÷÷÷÷yyyy§§§§§§••••ΩΩΩ•••: :::: :?
+           ? ::: ll      •• ... l••l ... ••  :•l:::::l••: :::: :?
+           ll ::: :?     •l ::: l••l ::: l?l: •l::::,l•ll :::: ll
+           l?::: :?    :?.::: •ll?:::. ? : ΩΩΩ¸¸¸"""l?:::: •l
+           :?:::. •l    l?:::: ?:?:::: •l l ∑∑∑yy§§§•:?:::: ?  h7/bC!
+            ? ::: •l    l?::: :? ? ::: •l l l?:::::?? :: :?
+            ll ::: l?   •l ::: ll  ll ::: l?ΩΩ •l:::: ll ll :: ll
+            lluuu§§§••••••§§§uuull  lluuu§§§••••••§§§uuull lluuuull
+                          ∑∑∑∑∑∑∑∑∑∑∑∑∑∑∑∑∑∑∑∑∑∑∑∑         ∑•§§§uy:
+                                   l?:: •l
+                                   "˝˝¸¸""^
+.......................................................
+:                                                                             :
+:                    The disclaimer / Licence / Copyright                     :
+:                    ------------------------------------                     :
+:                                                                             :
+:    Hello, this software is NOT FREEWARE. Or maybe it is. Whatever, just     :
+:    don't sue us. All copyrights to this software  are exclusively owned     :
+:    by the author, BRAINLEZ CODERS!. All rights not expressly granted        :
+:    here, are reserved by BRAINLEZ CODERS!                                   :
+:                                                                             :
+:    This software may be freely distributed, provided the distribution       :
+:    package is not modified. No person or company may charge a fee for       :
+:    the distribution of this production without written permission from      :
+:    the copyright holder. This means practically every CD-ROM/disk           :
+:    collections of software, too. If you want to include this software       :
+:    into your commercially distributed collection/whatever, contact the      :
+:    author first. (See the contacting info introduced in BC!INFO.TXT)        :
+:    EXCEPTION: If you are making a demoscene collection and will sell        :
+:    it as non-profit one, (For example collections like ACE series) you      :
+:    are allowed to include this software on it, but please, try to send      :
+:    us a note and a free CD if you're going to do that.                      :
+:                                                                             :
+:    This software is distributed "AS IS". No warranty of any kind is         :
+:    expressed or implied. YOU USE IT AT YOUR OWN RISK! The author will       :
+:    not be liable for data loss, damages, loss of profits or any other       :
+:    kind of loss while using or misusing this software. We test our soft-    :
+:    wares in several computers before public distribution to make the        :
+:    software more safe to use. Our softwares are also virus scanned, also    :
+:    with heuretics flag, to make them absolutely clean and harmless before   :
+:    public can reach them. Anyways, you must remember that we aren't         :
+:    trained professionals and we cannot make sure the software works         :
+:    in the very same way in every system it is used. The author will         :
+:    not be liable for anything this software causes. This software           :
+:    may be very hardware sensible, so we can not guarentee that it will      :
+:    work properly on your configuration. Running under Octave or             :
+:    Matlab < R2018a is very stupid and may cause SERIOUS                     :
+:    DAMAGE to your computer - And please, do run DOS programs in DOS boot    :
+:    only!                                                                    :
+:                                                                             :
+:    Any connections in this production to the real life, persons,            :
+:    happenings, what-so-ever, are just causes of your wild imagination,      :
+:    or is accidentally there. The author is not responsible for any          :
+:    material included in this package.                                       :
+:                                                                             :
+:    Using this software signifies complete acceptance of these terms         :
+:    and conditions of this file. If you do not agree with the terms of       :
+:    this file, you must remove the files of this software from your          :
+:    storage devices and cease to use the product.                            :
+:                                                                             :
+:                                                                             :
+:    (C) Copyright 1997, 2019 Brainlez Coders!                                :
+:    All rights reserved.                                                     :
+:                                                                             :
+:                                                                             :
+:    Windows(tm) is registered trademark of Microsoft Corp                    :
+:                                                                             :
+:.............................................................................:
+
