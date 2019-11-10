@@ -13,8 +13,9 @@ See [dist/README.md](../master/dist/README.md) for more details.
 ## Running
 
 1. Change MATLAB current directory to `src/`
-2. Run `demo`
-3. Alternatively, run `demo_dbg`, with the options as described in [dist/README.md](../master/dist/README.md)
+2. (First time only) Run `generate_song`
+3. Run `demo`
+4. Alternatively, run `demo_dbg`, with the options as described in [dist/README.md](../master/dist/README.md)
 
 ## Build
 
