@@ -102,7 +102,7 @@ axes3.Visible = 'off'; % Image shows axes, must hide again
 % Initialize axes4, which contains the texts
 %----------------------------------------------------------------------
 axes4 = make_axes();
-texts = {'\___\zz\/z_\_z_z__\z_z_zzz.z~z\/\_·z/\zzz\z\-\/z\\z\z\zz.','__z__z\__z_z__.z_zz~z/_\/__\/z\´\_\\\z\','4096 bytesz|zMATLABz|zDemosplash 2019','.s$s,s$s,~¶§§§§§§§²~`§§§§P´~`§´','m/Bits''n''Bites~p01/ribbon~Brothomstates~CNCD TBC MFX~Orange NoooN~ASD Kooma pWp~Byterapers','___\¯¯¯¯¯¯¯¯¯¯¯\z¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/___~__\zzz·:zcodez:·zz`zzzz·:zmusicz:·zzzz/__~\zz`zpestisz/zbC!zzzdistancez/zTPOLMz´zz/~\______zzzzzzz·:zasciiz:·zzzzzz_______/~/z:zzzzzzzapolloz/zbC!zzzzz:zz\~`-----/__________________\----´'};
+texts = {'\___\zz\/z_\_z_z__\z_z_zzz.z~z\/\_.z/\zzz\z\-\/z\\z\z\zz.','__z__z\__z_z__.z_zz~z/_\/__\/z\''\_\\\z\','4096 bytesz|zMATLABz|zDemosplash 2019','.sSs,sSs,~qSSSSSSSp~`SSSSS''~`S''','m/Bits''n''Bites~p01/ribbon~Brothomstates~CNCD TBC MFX~Orange NoooN~ASD Kooma pWp~Byterapers','___________zz________________~___\zzzzzzzzzzz\zzzzzzzzzzzzzzzzz/___~__\zzz.:zcodez:.zz`zzzz.:zmusicz:.zzzz/__~\zz`zpestisz/zbC!zzzdistancez/zTPOLMz''zz/~\______zzzzzzz.:zasciiz:.zzzzzz_______/~/z:zzzzzzzapolloz/zbC!zzzzz:zz\~`-----/__________________\----'''};
 text_times = [128,192;152,216;644,734;800,896;808,896;1016,1080];
 text_times = reshape([text_times;text_times+4],6,[]);
 h_text = arrayfun(@(x,y,z)text(x,y,z,'','horizontalAlign','center','fontweight','bold','fontname','Courier New','Color','w','interpreter','none'),[10,10,10,20,20,8],[4,4,4,60,60,.5],[4,-1,-1,30,-10,.5]);

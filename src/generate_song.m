@@ -118,7 +118,15 @@ function exportArray(f,array)
     end
     fprintf(f,'''');
     for i = 1:length(array)
-       fprintf(f,'%s',char(array(i)+160));      
+        shifted = array(i) + 32;
+        if shifted > 127
+            error("chars > 127 are not legal")
+        end        
+        if shifted == 39
+            fprintf(f,'''''');      
+        else
+            fprintf(f,'%s',char(shifted));      
+        end
     end
     fprintf(f,'''');
 end

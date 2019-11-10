@@ -41,7 +41,7 @@ for mCurrentCol = 1:7
     % Put performance critical items in local variables
     chnBuf = zeros(2,mNumSamples);
     instr = songdata{mCurrentCol};
-    instrparams = instr{1}-160;       
+    instrparams = instr{1}-32;       
 
     attack = instrparams(11)^2 * 4;
     release = instrparams(13)^2 * 16;        
@@ -57,11 +57,11 @@ for mCurrentCol = 1:7
 
     % Patterns
     for p = 1:length(instr{2})
-        cp = instr{2}(p)-160;  
+        cp = instr{2}(p)-32;  
 
         if cp            
             % Pattern rows
-            pat = instr{3}{cp}-160;
+            pat = instr{3}{cp}-32;
             for rc = 1:length(pat)
                 % Calculate start sample number for this row in the pattern
                 rowStartSample = (p * 32 - 16 + mod(rc-1,32)) * rowLen;
