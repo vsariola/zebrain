@@ -10,6 +10,8 @@ Source code: https://github.com/vsariola/zebrain
 
 Full screen capture: https://youtu.be/wvJI-Ik7Ne0
 
+Note! There are a few known issues, see [known issues](#Known-issues) for solutions.
+
 ## Prerequisites to run
 
 1. Fairly new MATLAB, e.g. R2019a or newer. The intro was written and tested on Matlab R2019a & R2019b - win64. It may or may not work on any other platforms. At least R2018a is needed, because it is the first version that supports full screen. Might work windowed with earlier versions, we have not tested (try `zebrain_dbg('window',[]`).
@@ -35,6 +37,12 @@ To combine the .avi and .wav files, ffmpeg can be used with the following comman
 `zebrain_dbg('window',[])` run the demo windowed, instead of full screen.
 
 `zebrain_dbg('start',pat)` start the demo from pattern `pat`, which should be from 0 to 34.
+
+## Known issues
+
+1. "Requested 17094516516x1 (127.4GB) array exceeds maximum array size preference." or "Out of memory." Solution: run `feature('DefaultCharacterSet','windows-1252')` before starting the demo.
+2. The demo may be slow and glitchy on 4K monitors, manually change to a lower screen resolution before running the demo.
+3. If you get audio, but only blank screen, you probably do not have Image Processing Toolbox. Run `zebrain_noipt` instead.
 
 ## How does it work
 
