@@ -1,5 +1,5 @@
 rng(0); % Initialize rng, so that demo is always the same
-
+'padding4096';
 %------------------------------------
 % Shorthands for often used functions
 %------------------------------------
