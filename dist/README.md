@@ -40,9 +40,9 @@ To combine the .avi and .wav files, ffmpeg can be used with the following comman
 
 ## Known issues
 
-1. "Requested 17094516516x1 (127.4GB) array exceeds maximum array size preference." or "Out of memory." Solution: run `feature('DefaultCharacterSet','windows-1252')` before starting the demo.
-2. The demo may be slow and glitchy on 4K monitors, manually change to a lower screen resolution before running the demo.
-3. If you get audio, but only blank screen, you probably do not have Image Processing Toolbox. Run `zebrain_noipt` instead.
+1. The demo may be slow and glitchy on 4K monitors, manually change to a lower screen resolution before running the demo.
+2. If you get audio, but only blank screen, you probably do not have Image Processing Toolbox. Run `zebrain_noipt` instead.
+3. The demo might lag a bit during the first run, probably because MATLAB is loading something on the fly. It is much smoother during the second run.
 
 ## How does it work
 
